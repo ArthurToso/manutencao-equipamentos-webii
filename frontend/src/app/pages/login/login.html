@@ -1,0 +1,80 @@
+<div class="login-screen">
+
+  <aside class="login-screen__brand">
+    <div class="login-screen__brand-inner">
+      <div class="brand-mark">
+        <span class="brand-mark__index">01</span>
+        <span class="brand-mark__name">Manutenção<br />de Equipamentos</span>
+      </div>
+
+      <p class="brand-tagline">
+        Controle de solicitações de serviço, do registro até a finalização,
+        com histórico completo de cada alteração de estado.
+      </p>
+
+      <ul class="state-legend" aria-label="Estados de uma solicitação">
+        <li *ngFor="let estado of estados" class="state-legend__item">
+          <span class="state-legend__dot" [style.background]="estado.cor"></span>
+          <span class="state-legend__label">{{ estado.nome }}</span>
+        </li>
+      </ul>
+    </div>
+  </aside>
+
+  <main class="login-screen__form">
+    <div class="login-form">
+      <header class="login-form__header">
+        <h1>Entrar</h1>
+        <p>Acesse com o e-mail e a senha cadastrados.</p>
+      </header>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+        <div class="field">
+          <label for="email">E-mail</label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            autocomplete="username"
+            placeholder="nome@empresa.com"
+          />
+          <p class="field__error" *ngIf="email?.invalid && email?.touched">
+            <ng-container *ngIf="email?.errors?.['required']">Informe seu e-mail.</ng-container>
+            <ng-container *ngIf="email?.errors?.['email']">Informe um e-mail válido.</ng-container>
+          </p>
+        </div>
+
+        <div class="field">
+          <div class="field__label-row">
+            <label for="senha">Senha</label>
+            <a routerLink="/recuperar-senha" class="field__aux-link">Esqueci minha senha</a>
+          </div>
+          <input
+            id="senha"
+            type="password"
+            formControlName="senha"
+            autocomplete="current-password"
+            placeholder="••••••"
+          />
+          <p class="field__error" *ngIf="senha?.invalid && senha?.touched">
+            Informe sua senha.
+          </p>
+        </div>
+
+        <p class="form-error" *ngIf="loginError">{{ loginError }}</p>
+
+        <button type="submit" class="btn-primary" [disabled]="submitting">
+          <span *ngIf="!submitting">Entrar</span>
+          <span *ngIf="submitting">Entrando…</span>
+        </button>
+      </form>
+
+      <p class="login-form__footer">
+        Ainda não tem cadastro?
+        <a routerLink="/cadastro">Criar conta de cliente</a>
+      </p>
+    </div>
+  </main>
+
+</div>
