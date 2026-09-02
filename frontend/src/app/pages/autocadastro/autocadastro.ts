@@ -2,12 +2,15 @@ import { HttpClient } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { FormGroup } from "@angular/forms";
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
+import { ViaCepResponse } from './response';
 
 @Component({
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, NgxMaskDirective],
   selector: 'app-autocadastro',
   styleUrl: './autocadastro.css',
   templateUrl: './autocadastro.html',
+  providers: [provideNgxMask({validation: false})]
 })
 export class Autocadastro {
   
@@ -24,8 +27,7 @@ export class Autocadastro {
     cpf: new FormControl('',
       [
         Validators.required,
-        Validators.minLength(11),
-        Validators.maxLength(11)
+        Validators.minLength(11)
       ]
     ),
     email: new FormControl('',
@@ -40,8 +42,7 @@ export class Autocadastro {
       cep: new FormControl('', 
         [
           Validators.required,
-          Validators.minLength(8),
-          Validators.maxLength(8)
+          Validators.minLength(8)
         ]
       ),
       logradouro: new FormControl('', Validators.required),
@@ -52,7 +53,7 @@ export class Autocadastro {
       uf: new FormControl('', Validators.required),
     }),
 
-    telefone: new FormControl('', Validators.required)
+    telefone: new FormControl('', [Validators.required, Validators.minLength(10)])
   })
 
   onSubmit(){
@@ -76,7 +77,7 @@ export class Autocadastro {
       return
     }
 
-    this.http.get<CamposEndereco>(`https://viacep.com.br/ws/${cep}/json/`).subscribe({
+    this.http.get<ViaCepResponse>(`https://viacep.com.br/ws/${cep}/json/`).subscribe({
       next: (resposta) => {
         this.erroRequisicao = false
         this.cepNaoEncontrado = false
@@ -90,6 +91,7 @@ export class Autocadastro {
         }
       },
       error: (err) => {
+        console.error(err)
         this.erroRequisicao = true
       } 
     });

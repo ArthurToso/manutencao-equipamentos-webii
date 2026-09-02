@@ -6,13 +6,11 @@
                     <legend>Dados Pessoais</legend>               
                     <div class="mb-3">
                         <label for="cpf" class="form-label">CPF: </label>
-                        <input id="cpf" type="text" formControlName="cpf" class="form-control" 
+                        <input id="cpf" type="text" formControlName="cpf" mask="000.000.000-00" class="form-control" 
                         [class.is-invalid]="temErro('cpf', 'required') || 
-                                            temErro('cpf', 'minlength') ||
-                                            temErro('cpf', 'maxlength')">
+                                            temErro('cpf', 'minlength')">
                         @if (temErro('cpf', 'required')) {<div class="invalid-feedback">CPF é obrigatório</div>}
                         @if (temErro('cpf', 'minlength')) {<div class="invalid-feedback">CPF precisa conter 11 digitos</div>}
-                        @if (temErro('cpf', 'maxlength')) {<div class="invalid-feedback">CPF precisa conter 11 digitos</div>}
                     </div>
                     <div class="mb-3">
                         <label for="email" class="form-label">Email: </label>
@@ -29,9 +27,11 @@
                     </div>
                     <div class="mb-3">
                         <label for="telefone" class="form-label">Telefone: </label>
-                        <input id="telefone" type="text" formControlName="telefone" class="form-control"
-                        [class.is-invalid]="temErro('telefone', 'required')">
+                        <input id="telefone" type="text" formControlName="telefone" class="form-control" 
+                        mask="(00) 0000-0000||(00) 0 0000-0000"
+                        [class.is-invalid]="temErro('telefone', 'required') || temErro('telefone', 'minlength')">
                         @if (temErro('telefone', 'required')) {<div class="invalid-feedback">Telefone é obrigatório</div>}
+                        @if (temErro('telefone', 'minlength')) {<div class="invalid-feedback">Telefone precisa conter 10 ou 11 dígitos</div>}
                     </div>
                 </fieldset>
                 
@@ -40,13 +40,11 @@
                     <div formGroupName="endereco" class="mb-3">
                         <div class="mb-3">        
                             <label for="cep" class="form-label">CEP: </label>
-                            <input id="cep" type="text" formControlName="cep" (blur)="buscarCep()" class="form-control"
+                            <input id="cep" type="text" formControlName="cep" (blur)="buscarCep()" class="form-control" mask="00000-000"
                             [class.is-invalid]="temErro('endereco.cep', 'required') ||
-                                                temErro('endereco.cep', 'minlength') ||
-                                                temErro('endereco.cep', 'maxlength')">
+                                                temErro('endereco.cep', 'minlength')">
                             @if (temErro('endereco.cep', 'required')) {<div class="invalid-feedback">CEP é obrigatório</div>}
                             @if (temErro('endereco.cep', 'minlength')) {<div class="invalid-feedback">CEP precisa conter 8 digitos</div>}
-                            @if (temErro('endereco.cep', 'maxlength')) {<div class="invalid-feedback">CEP precisa conter 8 digitos</div>}
                             @if (cepNaoEncontrado) {<div class="text-danger">CEP inválido</div>}
                             @if (erroRequisicao) {<div class="text-danger">Erro na requisição, tente novamente</div>}
                         </div>
