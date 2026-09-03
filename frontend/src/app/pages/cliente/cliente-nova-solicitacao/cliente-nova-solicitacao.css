@@ -5,9 +5,11 @@
 
 .form-header {
   margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
 }
 
-.form-header h1 {
+.form-header div h1 {
   font-family: var(--font-display);
   font-size: 1.8rem;
   font-weight: 600;
@@ -16,10 +18,20 @@
   color: var(--color-ink);
 }
 
-.form-header p {
+.form-header div p {
   font-size: 0.95rem;
   color: var(--color-slate);
   margin: 0;
+}
+
+.btn--primary {
+  background: var(--color-accent);
+  color: #FFFFFF;
+  font-weight: 500;
+}
+
+.btn--primary:hover {
+  background: var(--color-accent-hover);
 }
 
 .custom-form {

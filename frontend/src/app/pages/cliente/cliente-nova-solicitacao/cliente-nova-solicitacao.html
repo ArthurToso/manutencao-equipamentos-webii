@@ -1,8 +1,14 @@
 <div class="form-container">
   
   <header class="form-header">
-    <h1>Nova Solicitação</h1>
-    <p>Preencha os dados abaixo para registrar um novo equipamento.</p>
+    <div>
+      <h1>Nova Solicitação</h1>
+      <p>Preencha os dados abaixo para registrar um novo equipamento.</p>
+    </div>
+  
+    <button class="btn btn--primary" routerLink="/cliente/home">
+      🠔 Voltar
+    </button>
   </header>
 
   <form id="form-solicitacao" class="custom-form">
@@ -25,7 +31,6 @@
     </div>
 
     <div class="form-actions">
-      <!-- Adicionei um botão de voltar/cancelar para melhorar a navegação -->
       <button type="button" class="btn btn--secondary" routerLink="/cliente/home">Cancelar</button>
       <button type="button" class="btn btn--primary">Registrar solicitação</button>
     </div>

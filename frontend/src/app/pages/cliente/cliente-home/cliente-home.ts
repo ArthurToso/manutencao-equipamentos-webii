@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 
 interface Solicitacao {
   id: number;
@@ -11,7 +12,7 @@ interface Solicitacao {
 @Component({
   selector: 'app-cliente-home',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './cliente-home.html',
   styleUrl: './cliente-home.scss'
 })
