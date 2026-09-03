@@ -1,0 +1,47 @@
+<div class="requests-board">
+  
+  <header class="requests-board__header">
+    <div class="requests-board__title-group">
+      <h1>Minhas Solicitações</h1>
+      <p>Acompanhe o status e histórico dos seus equipamentos.</p>
+    </div>
+    
+    <button class="btn btn--primary" routerLink="/cliente/nova-solicitacao">
+      + Nova Solicitação
+    </button>
+  </header>
+
+  <div class="request-card" *ngFor="let solicitacao of solicitacoes">
+    <div class="request-card__header">
+      <span class="request-card__date">{{ solicitacao.dataHora | date:'dd/MM/yyyy HH:mm' }}</span>
+      <span class="state-badge" [ngClass]="'state-badge--' + solicitacao.estado.toLowerCase()">
+        {{ solicitacao.estado }}
+      </span>
+    </div>
+    
+    <div class="request-card__body">
+      <h3 class="request-card__title">{{ getEquipamentoLimitado(solicitacao.equipamento) }}</h3>
+    </div>
+
+    <div class="request-card__actions">
+      <button class="btn btn--secondary">Visualizar Solicitação</button>
+      
+      <button *ngIf="solicitacao.estado === 'ORÇADA'" class="btn btn--primary">
+        Aprovar/Rejeitar Serviço
+      </button>
+      
+      <button *ngIf="solicitacao.estado === 'REJEITADA'" class="btn btn--warning">
+        Resgatar Serviço
+      </button>
+      
+      <button *ngIf="solicitacao.estado === 'ARRUMADA'" class="btn btn--success">
+        Pagar Serviço
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="solicitacoes.length === 0" class="empty-state">
+    <p>Você ainda não possui solicitações de manutenção.</p>
+  </div>
+
+</div>

@@ -1,0 +1,82 @@
+<div class="form-container">
+  
+  <header class="form-header">
+    <div>
+      <h1>Nova Solicitação</h1>
+      <p>Preencha os dados abaixo para registrar um novo equipamento.</p>
+    </div>
+  
+    <button class="btn btn--primary" routerLink="/cliente/home">
+      🠔 Voltar
+    </button>
+  </header>
+
+  
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="custom-form" novalidate>
+    
+    <div class="form-group">
+      <label for="equipamento">Descrição do equipamento</label>
+      <input 
+        type="text" 
+        id="equipamento" 
+        formControlName="equipamento" 
+        class="form-input" 
+        placeholder="Ex: Notebook Dell Inspiron 15"
+        maxlength="100">
+      
+      
+      <div class="field__meta" *ngIf="equipamento?.invalid && equipamento?.touched || equipamento?.value">
+        <p class="field__error" *ngIf="equipamento?.invalid && equipamento?.touched">
+          <ng-container *ngIf="equipamento?.errors?.['required']">Informe a descrição do equipamento.</ng-container>
+          <ng-container *ngIf="equipamento?.errors?.['maxlength']">Limite de 100 caracteres.</ng-container>
+        </p>
+        <span class="field__counter" [class.margin-auto]="!(equipamento?.invalid && equipamento?.touched)">
+          {{ equipamento?.value?.length || 0 }}/100
+        </span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="categoria">Categoria do equipamento</label>
+      <select id="categoria" formControlName="categoria" class="form-input">
+        <option value="" disabled selected>Selecione uma categoria...</option>
+        <!-- Loop dinâmico criado pelo colega -->
+        <option *ngFor="let cat of categorias" [value]="cat">{{ cat }}</option>
+      </select>
+      
+      <p class="field__error" *ngIf="categoria?.invalid && categoria?.touched">
+        Selecione uma categoria.
+      </p>
+    </div>
+
+    <div class="form-group">
+      <label for="defeito">Descrição do defeito</label>
+      <textarea 
+        id="defeito" 
+        formControlName="defeito" 
+        class="form-input form-textarea" 
+        placeholder="Descreva o problema apresentado"
+        [maxlength]="limiteDescricaoDefeito"></textarea>
+      
+      <div class="field__meta" *ngIf="defeito?.invalid && defeito?.touched || defeito?.value">
+        <p class="field__error" *ngIf="defeito?.invalid && defeito?.touched">
+          Descreva o defeito apresentado.
+        </p>
+        <span class="field__counter" [class.margin-auto]="!(defeito?.invalid && defeito?.touched)">
+          {{ defeito?.value?.length || 0 }}/{{ limiteDescricaoDefeito }}
+        </span>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn--secondary" routerLink="/cliente/home">Cancelar</button>
+      
+      
+      <button type="submit" class="btn btn--primary" [disabled]="submitting">
+        <span *ngIf="!submitting">Registrar solicitação</span>
+        <span *ngIf="submitting">Registrando…</span>
+      </button>
+    </div>
+  </form>
+
+</div>
