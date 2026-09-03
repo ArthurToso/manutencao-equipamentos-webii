@@ -107,11 +107,12 @@
   gap: 1rem;
 }
 
+
 .btn {
   font-family: var(--font-body);
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: 600;
-  padding: 0.65rem 1.25rem;
+  padding:clamp(0.1rem, 1vw, 3rem) clamp(0rem, 1.5vw, 3.5rem);
   border-radius: 4px;
   cursor: pointer;
   border: none;
