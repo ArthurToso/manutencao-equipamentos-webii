@@ -1,21 +1,86 @@
-<form id="form-solicitacao">
-    <div>
-        <label for="equipamento">Descrição do equipamento</label>
-        <input type="text" id="equipamento" name="equipamento" required>
-    </div>
+<div class="client-screen">
 
-    <div>
-        <label for="categoria">Categoria do equipamento</label>
-        <select id="categoria" name="categoria" required>
-            <option value="" disabled selected>Selecione uma categoria...</option>
-            <option value="Informática">Informática</option>
-        </select>
+  <header class="client-screen__header">
+    <div class="client-screen__header-inner">
+      <div class="brand-mark">
+        <span class="brand-mark__index">01</span>
+        <span class="brand-mark__name">Manutenção<br />de Equipamentos</span>
+      </div>
+      <div class="user-profile">
+        <span class="user-profile__name">Área do Cliente</span>
+      </div>
     </div>
+  </header>
 
-    <div>
-        <label for="defeito">Descrição do defeito</label>
-        <textarea id="defeito" name="defeito" required></textarea>
+  <main class="client-screen__content">
+    <div class="request-form-board">
+
+      <header class="request-form-board__header">
+        <a routerLink="/cliente/home" class="back-link">&larr; Minhas solicitações</a>
+        <h1>Nova solicitação de manutenção</h1>
+        <p>Descreva o equipamento e o problema encontrado. A empresa apresentará um orçamento em seguida.</p>
+      </header>
+
+      <form class="request-form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+        <div class="field">
+          <label for="equipamento">Descrição do equipamento</label>
+          <input
+            id="equipamento"
+            type="text"
+            formControlName="equipamento"
+            placeholder="Ex: Notebook Dell Inspiron 15"
+            maxlength="100"
+          />
+          <div class="field__meta">
+            <p class="field__error" *ngIf="equipamento?.invalid && equipamento?.touched">
+              <ng-container *ngIf="equipamento?.errors?.['required']">Informe a descrição do equipamento.</ng-container>
+              <ng-container *ngIf="equipamento?.errors?.['maxlength']">Limite de 100 caracteres.</ng-container>
+            </p>
+            <span class="field__counter">{{ equipamento?.value?.length || 0 }}/100</span>
+          </div>
+          <p class="field__hint">
+            Na sua lista de solicitações, essa descrição aparecerá resumida em até 30 caracteres (RF003).
+          </p>
+        </div>
+
+        <div class="field">
+          <label for="categoria">Categoria do equipamento</label>
+          <select id="categoria" formControlName="categoria">
+            <option value="" disabled selected>Selecione uma categoria…</option>
+            <option *ngFor="let cat of categorias" [value]="cat">{{ cat }}</option>
+          </select>
+          <p class="field__error" *ngIf="categoria?.invalid && categoria?.touched">
+            Selecione uma categoria.
+          </p>
+        </div>
+
+        <div class="field">
+          <label for="defeito">Descrição do defeito</label>
+          <textarea
+            id="defeito"
+            formControlName="defeito"
+            rows="5"
+            placeholder="Descreva o problema apresentado pelo equipamento"
+            [maxlength]="limiteDescricaoDefeito"
+          ></textarea>
+          <div class="field__meta">
+            <p class="field__error" *ngIf="defeito?.invalid && defeito?.touched">
+              Descreva o defeito apresentado.
+            </p>
+            <span class="field__counter">{{ defeito?.value?.length || 0 }}/{{ limiteDescricaoDefeito }}</span>
+          </div>
+        </div>
+
+        <div class="request-form__actions">
+          <a routerLink="/cliente/home" class="btn btn--secondary">Cancelar</a>
+          <button type="submit" class="btn btn--primary" [disabled]="submitting">
+            <span *ngIf="!submitting">Registrar solicitação</span>
+            <span *ngIf="submitting">Registrando…</span>
+          </button>
+        </div>
+
+      </form>
     </div>
-
-    <button type="button">Registrar solicitação</button>
-</form>
+  </main>
+</div>
