@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@500;600&family=Inter:wght@400;500;600&display=swap');
+
 html, body {
   margin: 0;
   padding: 0;
@@ -17,3 +19,24 @@ app-root {
   box-sizing: border-box;
 }
  /* You can add global styles to this file, and also import other style files */
+
+ :root {
+  /* Variáveis mantidas para o header ter acesso às cores e fontes */
+  --color-ink: #1B222C;
+  --color-slate: #445068;
+  --color-navy: #1E2734;
+  --color-navy-2: #26313F;
+  --color-paper: #F7F8FA;
+  --color-line: #DCE1E8;
+  --color-accent: #2D5FAE;
+  --color-accent-hover: #234A8A;
+  --color-error: #C0453A;
+  --color-warning: #D97706;
+  --color-success: #10B981;
+  --color-muted: #8A93A3;
+
+  --font-display: 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif;
+  --font-body: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  
+}
+
