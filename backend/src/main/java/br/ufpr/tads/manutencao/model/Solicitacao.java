@@ -41,6 +41,9 @@ public class Solicitacao {
     @Column(name = "cliente_id", nullable = false)
     private Long clienteId;
 
+    @Column(name = "valor_orcamento")
+    private java.math.BigDecimal valorOrcamento;
+
     public Solicitacao() {}
 
     public Long getId() {
@@ -97,5 +100,13 @@ public class Solicitacao {
 
     public void setClienteId(Long clienteId) {
         this.clienteId = clienteId;
+    }
+
+    public java.math.BigDecimal getValorOrcamento() {
+        return valorOrcamento;
+    }
+
+    public void setValorOrcamento(java.math.BigDecimal valorOrcamento) {
+        this.valorOrcamento = valorOrcamento;
     }
 }
