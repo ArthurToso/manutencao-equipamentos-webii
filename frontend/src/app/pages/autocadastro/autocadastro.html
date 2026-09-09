@@ -1,6 +1,10 @@
 <div class="container">
     <div class="row">
         <div class="col-md-6 col-lg-4 mx-auto">
+            <h1 class="mb-3">Criar Conta</h1>
+            <div class="alert alert-info">
+                <strong>Aviso:</strong> A senha será enviada automaticamente no e-mail cadastrado!
+            </div> 
             <form [formGroup]="cadastroForm" (ngSubmit)="onSubmit()">
                 <fieldset>
                     <legend>Dados Pessoais</legend>               
@@ -29,9 +33,9 @@
                         <label for="telefone" class="form-label">Telefone: </label>
                         <input id="telefone" type="text" formControlName="telefone" class="form-control" 
                         mask="(00) 0000-0000||(00) 0 0000-0000"
-                        [class.is-invalid]="temErro('telefone', 'required') || temErro('telefone', 'minlength')">
+                        [class.is-invalid]="temErro('telefone', 'required') || temErro('telefone', 'pattern')">
                         @if (temErro('telefone', 'required')) {<div class="invalid-feedback">Telefone é obrigatório</div>}
-                        @if (temErro('telefone', 'minlength')) {<div class="invalid-feedback">Telefone precisa conter 10 ou 11 dígitos</div>}
+                        @if (temErro('telefone', 'pattern')) {<div class="invalid-feedback">Telefone inválido, use fixo com DDD ou celular com 9</div>}
                     </div>
                 </fieldset>
                 
@@ -95,8 +99,10 @@
                 </fieldset>
 
                 <button type="submit" [disabled]="!cadastroForm.valid" class="btn btn-primary">salvar</button> 
-                
-            </form>
+                <div class="text-start">
+                    Já possui uma conta? <a routerLink="/login">Entrar</a>
+                 </div>
+            </form>  
         </div>
     </div>
 </div>
