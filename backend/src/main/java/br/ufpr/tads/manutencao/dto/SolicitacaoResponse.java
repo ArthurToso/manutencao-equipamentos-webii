@@ -12,6 +12,7 @@ public class SolicitacaoResponse {
     private LocalDateTime dataHora;
     private String estado;
     private Long clienteId;
+    private java.math.BigDecimal valorOrcamento;
 
     public Long getId() {
         return id;
@@ -75,5 +76,13 @@ public class SolicitacaoResponse {
 
     public void setClienteId(Long clienteId) {
         this.clienteId = clienteId;
+    }
+
+    public java.math.BigDecimal getValorOrcamento() {
+        return valorOrcamento;
+    }
+
+    public void setValorOrcamento(java.math.BigDecimal valorOrcamento) {
+        this.valorOrcamento = valorOrcamento;
     }
 }
