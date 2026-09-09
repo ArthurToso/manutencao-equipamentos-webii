@@ -4,9 +4,10 @@ import { FormGroup } from "@angular/forms";
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 import { ViaCepResponse } from './response';
+import { RouterLink } from '@angular/router';
 
 @Component({
-  imports: [ReactiveFormsModule, NgxMaskDirective],
+  imports: [ReactiveFormsModule, NgxMaskDirective, RouterLink],
   selector: 'app-autocadastro',
   styleUrl: './autocadastro.css',
   templateUrl: './autocadastro.html',
@@ -53,7 +54,12 @@ export class Autocadastro {
       uf: new FormControl('', Validators.required),
     }),
 
-    telefone: new FormControl('', [Validators.required, Validators.minLength(10)])
+    telefone: new FormControl('', 
+      [
+        Validators.required, 
+        Validators.pattern(/^(?:[0-9]{2}[2-5][0-9]{7}|[0-9]{2}9[0-9]{8})$/)
+      ]
+    )
   })
 
   onSubmit(){
