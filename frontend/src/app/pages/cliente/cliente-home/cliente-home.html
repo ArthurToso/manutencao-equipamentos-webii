@@ -26,7 +26,8 @@
     <div class="request-card__actions">
       <button class="btn btn--secondary">Visualizar Solicitação</button>
       
-      <button *ngIf="solicitacao.estado === 'ORÇADA'" class="btn btn--primary">
+      <button *ngIf="solicitacao.estado === 'ORÇADA'" class="btn btn--primary"
+        [routerLink]="['/cliente/orcamento', solicitacao.id]">
         Aprovar/Rejeitar Serviço
       </button>
       
