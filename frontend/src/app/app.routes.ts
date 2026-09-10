@@ -9,20 +9,15 @@ import { ClienteLayout } from './pages/cliente/cliente-layout/cliente-layout'; /
 export const routes: Routes = [
   { path: 'login', component: Login },
   { path: 'cadastro', component: Autocadastro },
-  
-  // Rota Pai que carrega o Layout (Header + Fundo)
-  { 
-    path: 'cliente', 
+  { path: 'cliente', 
     component: ClienteLayout, 
     children: [
       { path: 'home', component: ClienteHome },
       { path: 'nova-solicitacao', component: ClienteNovaSolicitacao },
       { path: 'orcamento/:id', component: ClienteOrcamento },
-      { path: '', redirectTo: 'home', pathMatch: 'full' }
-    ]
-  },
-  
-  { path: 'cliente/**', redirectTo: 'cliente/home' },
+      { path: '', redirectTo: 'home', pathMatch: 'full' },
+      { path: '**', redirectTo: 'home' },
+    ]},
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: '**', redirectTo: 'login' }
 ];
