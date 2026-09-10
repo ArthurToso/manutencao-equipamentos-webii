@@ -80,15 +80,26 @@ export class Autocadastro {
     const cep = this.cadastroForm.get('endereco.cep')?.value
 
     if (cep?.length !== 8){
+      this.cepNaoEncontrado = false
+      this.erroRequisicao = false
+      this.cadastroForm.patchValue({endereco: {logradouro: '', 
+                                  bairro: '', 
+                                  cidade: '', 
+                                  uf: ''}})
       return
     }
 
+
+    this.cepNaoEncontrado = false
+    this.erroRequisicao = false
     this.http.get<ViaCepResponse>(`https://viacep.com.br/ws/${cep}/json/`).subscribe({
       next: (resposta) => {
-        this.erroRequisicao = false
-        this.cepNaoEncontrado = false
         if (resposta.erro){
           this.cepNaoEncontrado = true
+          this.cadastroForm.patchValue({endereco: {logradouro: '', 
+                                  bairro: '', 
+                                  cidade: '', 
+                                  uf: ''}})
         }else{
           this.cadastroForm.patchValue({endereco: {logradouro: resposta.logradouro, 
                                   bairro: resposta.bairro, 
