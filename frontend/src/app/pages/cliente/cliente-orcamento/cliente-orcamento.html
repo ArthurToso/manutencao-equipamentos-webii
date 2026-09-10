@@ -1,0 +1,96 @@
+<div class="form-container" *ngIf="solicitacao as s">
+
+  <header class="form-header">
+    <div>
+      <h1>Orçamento da Solicitação</h1>
+      <p>Confira os dados do serviço e o valor orçado antes de decidir.</p>
+    </div>
+
+    <button class="btn btn--secondary" routerLink="/cliente/home">
+      🠔 Voltar
+    </button>
+  </header>
+
+  <div class="custom-form">
+
+    <section class="request-summary">
+      <div class="request-summary__row">
+        <span class="request-summary__label">Data/Hora da solicitação</span>
+        <span class="request-summary__value">{{ s.dataHora | date:'dd/MM/yyyy HH:mm' }}</span>
+      </div>
+
+      <div class="request-summary__row">
+        <span class="request-summary__label">Equipamento</span>
+        <span class="request-summary__value">{{ s.equipamento }}</span>
+      </div>
+
+      <div class="request-summary__row">
+        <span class="request-summary__label">Categoria</span>
+        <span class="request-summary__value">{{ s.categoria }}</span>
+      </div>
+
+      <div class="request-summary__row request-summary__row--block">
+        <span class="request-summary__label">Descrição do defeito</span>
+        <p class="request-summary__text">{{ s.defeito }}</p>
+      </div>
+
+      <div class="request-summary__row">
+        <span class="request-summary__label">Estado atual</span>
+        <span class="state-badge" [ngClass]="'state-badge--' + s.estado.toLowerCase()">
+          {{ s.estado }}
+        </span>
+      </div>
+    </section>
+
+    <section class="valor-destaque">
+      <span class="valor-destaque__label">Valor Orçado</span>
+      <span class="valor-destaque__valor">{{ formatarMoeda(s.valorOrcado) }}</span>
+    </section>
+
+    <div class="form-actions" *ngIf="etapa === 'orcamento'">
+      <button type="button" class="btn btn--danger" (click)="irParaRejeicao()">
+        Rejeitar Serviço
+      </button>
+
+      <button type="button" class="btn btn--primary" [disabled]="processando" (click)="aprovarServico()">
+        <span *ngIf="!processando">Aprovar Serviço</span>
+        <span *ngIf="processando">Aprovando…</span>
+      </button>
+    </div>
+
+    <div class="form-group" *ngIf="etapa === 'rejeitar'">
+      <label for="motivo">Motivo da rejeição</label>
+      <textarea
+        id="motivo"
+        name="motivo"
+        class="form-input form-textarea"
+        placeholder="Explique por que o orçamento está sendo rejeitado"
+        maxlength="500"
+        [(ngModel)]="motivoRejeicao"></textarea>
+
+      <p class="field__error" *ngIf="motivoTocado && !motivoRejeicao.trim()">
+        Informe o motivo da rejeição.
+      </p>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn--secondary" (click)="cancelarRejeicao()">
+          Cancelar
+        </button>
+
+        <button type="button" class="btn btn--danger" [disabled]="processando" (click)="confirmarRejeicao()">
+          <span *ngIf="!processando">Confirmar Rejeição</span>
+          <span *ngIf="processando">Enviando…</span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="mensagem">
+  <div class="modal-box">
+    <h2 class="modal-box__title">{{ mensagem.titulo }}</h2>
+    <p class="modal-box__texto">{{ mensagem.texto }}</p>
+    <button type="button" class="btn btn--primary" (click)="fecharMensagem()">OK</button>
+  </div>
+</div>

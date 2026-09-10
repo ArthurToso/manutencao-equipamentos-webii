@@ -3,6 +3,7 @@ import { Login } from './pages/login/login';
 import { Autocadastro } from './pages/autocadastro/autocadastro';
 import { ClienteHome } from './pages/cliente/cliente-home/cliente-home';
 import { ClienteNovaSolicitacao } from './pages/cliente/cliente-nova-solicitacao/cliente-nova-solicitacao';
+import { ClienteOrcamento } from './pages/cliente/cliente-orcamento/cliente-orcamento';
 import { ClienteLayout } from './pages/cliente/cliente-layout/cliente-layout'; // Ajuste o caminho se necessário
 
 export const routes: Routes = [
@@ -16,6 +17,7 @@ export const routes: Routes = [
     children: [
       { path: 'home', component: ClienteHome },
       { path: 'nova-solicitacao', component: ClienteNovaSolicitacao },
+      { path: 'orcamento/:id', component: ClienteOrcamento },
       { path: '', redirectTo: 'home', pathMatch: 'full' }
     ]
   },
