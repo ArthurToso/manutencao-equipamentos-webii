@@ -1,6 +1,16 @@
 <div class="container">
     <div class="row">
-        <div class="col-md-6 col-lg-4 mx-auto">
+        @if (cadastroConcluido) {
+            <div class="col-md-6 col-lg-4 mx-auto min-vh-100 d-flex flex-column justify-content-center">
+                <h1 class="mb-3">Cadastro Concluído!</h1>
+                <div class="alert alert-success">
+                    Sua senha foi enviada para o e-mail cadastrado.
+                    Utilize o e-mail para efetuar login.
+                </div>
+                <a routerLink="/login" class="btn btn-primary">Ir para o login</a>
+            </div>
+        } @else {
+            <div class="col-md-6 col-lg-4 mx-auto">
             <h1 class="mb-3">Criar Conta</h1>
             <div class="alert alert-info">
                 <strong>Aviso:</strong> A senha será enviada automaticamente no e-mail cadastrado!
@@ -104,5 +114,6 @@
                  </div>
             </form>  
         </div>
+        }     
     </div>
 </div>

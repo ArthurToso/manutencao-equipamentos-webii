@@ -18,6 +18,7 @@ export class Autocadastro {
   private http = inject(HttpClient)
   cepNaoEncontrado: boolean = false
   erroRequisicao: boolean = false
+  cadastroConcluido: boolean   = false
   ufs = ['AC', 'AL', 'AP', 'AM', 'BA',
     'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 
     'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI',
@@ -64,6 +65,7 @@ export class Autocadastro {
 
   onSubmit(){
     console.log(this.cadastroForm.value)
+    this.cadastroConcluido = true
   }
 
   temErro(formControl: string, nomeErro: string): boolean {
