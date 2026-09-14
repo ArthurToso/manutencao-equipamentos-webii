@@ -1,0 +1,30 @@
+<div class="page-wrapper">
+  <header class="staff-header">
+    <div class="staff-header__inner">
+      <div class="brand-mark">
+        <span class="brand-mark__index">01</span>
+        <span class="brand-mark__name">Manutenção<br />de Equipamentos</span>
+      </div>
+
+      <div class="user-profile">
+        <span class="user-profile__name">Maria — Funcionário</span>
+        <button class="btn-logout" routerLink="/login">Sair</button>
+      </div>
+    </div>
+  </header>
+
+  <nav class="staff-nav">
+    <div class="staff-nav__inner">
+      <a class="staff-nav__link" routerLink="/funcionario/home" routerLinkActive="staff-nav__link--active">Início</a>
+      <a class="staff-nav__link" routerLink="/funcionario/solicitacoes" routerLinkActive="staff-nav__link--active">Solicitações</a>
+      <a class="staff-nav__link" routerLink="/funcionario/categorias" routerLinkActive="staff-nav__link--active">Categorias</a>
+      <a class="staff-nav__link" routerLink="/funcionario/funcionarios" routerLinkActive="staff-nav__link--active">Funcionários</a>
+      <a class="staff-nav__link" routerLink="/funcionario/relatorio-receitas" routerLinkActive="staff-nav__link--active">Relatório de Receitas</a>
+      <a class="staff-nav__link" routerLink="/funcionario/relatorio-categoria" routerLinkActive="staff-nav__link--active">Relatório por Categoria</a>
+    </div>
+  </nav>
+
+  <main class="page-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>

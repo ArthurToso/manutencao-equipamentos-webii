@@ -1,0 +1,124 @@
+.page-wrapper {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.page-content {
+  flex: 1;
+  padding: 3rem 2rem;
+}
+
+@media (max-width: 640px) {
+  .page-content { padding: 2rem 1.5rem; }
+}
+
+/* ---------- Header ---------- */
+
+.staff-header {
+  background: var(--color-navy);
+  color: #E8EBF0;
+  padding: 1.5rem 3rem;
+}
+
+.staff-header__inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.brand-mark {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.brand-mark__index {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: #7C8AA3;
+  border: 1px solid #3B4658;
+  border-radius: 3px;
+  padding: 0.15rem 0.4rem;
+}
+
+.brand-mark__name {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.user-profile__name {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #B7BFCC;
+}
+
+.btn-logout {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  background: transparent;
+  color: #E8EBF0;
+  border: 1px solid #3B4658;
+}
+
+.btn-logout:hover {
+  background: #26313F;
+}
+
+/* ---------- Menu ---------- */
+
+.staff-nav {
+  background: var(--color-navy-2);
+  border-bottom: 1px solid #3B4658;
+}
+
+.staff-nav__inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+}
+
+.staff-nav__link {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #B7BFCC;
+  text-decoration: none;
+  padding: 0.9rem 1rem;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+}
+
+.staff-nav__link:hover {
+  color: #E8EBF0;
+}
+
+.staff-nav__link--active {
+  color: #FFFFFF;
+  border-bottom-color: var(--color-accent);
+}
+
+@media (max-width: 640px) {
+  .staff-header { padding: 1.25rem 1.5rem; }
+  .staff-nav__inner { padding: 0 0.5rem; }
+}
