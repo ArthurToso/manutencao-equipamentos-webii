@@ -1,0 +1,29 @@
+<div class="requests-board">
+
+  <header class="requests-board__header">
+    <div class="requests-board__title-group">
+      <h1>Solicitações em Aberto</h1>
+      <p>Solicitações aguardando orçamento.</p>
+    </div>
+  </header>
+
+  <div class="request-card" *ngFor="let s of solicitacoes">
+    <div class="request-card__header">
+      <span class="request-card__date">{{ s.dataHora | date:'dd/MM/yyyy HH:mm' }}</span>
+    </div>
+
+    <div class="request-card__body">
+      <h3 class="request-card__title">{{ getEquipamentoLimitado(s.equipamento) }}</h3>
+      <p class="request-card__client">Cliente: {{ s.cliente }}</p>
+    </div>
+
+    <div class="request-card__actions">
+      <button class="btn btn--primary">Efetuar Orçamento</button>
+    </div>
+  </div>
+
+  <div *ngIf="solicitacoes.length === 0" class="empty-state">
+    <p>Não há solicitações em aberto no momento.</p>
+  </div>
+
+</div>
