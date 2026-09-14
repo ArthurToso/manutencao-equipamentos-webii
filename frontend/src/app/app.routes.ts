@@ -5,6 +5,7 @@ import { ClienteHome } from './pages/cliente/cliente-home/cliente-home';
 import { ClienteNovaSolicitacao } from './pages/cliente/cliente-nova-solicitacao/cliente-nova-solicitacao';
 import { ClienteOrcamento } from './pages/cliente/cliente-orcamento/cliente-orcamento';
 import { ClienteLayout } from './pages/cliente/cliente-layout/cliente-layout'; // Ajuste o caminho se necessário
+import { ClienteSolicitacao } from './pages/cliente/cliente-solicitacao/cliente-solicitacao';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
@@ -15,6 +16,7 @@ export const routes: Routes = [
       { path: 'home', component: ClienteHome },
       { path: 'nova-solicitacao', component: ClienteNovaSolicitacao },
       { path: 'orcamento/:id', component: ClienteOrcamento },
+      { path: 'solicitacao/:id', component: ClienteSolicitacao},
       { path: '', redirectTo: 'home', pathMatch: 'full' },
       { path: '**', redirectTo: 'home' },
     ]},

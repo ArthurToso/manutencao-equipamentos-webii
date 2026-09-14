@@ -1,0 +1,106 @@
+@if (solicitacao) {
+    <div class="form-container">
+        <header class="form-header">
+            <div>
+            <h1>Dados da Solicitação</h1>
+            <p>Confira os dados da solicitação.</p>
+            </div>
+            <a class="btn btn--secondary" routerLink="/cliente">
+                🠔 Voltar
+            </a>
+        </header>
+        <div class="custom-form">
+            <section class="request-summary">
+                <div class="request-summary__row">
+                    <span class="request-summary__label">Equipamento</span>
+                    <span class="request-summary__value">{{ solicitacao.equipamento }}</span>
+                </div>
+
+                <div class="request-summary__row">
+                    <span class="request-summary__label">Categoria</span>
+                    <span class="request-summary__value">{{ solicitacao.categoria.nome }}</span>
+                </div>
+
+                <div class="request-summary__row">
+                    <span class="request-summary__label">Data/Hora Solicitação</span>
+                    <span class="request-summary__value">{{ solicitacao.dataHora | date:'dd/MM/yyyy HH:mm' }}</span>
+                </div>
+
+                <div class="request-summary__row">
+                    <span class="request-summary__label">Cliente</span>
+                    <span class="request-summary__value">{{ solicitacao.cliente.nome }}</span>
+                </div>
+
+                <div class="request-summary__row">
+                    <span class="request-summary__label">Estado atual</span>
+                    <span class="state-badge" [ngClass]="'state-badge--' + solicitacao.estado.toLowerCase()">
+                    {{ solicitacao.estado }}
+                    </span>
+                </div>
+
+                @if (solicitacao.valorOrcamento) {
+                    <div class="request-summary__row">
+                        <span class="request-summary__label">Valor do Orçamento</span>
+                        <span class="request-summary__value">{{ 'R$ '+ solicitacao.valorOrcamento }}</span>
+                    </div>
+                }
+
+                <div class="request-summary__row request-summary__row--block">
+                    <span class="request-summary__label">Descrição do defeito</span>
+                    <p class="request-summary__text">{{ solicitacao.defeito }}</p> 
+                </div>
+
+                @if (solicitacao.descricaoManutencao) {
+                    <div class="request-summary__row request-summary__row--block">
+                        <span class="request-summary__label">Descrição da Manutenção</span>
+                        <p class="request-summary__text">{{ solicitacao.descricaoManutencao }}</p> 
+                    </div>
+                }
+
+                @if (solicitacao.orientacoesCliente) {
+                    <div class="request-summary__row request-summary__row--block">
+                        <span class="request-summary__label">Orientações ao cliente</span>
+                        <p class="request-summary__text">{{ solicitacao.orientacoesCliente }}</p> 
+                    </div>
+                }
+            </section>
+            <section class="request-summary">
+                <h2>Histórico</h2>
+                <table class="historico">
+                    <thead>
+                    <tr>
+                        <th>Data/Hora</th>
+                        <th>Estado</th>
+                        <th>Responsável</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @for (hst of solicitacao.historico; track hst.id) {
+                        <tr>
+                        <td>{{ hst.dataHora | date:'dd/MM/yyyy HH:mm' }}</td>
+                        <td>
+                            <span class="state-badge"
+                                [ngClass]="'state-badge--' + hst.estadoDestino.toLowerCase()">
+                            {{ hst.estadoDestino }}
+                            </span>
+                        </td>
+                        <td>{{ hst.responsavel }}</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </section>
+        </div>
+    </div>
+} @else {
+    <div class="form-container">
+        <header class="form-header">
+            <div>
+            <h1>Solicitação Não Encontrada</h1>
+            </div>
+            <a class="btn btn--secondary" routerLink="/cliente">
+                🠔 Voltar
+            </a>
+        </header>
+    </div>
+}
