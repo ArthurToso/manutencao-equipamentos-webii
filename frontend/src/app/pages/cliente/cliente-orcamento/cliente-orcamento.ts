@@ -61,7 +61,7 @@ export class ClienteOrcamento implements OnInit {
   }
 
   aprovarServico(): void {
-    const valor = this.solicitacao?.valorOrcado;
+    const valor = this.solicitacao!.valorOrcado;
     if (!this.solicitacao || this.processando || !valor) return;
 
     this.processando = true;

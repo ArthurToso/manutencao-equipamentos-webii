@@ -40,7 +40,7 @@ export class ClienteNovaSolicitacao {
     // Simulação do back-end
     setTimeout(() => {
       this.submitting = false;
-      // this.router.navigate(['/cliente/home']);
+      this.router.navigate(['/cliente/home']);
     }, 800);
   }
 }

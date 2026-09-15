@@ -10,15 +10,18 @@
   <div class="request-card" *ngFor="let s of solicitacoes">
     <div class="request-card__header">
       <span class="request-card__date">{{ s.dataHora | date:'dd/MM/yyyy HH:mm' }}</span>
+      <span class="state-badge">
+        {{ s.estado }}
+      </span>
     </div>
 
     <div class="request-card__body">
-      <h3 class="request-card__title">{{ getEquipamentoLimitado(s.equipamento) }}</h3>
-      <p class="request-card__client">Cliente: {{ s.cliente }}</p>
+      <h3 class="request-card__title">{{ getEquipamentoLimitado(s.descricaoEquipamento) }}</h3>
+      <p class="request-card__client">Cliente: {{ s.nomeCliente }}</p>
     </div>
 
     <div class="request-card__actions">
-      <button class="btn btn--primary">Efetuar Orçamento</button>
+      <button class="btn btn--primary" [routerLink]="['/funcionario/orcamento', s.id]">Efetuar Orçamento</button>
     </div>
   </div>
 

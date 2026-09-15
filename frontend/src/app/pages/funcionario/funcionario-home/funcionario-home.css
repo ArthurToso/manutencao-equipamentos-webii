@@ -38,6 +38,9 @@
 }
 
 .request-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 1rem;
 }
 
@@ -98,4 +101,15 @@
   border-radius: 6px;
   color: var(--color-slate);
   font-size: 0.95rem;
+}
+
+.state-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.35rem 0.7rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: #F1F5F9; 
+  color: var(--color-slate)
 }
