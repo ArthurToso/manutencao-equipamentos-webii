@@ -1,15 +1,11 @@
-export class Endereco {
-    
-    constructor(
-        public id: number = 0,
-        public CEP: string = '',
-        public logradouro: string = '',
-        public numero: number = 0,
-        public bairro: string = '',
-        public cidade: string = '',
-        public uf: string = ''
-    ){
+import { EstadoUF } from "../enums";
 
-    }
-
+export interface Endereco {
+    cep: string;
+    logradouro: string;
+    numero: number;
+    complemento?: string;
+    bairro: string;
+    cidade: string;
+    estado: EstadoUF;   
 }

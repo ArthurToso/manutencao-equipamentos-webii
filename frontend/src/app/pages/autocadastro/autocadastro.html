@@ -98,8 +98,8 @@
                                 <select id="uf" formControlName="uf" class="form-select"
                                 [class.is-invalid]="temErro('endereco.uf', 'required')">
                                     <option value="" disabled>Selecione</option>
-                                    @for (uf of ufs; track uf) {
-                                        <option [value]="uf">{{uf}}</option>
+                                    @for (uf of ufs; track uf.sigla) {
+                                        <option [value]="uf.sigla">{{uf.estado}}</option>
                                     }    
                                 </select>
                                 @if (temErro('endereco.uf', 'required')) {<div class="invalid-feedback">UF é obrigatório</div>}

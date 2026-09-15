@@ -21,17 +21,17 @@
 
       <div class="request-summary__row">
         <span class="request-summary__label">Equipamento</span>
-        <span class="request-summary__value">{{ s.equipamento }}</span>
+        <span class="request-summary__value">{{ s.descricaoEquipamento }}</span>
       </div>
 
       <div class="request-summary__row">
         <span class="request-summary__label">Categoria</span>
-        <span class="request-summary__value">{{ s.categoria }}</span>
+        <span class="request-summary__value">{{ s.categoriaEquipamento }}</span>
       </div>
 
       <div class="request-summary__row request-summary__row--block">
         <span class="request-summary__label">Descrição do defeito</span>
-        <p class="request-summary__text">{{ s.defeito }}</p>
+        <p class="request-summary__text">{{ s.descricaoProblema }}</p>
       </div>
 
       <div class="request-summary__row">
@@ -44,7 +44,7 @@
 
     <section class="valor-destaque">
       <span class="valor-destaque__label">Valor Orçado</span>
-      <span class="valor-destaque__valor">{{ formatarMoeda(s.valorOrcado) }}</span>
+      <span class="valor-destaque__valor">{{ formatarMoeda(s.valorOrcado!) }}</span>
     </section>
 
     <div class="form-actions" *ngIf="etapa === 'orcamento'">
@@ -52,7 +52,7 @@
         Rejeitar Serviço
       </button>
 
-      <button type="button" class="btn btn--primary" [disabled]="processando" (click)="aprovarServico()">
+      <button type="button" class="btn btn--primary" [disabled]="(processando || !s.valorOrcado || s.valorOrcado! <= 0)" (click)="aprovarServico()">
         <span *ngIf="!processando">Aprovar Serviço</span>
         <span *ngIf="processando">Aprovando…</span>
       </button>
