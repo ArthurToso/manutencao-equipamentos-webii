@@ -1,19 +1,32 @@
-import { Categoria } from "./categoria.model"
-import { HistoricoSolicitacao } from "./historico-solicitacao.model"
-import { Usuario } from "./usuario.model"
+import { Categoria } from "./categoria.model";
+import { EstadoSolicitacao } from "../enums";
+import { ClienteDTO } from "./usuario.model";
+import { Historico } from "./historico.model";
 
-export type EstadoSolicitacao = 'ABERTA' | 'ORÇADA' | 'APROVADA' | 'REJEITADA' | 'ARRUMADA' | 'PAGA' | 'FINALIZADA' | 'REDIRECIONADA'
 
-export interface Solicitacao {
-    id: number
-    equipamento: string
-    categoria: Categoria
-    defeito: string
-    dataHora: Date
-    estado: EstadoSolicitacao
-    historico: HistoricoSolicitacao[]
-    valorOrcamento?: number
-    descricaoManutencao?: string
-    orientacoesCliente?: string
-    cliente: Usuario
+export interface SolicitacaoCardDTO {
+    id: number;
+    dataHora: Date;
+    descricaoEquipamento: string;
+    estado: EstadoSolicitacao;
+}
+
+export interface SolicitacaoCardFuncDTO extends SolicitacaoCardDTO {
+    nomeCliente: string;
+}
+
+export interface SolicitacaoDetailedDTO extends SolicitacaoCardDTO {
+    descricaoProblema: string;
+    categoriaEquipamento: Categoria;
+    historico: Historico[]; 
+    
+    valorOrcado?: number;
+    orientacoesCliente?: string;
+    descricaoManutencao?: string;
+    motivoRejeicao?: string;
+
+}
+
+export interface SolicitacaoDetailedFuncDTO extends SolicitacaoDetailedDTO {
+        cliente: ClienteDTO;
 }

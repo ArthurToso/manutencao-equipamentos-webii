@@ -13,22 +13,17 @@
             <section class="request-summary">
                 <div class="request-summary__row">
                     <span class="request-summary__label">Equipamento</span>
-                    <span class="request-summary__value">{{ solicitacao.equipamento }}</span>
+                    <span class="request-summary__value">{{ solicitacao.descricaoEquipamento }}</span>
                 </div>
 
                 <div class="request-summary__row">
                     <span class="request-summary__label">Categoria</span>
-                    <span class="request-summary__value">{{ solicitacao.categoria.nome }}</span>
+                    <span class="request-summary__value">{{ solicitacao.categoriaEquipamento.nome }}</span>
                 </div>
 
                 <div class="request-summary__row">
                     <span class="request-summary__label">Data/Hora Solicitação</span>
                     <span class="request-summary__value">{{ solicitacao.dataHora | date:'dd/MM/yyyy HH:mm' }}</span>
-                </div>
-
-                <div class="request-summary__row">
-                    <span class="request-summary__label">Cliente</span>
-                    <span class="request-summary__value">{{ solicitacao.cliente.nome }}</span>
                 </div>
 
                 <div class="request-summary__row">
@@ -38,16 +33,16 @@
                     </span>
                 </div>
 
-                @if (solicitacao.valorOrcamento) {
+                @if (solicitacao.valorOrcado) {
                     <div class="request-summary__row">
                         <span class="request-summary__label">Valor do Orçamento</span>
-                        <span class="request-summary__value">{{ 'R$ '+ solicitacao.valorOrcamento }}</span>
+                        <span class="request-summary__value">{{ 'R$ '+ solicitacao.valorOrcado }}</span>
                     </div>
                 }
 
                 <div class="request-summary__row request-summary__row--block">
                     <span class="request-summary__label">Descrição do defeito</span>
-                    <p class="request-summary__text">{{ solicitacao.defeito }}</p> 
+                    <p class="request-summary__text">{{ solicitacao.descricaoProblema }}</p> 
                 </div>
 
                 @if (solicitacao.descricaoManutencao) {
@@ -61,6 +56,13 @@
                     <div class="request-summary__row request-summary__row--block">
                         <span class="request-summary__label">Orientações ao cliente</span>
                         <p class="request-summary__text">{{ solicitacao.orientacoesCliente }}</p> 
+                    </div>
+                }
+
+                @if (solicitacao.motivoRejeicao) {
+                    <div class="request-summary__row request-summary__row--block">
+                        <span class="request-summary__label">Motivo da Rejeição</span>
+                        <p class="request-summary__text">{{ solicitacao.motivoRejeicao }}</p> 
                     </div>
                 }
             </section>
@@ -80,11 +82,11 @@
                         <td>{{ hst.dataHora | date:'dd/MM/yyyy HH:mm' }}</td>
                         <td>
                             <span class="state-badge"
-                                [ngClass]="'state-badge--' + hst.estadoDestino.toLowerCase()">
-                            {{ hst.estadoDestino }}
+                                [ngClass]="'state-badge--' + hst.estado.toLowerCase()">
+                            {{ hst.estado }}
                             </span>
                         </td>
-                        <td>{{ hst.responsavel }}</td>
+                        <td>{{ hst.userResponsavel.nome }}</td>
                         </tr>
                     }
                     </tbody>

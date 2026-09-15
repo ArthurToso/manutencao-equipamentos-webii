@@ -2,16 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { SolicitacaoDetailedDTO } from '../../../shared';
+import { EstadoSolicitacao as Estado, EstadoSolicitacao } from '../../../shared/enums';
 
-interface SolicitacaoOrcamento {
-  id: number;
-  dataHora: Date;
-  equipamento: string;
-  categoria: string;
-  defeito: string;
-  estado: string;
-  valorOrcado: number;
-}
 
 type Etapa = 'orcamento' | 'rejeitar';
 
@@ -24,19 +17,20 @@ type Etapa = 'orcamento' | 'rejeitar';
 })
 export class ClienteOrcamento implements OnInit {
 
-  private readonly mock: SolicitacaoOrcamento[] = [
+  private readonly mock: SolicitacaoDetailedDTO[] = [
     {
       id: 1,
       dataHora: new Date('2024-03-01T10:30:00'),
-      equipamento: 'Notebook Dell Inspiron 15 3000',
-      categoria: 'Notebook',
-      defeito: 'Não liga mais desde ontem à noite. A tela não acende e o LED de energia não pisca.',
-      estado: 'ORÇADA',
-      valorOrcado: 380
+      descricaoEquipamento: 'Notebook Dell Inspiron 15 3000',
+      categoriaEquipamento: {id: 1, nome:'Notebook'},
+      descricaoProblema: 'Não liga mais desde ontem à noite. A tela não acende e o LED de energia não pisca.',
+      estado: Estado.ORCADA,
+      valorOrcado : 380,
+      historico : []
     }
   ];
 
-  solicitacao?: SolicitacaoOrcamento;
+  solicitacao?: SolicitacaoDetailedDTO;
 
   etapa: Etapa = 'orcamento';
   motivoRejeicao = '';
@@ -49,7 +43,7 @@ export class ClienteOrcamento implements OnInit {
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.solicitacao = this.mock.find(s => s.id === id) ?? this.mock[0];
+    this.solicitacao = this.mock.find(a => a.id === id) ?? this.mock[0];
   }
 
   formatarMoeda(valor: number): string {
@@ -67,16 +61,17 @@ export class ClienteOrcamento implements OnInit {
   }
 
   aprovarServico(): void {
-    if (!this.solicitacao || this.processando) return;
+    const valor = this.solicitacao?.valorOrcado;
+    if (!this.solicitacao || this.processando || !valor) return;
 
     this.processando = true;
 
     setTimeout(() => {
       this.processando = false;
-      this.solicitacao!.estado = 'APROVADA';
+      this.solicitacao!.estado = Estado.APROVADA;
       this.mensagem = {
         titulo: 'Serviço Aprovado',
-        texto: `Serviço Aprovado no Valor ${this.formatarMoeda(this.solicitacao!.valorOrcado)}`
+        texto: `Serviço Aprovado no Valor ${this.formatarMoeda(valor)}`
       };
     }, 500);
   }
@@ -89,7 +84,7 @@ export class ClienteOrcamento implements OnInit {
 
     setTimeout(() => {
       this.processando = false;
-      this.solicitacao!.estado = 'REJEITADA';
+      this.solicitacao!.estado = EstadoSolicitacao.REJEITADA;
       this.mensagem = {
         titulo: 'Serviço Rejeitado',
         texto: 'Serviço Rejeitado'

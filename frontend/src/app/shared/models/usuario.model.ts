@@ -1,14 +1,23 @@
 import { Endereco } from "./endereco.model";
 
-export class Usuario {
+export interface UsuarioDTO {
+    id?: number;
+    nome: string;
+    email: string;
+    perfil?: 'CLIENTE' | 'FUNCIONARIO';
+}
 
-    constructor(
-        public id: number = 0,
-        public CPF: string = '',
-        public nome: string = '',
-        public email: string = '',
-        public endereco: number = 0,
-        public telefone: string = ''
-    ){}
-    
+export interface ClienteDTO extends UsuarioDTO {
+    telefone: string;
+    cpf: string;
+    endereco: Endereco;
+}
+
+export interface FuncionarioDTO extends UsuarioDTO {
+    dtNasc: string;
+}
+
+//funcionario precisa passar a senha ao back
+export interface FuncionarioCrudDTO extends FuncionarioDTO {
+    senha: string;
 }

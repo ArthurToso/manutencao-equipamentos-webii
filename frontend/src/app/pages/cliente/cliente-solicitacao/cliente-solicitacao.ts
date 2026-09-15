@@ -1,14 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { Solicitacao } from '../../../shared/models/solicitacao.model';
-import { Usuario} from '../../../shared';
-import { Categoria } from '../../../shared/models/categoria.model';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { SolicitacaoDetailedDTO as Solicitacao, Categoria, UsuarioDTO, EstadoSolicitacao } from '../../../shared/';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { CommonModule } from '@angular/common';
 
-const CLIENTE_MOCK: Usuario = new Usuario(
-  1, '12345678901', 'Maria Silva', 'maria@email.com', 1, '41999998888'
-)
+
 const CAT_NOTEBOOK: Categoria = { id: 1, nome: 'Notebook' }
 const CAT_IMPRESSORA: Categoria = { id: 2, nome: 'Impressora' }
 
@@ -24,46 +20,43 @@ export class ClienteSolicitacao implements OnInit{
   private readonly mock: Solicitacao[] = [
     {
       id: 1,
-      equipamento: 'Notebook Dell Inspiron 15',
-      categoria: CAT_NOTEBOOK,
-      defeito: 'Não liga, luz de energia não acende',
+      descricaoEquipamento: 'Notebook Dell Inspiron 15',
+      categoriaEquipamento: CAT_NOTEBOOK,
+      descricaoProblema: 'Não liga, luz de energia não acende',
       dataHora: new Date('2026-09-01T10:30:00'),
-      estado: 'ARRUMADA',
-      valorOrcamento: 450,
+      estado: EstadoSolicitacao.ARRUMADA,
+      valorOrcado: 450,
       descricaoManutencao: 'Substituição da placa de energia',
       orientacoesCliente: 'Evitar usar o notebook sem estabilizador',
-      cliente: CLIENTE_MOCK,
       historico: [
-        { id: 1, estadoDestino: 'ABERTA',   dataHora: new Date('2026-09-01T10:30:00'), responsavel: 'Maria Silva' },
-        { id: 2, estadoDestino: 'ORÇADA',   dataHora: new Date('2026-09-02T09:15:00'), responsavel: 'Carlos Souza' },
-        { id: 3, estadoDestino: 'APROVADA', dataHora: new Date('2026-09-02T14:00:00'), responsavel: 'Maria Silva' },
-        { id: 4, estadoDestino: 'ARRUMADA', dataHora: new Date('2026-09-04T16:20:00'), responsavel: 'Carlos Souza' }
+        { id: 1, estado: EstadoSolicitacao.ABERTA,   dataHora: new Date('2026-09-01T10:30:00'), userResponsavel: {id: 1, nome: 'Jose Santos', email: 'jose@gmail.com'} },
+        { id: 2, estado: EstadoSolicitacao.ORCADA,   dataHora: new Date('2026-09-02T09:15:00'), userResponsavel: {id: 2, nome: 'Joao Costa', email: 'joao@gmail.com'} },
+        { id: 3, estado: EstadoSolicitacao.APROVADA, dataHora: new Date('2026-09-02T14:00:00'), userResponsavel: {id: 3, nome: 'Lucas Moura', email: 'lucas@gmail.com'} },
+        { id: 4, estado: EstadoSolicitacao.ARRUMADA, dataHora: new Date('2026-09-04T16:20:00'), userResponsavel: {id: 4, nome: 'Julia Motta', email: 'Julia@gmail.com'} }
       ]
     },
     {
       id: 2,
-      equipamento: 'Impressora HP',
-      categoria: CAT_IMPRESSORA,
-      defeito: 'Não está imprimindo',
+      descricaoEquipamento: 'Impressora HP',
+      categoriaEquipamento: CAT_IMPRESSORA,
+      descricaoProblema: 'Não está imprimindo',
       dataHora: new Date('2026-09-01T12:30:00'),
-      estado: 'ABERTA',
-      cliente: CLIENTE_MOCK,
+      estado: EstadoSolicitacao.ABERTA,
       historico: [
-        { id: 1, estadoDestino: 'ABERTA',   dataHora: new Date('2026-09-01T12:30:00'), responsavel: 'Maria Silva' }
+        { id: 1, estado: EstadoSolicitacao.ABERTA,   dataHora: new Date('2026-09-01T12:30:00'), userResponsavel: {id: 4, nome: 'Julia Motta', email: 'Julia@gmail.com'} }
       ]
     },
     {
       id: 3,
-      equipamento: 'Notebook Lenovo Thinkpad',
-      categoria: CAT_NOTEBOOK,
-      defeito: 'Não liga',
+      descricaoEquipamento: 'Notebook Lenovo Thinkpad',
+      categoriaEquipamento: CAT_NOTEBOOK,
+      descricaoProblema: 'Não liga',
       dataHora: new Date('2026-09-01T13:30:00'),
-      estado: 'ORÇADA',
-      valorOrcamento: 250,
-      cliente: CLIENTE_MOCK,
+      estado: EstadoSolicitacao.ORCADA,
+      valorOrcado: 250,
       historico: [
-        { id: 1, estadoDestino: 'ABERTA',   dataHora: new Date('2026-09-01T13:30:00'), responsavel: 'Maria Silva' },
-        { id: 2, estadoDestino: 'ORÇADA',   dataHora: new Date('2026-09-02T15:15:00'), responsavel: 'Carlos Souza' }
+        { id: 1, estado: EstadoSolicitacao.ABERTA,   dataHora: new Date('2026-09-01T13:30:00'), userResponsavel: {id: 2, nome: 'Joao Costa', email: 'joao@gmail.com'} },
+        { id: 2, estado: EstadoSolicitacao.ORCADA,   dataHora: new Date('2026-09-02T15:15:00'), userResponsavel: {id: 5, nome: 'Maria Silva', email: 'maria@gmail.com'} }
       ]
     },
   ]

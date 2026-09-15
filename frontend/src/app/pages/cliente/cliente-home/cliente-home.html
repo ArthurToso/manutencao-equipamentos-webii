@@ -20,22 +20,22 @@
     </div>
     
     <div class="request-card__body">
-      <h3 class="request-card__title">{{ getEquipamentoLimitado(solicitacao.equipamento) }}</h3>
+      <h3 class="request-card__title">{{ getEquipamentoLimitado(solicitacao.descricaoEquipamento) }}</h3>
     </div>
 
     <div class="request-card__actions">
       <button class="btn btn--secondary" [routerLink]="['/cliente/solicitacao', solicitacao.id]">Visualizar Solicitação</button>
       
-      <button *ngIf="solicitacao.estado === 'ORÇADA'" class="btn btn--primary"
+      <button *ngIf="solicitacao.estado === this.estado.ORCADA" class="btn btn--primary"
         [routerLink]="['/cliente/orcamento', solicitacao.id]">
         Aprovar/Rejeitar Serviço
       </button>
       
-      <button *ngIf="solicitacao.estado === 'REJEITADA'" class="btn btn--warning">
+      <button *ngIf="solicitacao.estado === this.estado.REJEITADA" class="btn btn--warning">
         Resgatar Serviço
       </button>
       
-      <button *ngIf="solicitacao.estado === 'ARRUMADA'" class="btn btn--success">
+      <button *ngIf="solicitacao.estado === this.estado.ARRUMADA" class="btn btn--success">
         Pagar Serviço
       </button>
     </div>

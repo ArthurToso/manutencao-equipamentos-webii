@@ -5,6 +5,8 @@ import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 import { ViaCepResponse } from './response';
 import { RouterLink } from '@angular/router';
+import { EstadoUF } from '../../shared/enums';
+import { ClienteDTO } from '../../shared';
 
 @Component({
   imports: [ReactiveFormsModule, NgxMaskDirective, RouterLink],
@@ -19,11 +21,7 @@ export class Autocadastro {
   cepNaoEncontrado: boolean = false
   erroRequisicao: boolean = false
   cadastroConcluido: boolean   = false
-  ufs = ['AC', 'AL', 'AP', 'AM', 'BA',
-    'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 
-    'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI',
-    'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP',
-    'SE', 'TO']
+  ufs = Object.entries(EstadoUF).map((sigla, estado) => ({sigla, estado}));
   
   cadastroForm = new FormGroup({
     cpf: new FormControl('',
@@ -64,8 +62,26 @@ export class Autocadastro {
   })
 
   onSubmit(){
-    console.log(this.cadastroForm.value)
-    this.cadastroConcluido = true
+    if(this.cadastroForm.valid){
+      const form = this.cadastroForm.value;
+      const newUser: ClienteDTO = {
+        nome : form.nome ?? '',
+        email : form.email ?? '',
+        cpf : form.cpf ?? '',
+        telefone : form.telefone ?? '',
+        endereco: {
+          cep : form.endereco?.cep ?? '',
+          logradouro : form.endereco?.logradouro ?? '',
+          numero : Number(form.endereco?.numero) ?? 0,
+          complemento : form.endereco?.complemento ?? undefined,
+          bairro : form.endereco?.bairro ?? '',
+          cidade : form.endereco?.cidade ?? '',
+          estado : form.endereco?.uf as EstadoUF ?? '' as EstadoUF
+        }
+      };
+      console.log(newUser);
+      this.cadastroConcluido = true
+    }
   }
 
   temErro(formControl: string, nomeErro: string): boolean {
