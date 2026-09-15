@@ -8,6 +8,7 @@ import { ClienteLayout } from './pages/cliente/cliente-layout/cliente-layout'; /
 import { ClienteSolicitacao } from './pages/cliente/cliente-solicitacao/cliente-solicitacao';
 import { FuncionarioLayout } from './pages/funcionario/funcionario-layout/funcionario-layout';
 import { FuncionarioHome } from './pages/funcionario/funcionario-home/funcionario-home';
+import { FuncionarioOrcamento } from './pages/funcionario/funcionario-orcamento/funcionario-orcamento';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
@@ -26,6 +27,7 @@ export const routes: Routes = [
     component: FuncionarioLayout,
     children: [
       { path: 'home', component: FuncionarioHome },
+      { path: 'orcamento/:id', component: FuncionarioOrcamento },
       { path: '', redirectTo: 'home', pathMatch: 'full' },
       { path: '**', redirectTo: 'home' },
     ]},

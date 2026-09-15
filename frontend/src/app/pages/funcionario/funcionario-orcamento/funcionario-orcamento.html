@@ -1,1 +1,131 @@
-<p>funcionario-orcamento works!</p>
+@if (solicitacao; as s) {
+  <div class="form-container">
+
+    <header class="form-header">
+      <div>
+        <h1>Efetuar Orçamento</h1>
+        <p>Confira os dados do cliente e do equipamento para registrar o valor do orçamento.</p>
+      </div>
+
+      <button type="button" class="btn btn--secondary" routerLink="/funcionario/home">
+        🠔 Voltar
+      </button>
+    </header>
+
+    <form [formGroup]="formOrcamento" (ngSubmit)="salvarOrcamento()" class="custom-form">
+
+      <!-- Dados Completos do Cliente (RF012) -->
+      <section class="request-summary">
+        <h2 class="request-summary__title">Dados do Cliente</h2>
+
+        <div class="request-summary__row">
+          <span class="request-summary__label">Nome</span>
+          <span class="request-summary__value">{{ s.cliente.nome }}</span>
+        </div>
+
+        <div class="request-summary__row">
+          <span class="request-summary__label">CPF</span>
+          <span class="request-summary__value">{{ s.cliente.cpf }}</span>
+        </div>
+
+        <div class="request-summary__row">
+          <span class="request-summary__label">E-mail / Telefone</span>
+          <span class="request-summary__value">{{ s.cliente.email }} — {{ s.cliente.telefone }}</span>
+        </div>
+
+        <div class="request-summary__row request-summary__row--block">
+          <span class="request-summary__label">Endereço Completo</span>
+          <p class="request-summary__text">
+            {{ s.cliente.endereco.logradouro }}, {{ s.cliente.endereco.numero }}
+            @if (s.cliente.endereco.complemento) {
+              <span> ({{ s.cliente.endereco.complemento }})</span>
+            }
+            <br>
+            {{ s.cliente.endereco.bairro }} — {{ s.cliente.endereco.cidade }}/{{ s.cliente.endereco.estado }}
+            <br>
+            CEP: {{ s.cliente.endereco.cep }}
+          </p>
+        </div>
+      </section>
+
+      <!-- Dados da Solicitação -->
+      <section class="request-summary">
+        <h2 class="request-summary__title">Detalhes da Solicitação #{{ s.id }}</h2>
+
+        <div class="request-summary__row">
+          <span class="request-summary__label">Data/Hora da solicitação</span>
+          <span class="request-summary__value">{{ s.dataHora | date:'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+
+        <div class="request-summary__row">
+          <span class="request-summary__label">Equipamento</span>
+          <span class="request-summary__value">{{ s.descricaoEquipamento }}</span>
+        </div>
+
+        <div class="request-summary__row">
+          <span class="request-summary__label">Categoria</span>
+          <span class="request-summary__value">{{ s.categoriaEquipamento.nome }}</span>
+        </div>
+
+        <div class="request-summary__row request-summary__row--block">
+          <span class="request-summary__label">Descrição do defeito</span>
+          <p class="request-summary__text">{{ s.descricaoProblema }}</p>
+        </div>
+
+        <div class="request-summary__row">
+          <span class="request-summary__label">Estado atual</span>
+          <span class="state-badge" [ngClass]="'state-badge--' + s.estado.toLowerCase()">
+            {{ s.estado }}
+          </span>
+        </div>
+      </section>
+
+      <div class="form-group">
+        <label for="valor">Valor do Orçamento (R$)</label>
+        <input
+          id="valor"
+          type="text"
+          class="form-input"
+          placeholder="0,00"
+          formControlName="valor"
+          mask="separator.2"
+          thousandSeparator="."
+          decimalMarker=","
+          prefix="R$ "
+        />
+
+        @if (formOrcamento.get('valor')?.touched && formOrcamento.get('valor')?.invalid) {
+          <p class="field__error">
+            Informe um valor válido maior que zero.
+          </p>
+        }
+      </div>
+
+
+      <div class="form-actions">
+        <button type="button" class="btn btn--secondary" routerLink="/funcionario/home">
+          Cancelar
+        </button>
+
+        <button type="submit" class="btn btn--primary" [disabled]="formOrcamento.invalid || processando">
+          @if (!processando) {
+            <span>Confirmar Orçamento</span>
+          } @else {
+            <span>Enviando…</span>
+          }
+        </button>
+      </div>
+
+    </form>
+  </div>
+}
+
+@if (mensagem) {
+  <div class="modal-overlay">
+    <div class="modal-box">
+      <h2 class="modal-box__title">{{ mensagem.titulo }}</h2>
+      <p class="modal-box__texto">{{ mensagem.texto }}</p>
+      <button type="button" class="btn btn--primary" (click)="fecharMensagem()">OK</button>
+    </div>
+  </div>
+}
