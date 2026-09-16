@@ -1,0 +1,154 @@
+.requests-board {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.requests-board__header {
+  margin-bottom: 2.5rem;
+}
+
+.requests-board__header h1 {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0 0 0.4rem;
+  color: var(--color-ink);
+}
+
+.requests-board__header p {
+  font-size: 0.95rem;
+  color: var(--color-slate);
+  margin: 0;
+}
+
+.request-card {
+  background: #FFFFFF;
+  border: 1px solid var(--color-line);
+  border-radius: 6px;
+  padding: 1.5rem;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.request-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  border-color: #C3CAD6;
+}
+
+.request-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.request-card__date {
+  font-size: 0.85rem;
+  color: var(--color-muted);
+  font-weight: 500;
+}
+
+.request-card__title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 0.4rem;
+  color: var(--color-ink);
+}
+
+.request-card__client {
+  font-size: 0.9rem;
+  color: var(--color-slate);
+  margin: 0 0 1.5rem;
+}
+
+.request-card__actions {
+  display: flex;
+  gap: 0.85rem;
+}
+
+.btn {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.65rem 1.1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s ease;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn--primary {
+  background: var(--color-accent);
+  color: #FFFFFF;
+}
+
+.btn--primary:hover {
+  background: var(--color-accent-hover);
+}
+
+.btn--warning {
+  background: var(--color-warning);
+  color: #FFFFFF;
+}
+
+.btn--secondary {
+  background: #F1F5F9;
+  color: var(--color-slate);
+  border: 1px solid var(--color-line);
+}
+
+.btn--secondary:hover {
+  background: #E2E8F0;
+  color: var(--color-ink);
+}
+
+.btn--warning:hover {
+  background: #B45309;
+}
+
+.btn--success {
+  background: var(--color-success);
+  color: #FFFFFF;
+}
+
+.btn--success:hover {
+  background: #059669;
+}
+
+
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: #FFFFFF;
+  border: 1px dashed var(--color-line);
+  border-radius: 6px;
+  color: var(--color-slate);
+  font-size: 0.95rem;
+}
+
+.state-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.35rem 0.7rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: #F1F5F9; 
+  color: var(--color-slate)
+}
+
+.state-badge--aberta{background:#F1F5F9;color:var(--color-slate);}
+.state-badge--orçada{background:#F5EBE0;color:#78350F;}
+.state-badge--rejeitada{background:#FEE2E2;color:var(--color-error);}
+.state-badge--aprovada{background:#FEF9C3;color:#854D0E;}
+.state-badge--redirecionada{background:#F3E8FF;color:#6B21A8;}
+.state-badge--arrumada{background:#E0E7FF;color:var(--color-accent);}
+.state-badge--paga{background:#FFEDD5;color:#C2410C;}
+.state-badge--finalizada{background:#DCFCE7;color:var(--color-success);}

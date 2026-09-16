@@ -1,14 +1,9 @@
 import { Routes } from '@angular/router';
-import { Login } from './pages/login/login';
-import { Autocadastro } from './pages/autocadastro/autocadastro';
-import { ClienteHome } from './pages/cliente/cliente-home/cliente-home';
-import { ClienteNovaSolicitacao } from './pages/cliente/cliente-nova-solicitacao/cliente-nova-solicitacao';
-import { ClienteOrcamento } from './pages/cliente/cliente-orcamento/cliente-orcamento';
-import { ClienteLayout } from './pages/cliente/cliente-layout/cliente-layout'; // Ajuste o caminho se necessário
-import { ClienteSolicitacao } from './pages/cliente/cliente-solicitacao/cliente-solicitacao';
-import { FuncionarioLayout } from './pages/funcionario/funcionario-layout/funcionario-layout';
-import { FuncionarioHome } from './pages/funcionario/funcionario-home/funcionario-home';
-import { FuncionarioOrcamento } from './pages/funcionario/funcionario-orcamento/funcionario-orcamento';
+import {
+  Login, Autocadastro,
+  ClienteLayout, ClienteHome, ClienteNovaSolicitacao, ClienteOrcamento, ClienteSolicitacao,
+  FuncionarioLayout, FuncionarioHome, FuncionarioOrcamento, FuncionarioSolicitacoes
+} from './pages';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
@@ -28,6 +23,7 @@ export const routes: Routes = [
     children: [
       { path: 'home', component: FuncionarioHome },
       { path: 'orcamento/:id', component: FuncionarioOrcamento },
+      { path: 'solicitacoes', component: FuncionarioSolicitacoes },
       { path: '', redirectTo: 'home', pathMatch: 'full' },
       { path: '**', redirectTo: 'home' },
     ]},
