@@ -34,7 +34,7 @@
       }
       @else if(s.estado === estados.PAGA){
         <div class="request-card__actions">
-            <button class="btn btn--warning">
+            <button class="btn btn--warning" (click)="finalizarSolicitacao(s.id)">
                 Finalizar Solicitação</button>
         </div>
       }

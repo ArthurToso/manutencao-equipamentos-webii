@@ -1,0 +1,282 @@
+/* ---------- Estrutura ---------- */
+
+.form-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.form-header {
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.form-header h1 {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0 0 0.4rem;
+  color: var(--color-ink);
+}
+
+.form-header p {
+  font-size: 0.95rem;
+  color: var(--color-slate);
+  margin: 0;
+}
+
+.custom-form {
+  background-color: #FFFFFF;
+  border: 1px solid var(--color-line);
+  border-radius: 6px;
+  padding: 2.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ---------- Resumo da solicitação ---------- */
+
+.request-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.request-summary__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.request-summary__row--block {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.request-summary__label {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--color-slate);
+}
+
+.request-summary__value {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--color-ink);
+  text-align: right;
+}
+
+.request-summary__text {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--color-ink);
+  margin: 0.3rem 0 0;
+  line-height: 1.5;
+}
+
+/* ---------- Estados ---------- */
+.state-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.35rem 0.7rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.state-badge--aberta { background: #F1F5F9; color: var(--color-slate); }
+.state-badge--orçada { background: #FEF3C7; color: var(--color-warning); }
+.state-badge--aprovada { background: #D1FAE5; color: var(--color-success); }
+.state-badge--rejeitada { background: #FEE2E2; color: var(--color-error); }
+.state-badge--arrumada { background: #E0E7FF; color: var(--color-accent); }
+.state-badge--paga { background: #DCFCE7; color: #166534; }
+.state-badge--finalizada { background: #E2E8F0; color: var(--color-ink); }
+
+/* ---------- Valor em destaque ---------- */
+
+.valor-destaque {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 1.5rem;
+  background: var(--color-paper);
+  border: 1px solid var(--color-line);
+  border-radius: 6px;
+}
+
+.valor-destaque__label {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-slate);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.valor-destaque__valor {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
+/* ---------- Formulário de rejeição ---------- */
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--color-ink);
+}
+
+.form-input {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-line);
+  border-radius: 4px;
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  transition: all 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  outline: none;
+  background-color: #FFFFFF;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(45, 95, 174, 0.15);
+}
+
+.form-textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.field__error {
+  font-size: 0.8rem;
+  color: var(--color-error);
+  margin: 0;
+}
+
+/* ---------- Botões ---------- */
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+  gap: 1rem;
+}
+
+.btn {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.7rem 1.4rem;
+  border-radius: 4px;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  transition: background 0.15s ease;
+}
+
+.btn--secondary {
+  background: #F1F5F9;
+  color: var(--color-slate);
+  border: 1px solid var(--color-line);
+}
+
+.btn--secondary:hover {
+  background: #E2E8F0;
+  color: var(--color-ink);
+}
+
+.btn--primary {
+  background: var(--color-accent);
+  color: #FFFFFF;
+}
+
+.btn--primary:hover:not(:disabled) {
+  background: var(--color-accent-hover);
+}
+
+.btn--primary:disabled {
+  opacity: 0.65;
+  cursor: default;
+}
+
+.btn--danger {
+  background: #FFFFFF;
+  color: var(--color-error);
+  border: 1px solid var(--color-error);
+}
+
+.btn--danger:hover:not(:disabled) {
+  background: var(--color-error);
+  color: #FFFFFF;
+}
+
+.btn--danger:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* ---------- Modal de confirmação ---------- */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(27, 34, 44, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-box {
+  background: #FFFFFF;
+  border-radius: 8px;
+  padding: 2rem 2.5rem;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.modal-box__title {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  margin: 0;
+}
+
+.modal-box__texto {
+  white-space: pre-line;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--color-slate);
+  margin: 0;
+}
