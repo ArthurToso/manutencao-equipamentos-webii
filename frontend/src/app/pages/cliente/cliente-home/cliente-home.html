@@ -24,7 +24,8 @@
     </div>
 
     <div class="request-card__actions">
-      <button class="btn btn--secondary" [routerLink]="['/cliente/solicitacao', solicitacao.id]">Visualizar Solicitação</button>
+      <button class="btn btn--secondary" [routerLink]="['/cliente/solicitacao', solicitacao.id]">
+        Visualizar Solicitação</button>
       
       <button *ngIf="solicitacao.estado === this.estado.ORCADA" class="btn btn--primary"
         [routerLink]="['/cliente/orcamento', solicitacao.id]">
