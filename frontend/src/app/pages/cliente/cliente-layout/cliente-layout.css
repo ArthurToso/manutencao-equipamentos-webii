@@ -58,6 +58,40 @@
   color: #B7BFCC;
 }
 
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.user-profile a {
+  color: #B7BFCC;
+  text-decoration: none;
+}
+
+.user-profile__name {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #B7BFCC;
+}
+
+.btn-logout {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  background: transparent;
+  color: #E8EBF0;
+  border: 1px solid #3B4658;
+}
+
+.btn-logout:hover {
+  background: #26313F;
+}
+
+
 /* ---------- Responsivo do Header ---------- */
 
 @media (max-width: 640px) {
