@@ -41,4 +41,12 @@ export class FuncionarioSolicitacoes implements OnInit {
   getEquipamentoLimitado(descricao: string): string {
     return descricao.length > 30 ? descricao.substring(0, 30) + '...' : descricao;
   }
+
+  finalizarSolicitacao(id: number): void {
+    const sol = this.solicitacoes.find(s => s.id === id);
+    if(sol) {
+      sol.estado = EstadoSolicitacao.FINALIZADA;
+      window.alert(`Solicitação #${id} finalizada com sucesso!`);
+    }
+  }
 }

@@ -1,0 +1,116 @@
+@if (solicitacao; as s) {
+  <div class="form-container">
+
+    <header class="form-header">
+      <div>
+        <h1>Efetuar Manutenção</h1>
+        <p>Preencha os detalhes da manutenção efetuada ou redirecione a solicitação.</p>
+      </div>
+
+      <button type="button" class="btn btn--secondary" routerLink="/funcionario/solicitacoes">
+        🠔 Voltar
+      </button>
+    </header>
+
+    <div class="custom-form">
+      <!-- Dados da Solicitação -->
+      <section class="request-summary">
+        <h2 class="request-summary__title">Detalhes da Solicitação #{{ s.id }}</h2>
+
+        <div class="request-summary__row">
+          <span class="request-summary__label">Data/Hora</span>
+          <span class="request-summary__value">{{ s.dataHora | date:'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+
+        <div class="request-summary__row">
+          <span class="request-summary__label">Equipamento</span>
+          <span class="request-summary__value">{{ s.descricaoEquipamento }} ({{ s.categoriaEquipamento.nome }})</span>
+        </div>
+
+        <div class="request-summary__row">
+          <span class="request-summary__label">Cliente</span>
+          <span class="request-summary__value">{{ s.cliente.nome }} - {{ s.cliente.telefone }}</span>
+        </div>
+
+        <div class="request-summary__row request-summary__row--block">
+          <span class="request-summary__label">Descrição do defeito</span>
+          <p class="request-summary__text">{{ s.descricaoProblema }}</p>
+        </div>
+      </section>
+
+      <form [formGroup]="formManutencao" (ngSubmit)="salvarManutencao()">
+        <div class="form-group">
+          <label for="descricaoManutencao">Descrição da Manutenção</label>
+          <textarea
+            id="descricaoManutencao"
+            class="form-input"
+            rows="3"
+            formControlName="descricaoManutencao"
+            placeholder="Descreva o que foi feito no equipamento"
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="orientacoesCliente">Orientações para o Cliente</label>
+          <textarea
+            id="orientacoesCliente"
+            class="form-input"
+            rows="2"
+            formControlName="orientacoesCliente"
+            placeholder="Ex: Utilizar estabilizador, não expor ao sol..."
+          ></textarea>
+        </div>
+
+        <div class="form-actions" style="justify-content: space-between;">
+          <button type="button" class="btn btn--secondary" (click)="abrirModalRedirecionar()">
+            Redirecionar Manutenção
+          </button>
+
+          <button type="submit" class="btn btn--primary" [disabled]="formManutencao.invalid || processando">
+            @if (!processando) {
+              <span>Efetuar Manutenção</span>
+            } @else {
+              <span>Processando…</span>
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+@if (exibirModalRedirecionar) {
+  <div class="modal-overlay">
+    <div class="modal-box">
+      <h2 class="modal-box__title">Redirecionar Solicitação</h2>
+      <p class="modal-box__texto">Selecione o funcionário para qual deseja enviar esta solicitação.</p>
+      
+      <form [formGroup]="formRedirecionar" (ngSubmit)="salvarRedirecionamento()">
+        <div class="form-group" style="margin-bottom: 20px;">
+          <label for="funcionarioId">Funcionário Destino</label>
+          <select id="funcionarioId" class="form-input" formControlName="funcionarioId">
+            <option value="" disabled selected>Escolha um funcionário</option>
+            @for (func of funcionarios; track func.id) {
+              <option [value]="func.id">{{ func.nome }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn--secondary" (click)="fecharModalRedirecionar()">Cancelar</button>
+          <button type="submit" class="btn btn--primary" [disabled]="formRedirecionar.invalid || processando">Redirecionar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+@if (mensagem) {
+  <div class="modal-overlay">
+    <div class="modal-box">
+      <h2 class="modal-box__title">{{ mensagem.titulo }}</h2>
+      <p class="modal-box__texto">{{ mensagem.texto }}</p>
+      <button type="button" class="btn btn--primary" (click)="fecharMensagem()">OK</button>
+    </div>
+  </div>
+}
