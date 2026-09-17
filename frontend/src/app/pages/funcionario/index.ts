@@ -3,3 +3,5 @@ export * from './funcionario-home/funcionario-home';
 export * from './funcionario-orcamento/funcionario-orcamento';
 export * from './funcionario-solicitacoes/funcionario-solicitacoes';
 export * from './funcionario-manutencao/funcionario-manutencao';
+export * from './funcionario-categorias/funcionario-categorias';
+export * from './funcionario-categorias-editar-novo/funcionario-categorias-editar-novo';

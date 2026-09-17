@@ -1,0 +1,43 @@
+<div class="category-form-container">
+  
+  <header class="category-form__header">
+    <div class="category-form__title-group">
+      <h1>{{ isEdicao ? 'Editar Categoria' : 'Nova Categoria' }}</h1>
+      <p>{{ isEdicao ? 'Atualize o nome da categoria selecionada.' : 'Preencha o nome para cadastrar uma nova categoria.' }}</p>
+    </div>
+  </header>
+
+  <form [formGroup]="form" (ngSubmit)="salvar()" class="category-form">
+    
+    <div class="form-group" *ngIf="isEdicao">
+      <label for="id">ID</label>
+      <input type="text" id="id" [value]="categoriaId" disabled class="form-control form-control--disabled" />
+    </div>
+
+    <div class="form-group">
+      <label for="nome">Nome da Categoria</label>
+      <input 
+        type="text" 
+        id="nome" 
+        formControlName="nome" 
+        placeholder="Ex: Notebooks e Laptops" 
+        class="form-control"
+        [class.is-invalid]="form.get('nome')?.invalid && form.get('nome')?.touched"
+      />
+      @if (form.get('nome')?.invalid && form.get('nome')?.touched) {
+        <span class="error-message">O nome da categoria é obrigatório.</span>
+      }
+    </div>
+
+    <div class="category-form__actions">
+      <button type="button" class="btn btn--outline" [routerLink]="['/funcionario/categorias']">
+        Cancelar
+      </button>
+      <button type="submit" class="btn btn--primary" [disabled]="form.invalid">
+        {{ isEdicao ? 'Salvar Alterações' : 'Cadastrar Categoria' }}
+      </button>
+    </div>
+
+  </form>
+
+</div>
