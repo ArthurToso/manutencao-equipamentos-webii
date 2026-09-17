@@ -148,6 +148,8 @@ export class FuncionarioSolicitacoes implements OnInit {
     this.dataFim = null;
     this.dataInicio = null;
     this.aplicarFiltroData();
+  }
+  
   finalizarSolicitacao(id: number): void {
     const sol = this.solicitacoes.find(s => s.id === id);
     if(sol) {
