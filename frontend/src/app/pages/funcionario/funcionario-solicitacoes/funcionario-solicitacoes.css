@@ -1,3 +1,6 @@
+/* ==========================================================================
+   1. CONTAINER PRINCIPAL & LAYOUT BASE
+   ========================================================================== */
 .requests-board {
   max-width: 900px;
   margin: 0 auto;
@@ -5,6 +8,8 @@
 
 .requests-board__header {
   margin-bottom: 2.5rem;
+  display: flex;
+  justify-content: space-between;
 }
 
 .requests-board__header h1 {
@@ -22,6 +27,140 @@
   margin: 0;
 }
 
+
+/* ==========================================================================
+   2. CABEÇALHO DO FILTRO (Ícone de abrir/fechar)
+   ========================================================================== */
+.filter-group__header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.filter-group__header a i { 
+  color: #B7BFCC; 
+  margin-left: 1rem;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.filter-group__header a i:hover {
+  color: black;
+  transform: scale(1.2);
+}
+
+.filter-group__header a i.active { 
+  color: black;
+  transform: scale(1.2);
+}
+
+
+/* ==========================================================================
+   3. COMPONENTE DE FILTRO (Container, Sidebar e Opções)
+   ========================================================================== */
+.filter-body__header {
+  display: flex;
+  justify-content: flex-end; /* Empurra o filtro-container para a esquerda */
+}
+
+.filtro-container {
+  display: inline-flex; /* Ocupa apenas o espaço do conteúdo horizontalmente */
+  flex-direction: column;
+  gap: 16px;
+  background-color: var(--mat-sys-surface, #ffffff);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin-bottom: 24px;
+}
+
+.filtro-container h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--color-ink);
+}
+
+.instrucao-periodo {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+}
+
+/* Divide a área do filtro em duas colunas: Opções na esquerda, Calendário na direita */
+.filtro-body {
+  display: flex;
+  flex-direction: row;
+  gap: 20px; 
+}
+
+/* Barra lateral com os botões de seleção rápida (Hoje, Último mês, etc) */
+.filtro-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 140px;
+}
+
+.opcao-btn {
+  background: transparent;
+  border: 1px solid var(--color-line, #E2E8F0);
+  padding: 8px 12px;
+  border-radius: 4px;
+  text-align: left;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--color-slate);
+  transition: all 0.2s ease;
+}
+
+.opcao-btn:hover {
+  background: #F1F5F9;
+  color: var(--color-ink);
+}
+
+/* Estado ativo do botão de opção de data */
+.opcao-btn.ativo {
+  background: #E0E7FF;
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+  font-weight: 600;
+}
+
+
+/* ==========================================================================
+   4. CUSTOMIZAÇÕES DO CALENDÁRIO (Angular Material)
+   ========================================================================== */
+.calendar-wrapper {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #fff;
+}
+
+/* Força a remoção do cabeçalho dos dias da semana de dentro do mat-calendar */
+::ng-deep .mat-calendar-table-header {
+  display: none !important;
+}
+
+/* Remove a linha divisória e ajusta o espaçamento interno do calendário */
+::ng-deep .mat-calendar-header {
+  padding-bottom: 0px !important;
+  padding-top: 0px !important;
+  padding-left: 0px !important;
+}
+
+::ng-deep .mat-calendar-controls {
+  margin: 10px 0px 0px 0px !important;
+}
+
+::ng-deep .mat-calendar-controls button {
+  margin: 0px !important;
+}
+
+
+/* ==========================================================================
+   5. CARDS DE SOLICITAÇÃO
+   ========================================================================== */
 .request-card {
   background: #FFFFFF;
   border: 1px solid var(--color-line);
@@ -69,6 +208,10 @@
   gap: 0.85rem;
 }
 
+
+/* ==========================================================================
+   6. BOTÕES GERAIS E VARIAÇÕES
+   ========================================================================== */
 .btn {
   font-family: var(--font-body);
   font-size: 0.85rem;
@@ -93,11 +236,6 @@
   background: var(--color-accent-hover);
 }
 
-.btn--warning {
-  background: var(--color-warning);
-  color: #FFFFFF;
-}
-
 .btn--secondary {
   background: #F1F5F9;
   color: var(--color-slate);
@@ -109,10 +247,6 @@
   color: var(--color-ink);
 }
 
-.btn--warning:hover {
-  background: #B45309;
-}
-
 .btn--success {
   background: var(--color-success);
   color: #FFFFFF;
@@ -122,7 +256,50 @@
   background: #059669;
 }
 
+.btn--warning {
+  background: var(--color-warning);
+  color: #FFFFFF;
+}
 
+.btn--warning:hover {
+  background: #B45309;
+}
+
+/* Modificador: Tamanho pequeno (usado no botão Aplicar do filtro) */
+.btn--sm {
+  padding: 0.45rem 0.75rem;
+  font-size: 0.8rem;
+  width: 100%;
+}
+
+
+/* ==========================================================================
+   7. BADGES DE ESTADO (Status)
+   ========================================================================== */
+.state-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.35rem 0.7rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: #F1F5F9; 
+  color: var(--color-slate);
+}
+
+.state-badge--aberta { background: #F1F5F9; color: var(--color-slate); }
+.state-badge--orçada { background: #F5EBE0; color: #78350F; }
+.state-badge--rejeitada { background: #FEE2E2; color: var(--color-error); }
+.state-badge--aprovada { background: #FEF9C3; color: #854D0E; }
+.state-badge--redirecionada { background: #F3E8FF; color: #6B21A8; }
+.state-badge--arrumada { background: #E0E7FF; color: var(--color-accent); }
+.state-badge--paga { background: #FFEDD5; color: #C2410C; }
+.state-badge--finalizada { background: #DCFCE7; color: var(--color-success); }
+
+
+/* ==========================================================================
+   8. UTILITÁRIOS E ESTADOS VAZIOS
+   ========================================================================== */
 .empty-state {
   text-align: center;
   padding: 4rem 2rem;
@@ -133,22 +310,7 @@
   font-size: 0.95rem;
 }
 
-.state-badge {
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 0.35rem 0.7rem;
-  border-radius: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  background: #F1F5F9; 
-  color: var(--color-slate)
+/* Utilitário: Empurra um elemento para o fim do container flex (usado no botão do filtro) */
+.mt-auto {
+  margin-top: auto; 
 }
-
-.state-badge--aberta{background:#F1F5F9;color:var(--color-slate);}
-.state-badge--orçada{background:#F5EBE0;color:#78350F;}
-.state-badge--rejeitada{background:#FEE2E2;color:var(--color-error);}
-.state-badge--aprovada{background:#FEF9C3;color:#854D0E;}
-.state-badge--redirecionada{background:#F3E8FF;color:#6B21A8;}
-.state-badge--arrumada{background:#E0E7FF;color:var(--color-accent);}
-.state-badge--paga{background:#FFEDD5;color:#C2410C;}
-.state-badge--finalizada{background:#DCFCE7;color:var(--color-success);}

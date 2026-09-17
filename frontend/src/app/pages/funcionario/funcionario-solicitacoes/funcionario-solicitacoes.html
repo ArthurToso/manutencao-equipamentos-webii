@@ -5,8 +5,58 @@
       <h1>Todas as Solicitações</h1>
       <p>Solicitações ativas no sistema.</p>
     </div>
+    <div class="filter-group__header">
+      <a>
+        <i class="fa fa-filter fa-lg" 
+          [class.active]="dateFilterOpen || dateFilferActive" 
+          (click)="dateFilterOpen ? dateFilterOpen = false : dateFilterOpen = true"></i>
+        <i class="fa fa-close fa-lg" 
+          [class.active]="!dateFilferActive"
+          (click)="limparFiltro()"></i>
+      </a>
+    </div>
   </header>
 
+  @if(dateFilterOpen){
+    <div class="filter-body__header">
+      <div class="filtro-container">
+        <h2>Filtrar por Período</h2>
+        
+        <div class="filtro-body">
+          <!-- Coluna da Esquerda -->
+          <div class="filtro-sidebar">
+            <button class="opcao-btn" 
+                    [class.ativo]="opcaoAtiva === 'hoje'" 
+                    (click)="selecionarOpcao('hoje')">Hoje</button>
+                    
+            <button class="opcao-btn" 
+                    [class.ativo]="opcaoAtiva === 'semana'" 
+                    (click)="selecionarOpcao('semana')">Última semana</button>
+                    
+            <button class="opcao-btn" 
+                    [class.ativo]="opcaoAtiva === 'mes'" 
+                    (click)="selecionarOpcao('mes')">Último mês</button>
+                    
+            <button class="opcao-btn" 
+                    [class.ativo]="opcaoAtiva === 'selecionar'" 
+                    (click)="selecionarOpcao('selecionar')">Selecionar</button>
+
+            <button class="btn btn--primary btn--sm mt-auto" (click)="aplicarFiltroData()">
+              Aplicar Filtro
+            </button>
+          </div>
+
+          <!-- Coluna da Direita: Calendário -->
+          <div class="calendar-wrapper">
+            <mat-calendar 
+              [selected]="periodoSelecionado" 
+              (selectedChange)="onDateSelected($event)">
+            </mat-calendar>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
   @for (s of solicitacoes; track s.id) {
     <div class="request-card">
       <div class="request-card__header">
