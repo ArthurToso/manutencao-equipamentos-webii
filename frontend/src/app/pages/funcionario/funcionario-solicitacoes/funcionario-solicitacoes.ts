@@ -148,5 +148,11 @@ export class FuncionarioSolicitacoes implements OnInit {
     this.dataFim = null;
     this.dataInicio = null;
     this.aplicarFiltroData();
+  finalizarSolicitacao(id: number): void {
+    const sol = this.solicitacoes.find(s => s.id === id);
+    if(sol) {
+      sol.estado = EstadoSolicitacao.FINALIZADA;
+      window.alert(`Solicitação #${id} finalizada com sucesso!`);
+    }
   }
 }
