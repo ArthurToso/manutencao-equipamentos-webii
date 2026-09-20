@@ -32,7 +32,8 @@
         Aprovar/Rejeitar Serviço
       </button>
       
-      <button *ngIf="solicitacao.estado === this.estado.REJEITADA" class="btn btn--warning">
+      <button *ngIf="solicitacao.estado === this.estado.REJEITADA" class="btn btn--warning"
+        (click)="resgatarServico(solicitacao)">
         Resgatar Serviço
       </button>
       
