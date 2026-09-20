@@ -36,7 +36,8 @@
         Resgatar Serviço
       </button>
       
-      <button *ngIf="solicitacao.estado === this.estado.ARRUMADA" class="btn btn--success">
+      <button *ngIf="solicitacao.estado === this.estado.ARRUMADA" class="btn btn--success"
+        [routerLink]="['/cliente/pagamento', solicitacao.id]">
         Pagar Serviço
       </button>
     </div>

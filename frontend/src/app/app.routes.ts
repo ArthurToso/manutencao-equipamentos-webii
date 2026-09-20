@@ -2,7 +2,8 @@ import { Routes } from '@angular/router';
 import {
   Login, Autocadastro,
   ClienteLayout, ClienteHome, ClienteNovaSolicitacao, ClienteOrcamento, ClienteSolicitacao,
-  FuncionarioLayout, FuncionarioHome, FuncionarioOrcamento, FuncionarioSolicitacoes, FuncionarioManutencao, FuncionarioCategorias, FuncionarioCategoriasEditarNovo
+  FuncionarioLayout, FuncionarioHome, FuncionarioOrcamento, FuncionarioSolicitacoes, FuncionarioManutencao, 
+  FuncionarioCategorias, FuncionarioCategoriasEditarNovo, ClientePagarServico
 } from './pages';
 
 export const routes: Routes = [
@@ -15,6 +16,7 @@ export const routes: Routes = [
       { path: 'nova-solicitacao', component: ClienteNovaSolicitacao },
       { path: 'orcamento/:id', component: ClienteOrcamento },
       { path: 'solicitacao/:id', component: ClienteSolicitacao},
+      { path: 'pagamento/:id', component: ClientePagarServico},
       { path: '', redirectTo: 'home', pathMatch: 'full' },
       { path: '**', redirectTo: 'home' },
     ]},
