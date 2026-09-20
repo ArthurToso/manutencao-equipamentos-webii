@@ -32,4 +32,9 @@ export class ClienteHome implements OnInit {
   getEquipamentoLimitado(descricao: string): string {
     return descricao.length > 30 ? descricao.substring(0, 30) + '...' : descricao;
   }
+
+  resgatarServico(solicitacao: Solicitacao): void {
+    solicitacao.estado = this.estado.APROVADA
+  }
+
 }
