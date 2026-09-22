@@ -16,6 +16,8 @@ public class Categoria {
 
     private String nome;
 
+    private boolean ativo = true;
+
     public Categoria() {}
 
     public Categoria(String nome) {
@@ -36,5 +38,13 @@ public class Categoria {
 
     public void setNome(String nome) {
         this.nome = nome;
+    }
+
+    public boolean isAtivo() {
+        return ativo;
+    }
+
+    public void setAtivo(boolean ativo) {
+        this.ativo = ativo;
     }
 }
