@@ -1,0 +1,55 @@
+<div class="container mt-4 mb-4" id="relatorio-container">
+    <div class="d-flex justify-content-between align-items-center mb-3 no-print">
+        <h2>Relatório de Receitas</h2>
+        <button class="btn btn-primary" (click)="imprimirPDF()">Imprimir PDF</button>
+    </div>
+
+    <div class="card mb-4 no-print">
+        <div class="card-body">
+            <form class="row g-3 align-items-end" (ngSubmit)="buscarReceitas()">
+                <div class="col-md-4">
+                    <label for="dataInicial" class="form-label">Data Inicial</label>
+                    <input type="date" class="form-control" id="dataInicial" name="dataInicial" [(ngModel)]="dataInicial">
+                </div>
+                <div class="col-md-4">
+                    <label for="dataFinal" class="form-label">Data Final</label>
+                    <input type="date" class="form-control" id="dataFinal" name="dataFinal" [(ngModel)]="dataFinal">
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-secondary w-100">Filtrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="relatorio-print-area">
+        <div class="text-center mb-4 d-none d-print-block">
+            <h2>Relatório de Receitas</h2>
+            <p>Período: {{ dataInicial ? (dataInicial | date:'dd/MM/yyyy') : 'Início' }} a {{ dataFinal ? (dataFinal | date:'dd/MM/yyyy') : 'Hoje' }}</p>
+        </div>
+
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Data</th>
+                    <th class="text-end">Receita (R$)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of receitas">
+                    <td>{{ item.data | date:'dd/MM/yyyy' }}</td>
+                    <td class="text-end">{{ item.receita | currency:'BRL':'symbol' }}</td>
+                </tr>
+                <tr *ngIf="receitas.length === 0">
+                    <td colspan="2" class="text-center">Nenhuma receita encontrada no período selecionado.</td>
+                </tr>
+            </tbody>
+            <tfoot *ngIf="receitas.length > 0">
+                <tr class="table-secondary font-weight-bold">
+                    <td><strong>Total</strong></td>
+                    <td class="text-end"><strong>{{ totalReceita | currency:'BRL':'symbol' }}</strong></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>

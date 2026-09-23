@@ -5,3 +5,5 @@ export * from './funcionario-solicitacoes/funcionario-solicitacoes';
 export * from './funcionario-manutencao/funcionario-manutencao';
 export * from './funcionario-categorias/funcionario-categorias';
 export * from './funcionario-categorias-editar-novo/funcionario-categorias-editar-novo';
+export * from './funcionario-relatorio-receitas/funcionario-relatorio-receitas';
+export * from './funcionario-relatorio-categorias/funcionario-relatorio-categorias';
