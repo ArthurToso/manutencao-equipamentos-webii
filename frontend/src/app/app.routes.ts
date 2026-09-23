@@ -3,7 +3,8 @@ import {
   Login, Autocadastro,
   ClienteLayout, ClienteHome, ClienteNovaSolicitacao, ClienteOrcamento, ClienteSolicitacao,
   FuncionarioLayout, FuncionarioHome, FuncionarioOrcamento, FuncionarioSolicitacoes, FuncionarioManutencao, 
-  FuncionarioCategorias, FuncionarioCategoriasEditarNovo, ClientePagarServico
+  FuncionarioCategorias, FuncionarioCategoriasEditarNovo, ClientePagarServico,
+  FuncionarioRelatorioReceitas, FuncionarioRelatorioCategorias
 } from './pages';
 
 export const routes: Routes = [
@@ -30,6 +31,8 @@ export const routes: Routes = [
       { path: 'categorias', component:FuncionarioCategorias },
       { path: 'categorias/inserir', component:FuncionarioCategoriasEditarNovo },
       { path: 'categorias/editar/:id', component:FuncionarioCategoriasEditarNovo },
+      { path: 'relatorio-receitas', component: FuncionarioRelatorioReceitas },
+      { path: 'relatorio-categoria', component: FuncionarioRelatorioCategorias },
       { path: '', redirectTo: 'home', pathMatch: 'full' },
       { path: '**', redirectTo: 'home' },
     ]},
