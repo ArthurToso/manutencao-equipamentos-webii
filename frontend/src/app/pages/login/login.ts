@@ -15,8 +15,6 @@ export class Login {
   submitting = false;
   loginError: string | null = null;
 
-  // Legenda de estados da solicitação (RF013), usada apenas como elemento visual
-  // de identidade do sistema no painel lateral.
   readonly estados = [
     { nome: 'Aberta', cor: '#8A93A3' },
     { nome: 'Orçada', cor: '#8C6A4F' },
