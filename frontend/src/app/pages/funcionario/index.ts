@@ -7,3 +7,5 @@ export * from './funcionario-categorias/funcionario-categorias';
 export * from './funcionario-categorias-editar-novo/funcionario-categorias-editar-novo';
 export * from './funcionario-relatorio-receitas/funcionario-relatorio-receitas';
 export * from './funcionario-relatorio-categorias/funcionario-relatorio-categorias';
+export * from './funcionario-funcionarios/funcionario-funcionarios'
+export * from './funcionario-funcionarios-editar-novo/funcionario-funcionarios-editar-novo'

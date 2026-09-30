@@ -4,7 +4,9 @@ import {
   ClienteLayout, ClienteHome, ClienteNovaSolicitacao, ClienteOrcamento, ClienteSolicitacao,
   FuncionarioLayout, FuncionarioHome, FuncionarioOrcamento, FuncionarioSolicitacoes, FuncionarioManutencao, 
   FuncionarioCategorias, FuncionarioCategoriasEditarNovo, ClientePagarServico,
-  FuncionarioRelatorioReceitas, FuncionarioRelatorioCategorias
+  FuncionarioRelatorioReceitas, FuncionarioRelatorioCategorias,
+  FuncionarioFuncionarios,
+  FuncionarioFuncionariosEditarNovo
 } from './pages';
 
 export const routes: Routes = [
@@ -33,6 +35,9 @@ export const routes: Routes = [
       { path: 'categorias/editar/:id', component:FuncionarioCategoriasEditarNovo },
       { path: 'relatorio-receitas', component: FuncionarioRelatorioReceitas },
       { path: 'relatorio-categoria', component: FuncionarioRelatorioCategorias },
+      { path: 'funcionarios', component: FuncionarioFuncionarios},
+      { path: 'funcionarios/inserir', component: FuncionarioFuncionariosEditarNovo},
+      { path: 'funcionarios/editar/:id', component: FuncionarioFuncionariosEditarNovo},
       { path: '', redirectTo: 'home', pathMatch: 'full' },
       { path: '**', redirectTo: 'home' },
     ]},
