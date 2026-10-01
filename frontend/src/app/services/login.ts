@@ -1,46 +1,46 @@
-import { Injectable, Service } from '@angular/core';
 import { Observable, of } from 'rxjs';
+import { computed, Service, signal } from '@angular/core';
 import { UsuarioDTO, LoginDTO } from '../shared';
 
-
-const LS_CHAVE: string = "userLogado";
-
-//refatorar
-@Injectable({
-    providedIn: 'root'
-})
-export class LoginService {
-    public get usuarioLogado(): UsuarioDTO | null {
-    let usu = localStorage[LS_CHAVE];
-        return (usu ? JSON.parse(localStorage[LS_CHAVE]) : null);
+const MOCK_USERS: any [] = [
+    {
+        id: 1,
+        nome: 'John Doe',
+        email: 'john.doe@gmail.com',
+        perfil: 'CLIENTE'
+    },
+    {
+        id: 2,
+        nome: 'Maria Doe',
+        email: 'maria.doe@gmail.com',
+        perfil: 'FUNCIONARIO'
     }
-    public set usuarioLogado(usuario: UsuarioDTO) {
-        localStorage[LS_CHAVE] = JSON.stringify(usuario);
-    }
-    logout() {
-       delete localStorage[LS_CHAVE];
-    }
+]
 
-    login(login: LoginDTO): Observable<UsuarioDTO | null> {
-        //substituir por consulta a API e leitura do token JWT
-        
-        let usu : UsuarioDTO = {
-            nome : login.login,
-            email : login.login
-        };
+@Service()
+export class Login {
 
+    curUser = signal<UsuarioDTO | null>(null);
 
-        if (login.login == login.senha) {
-            if (login.login == "funcionario") {
-                usu.perfil = "FUNCIONARIO";
-            }
-            else if (login.login == "cliente") {
-                usu.perfil = "CLIENTE";
-            }
-            return of(usu);
+    isLoggedIn = computed(() => !!this.curUser());
+    userRole = computed(() => this.curUser()?.perfil);
+
+    login(login: LoginDTO): Observable<UsuarioDTO | null>{
+        //sera o request ao api/login
+        let user = MOCK_USERS.find( u => u.email === login.login && u.senha === login.senha);
+
+        if(user){
+            this.curUser.set(user);
+            return of(user);
+        }else{
+            return of(null);
         }
-        else {
-         return of(null);
-        }
+
     }
+
+    logout(): void {
+        this.curUser.set(null);
+    }
+
+
 }

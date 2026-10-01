@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -11,9 +11,6 @@ import { Router, RouterLink } from '@angular/router';
   styleUrl: './login.scss'
 })
 export class Login {
-  form: FormGroup;
-  submitting = false;
-  loginError: string | null = null;
 
   readonly estados = [
     { nome: 'Aberta', cor: '#8A93A3' },
@@ -26,12 +23,15 @@ export class Login {
     { nome: 'Finalizada', cor: '#4C8C5E' }
   ];
 
-  constructor(private fb: FormBuilder, private router: Router) {
-    this.form = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      senha: ['', [Validators.required]]
-    });
-  }
+  private fb = inject(FormBuilder);
+  private router = inject(Router);
+  submitting = false;
+  loginError: string | null = null;
+
+  form: FormGroup = this.fb.group({
+    email: ['', [Validators.required, Validators.email]],
+    senha: ['', [Validators.required, Validators.minLength(8)]]
+  });
 
   get email() {
     return this.form.get('email');
@@ -41,6 +41,11 @@ export class Login {
     return this.form.get('senha');
   }
 
+  isFieldInvalid(fieldName: string): boolean {
+    const field = this.form.get(fieldName);
+    return !!(field && field.invalid && (field.dirty || field.touched));
+  }
+  
   onSubmit(): void {
     this.loginError = null;
 
