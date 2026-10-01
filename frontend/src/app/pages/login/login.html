@@ -13,10 +13,12 @@
       </p>
 
       <ul class="state-legend" aria-label="Estados de uma solicitação">
-        <li *ngFor="let estado of estados" class="state-legend__item">
-          <span class="state-legend__dot" [style.background]="estado.cor"></span>
-          <span class="state-legend__label">{{ estado.nome }}</span>
-        </li>
+        @for (estado of estados; track $index) {
+          <li class="state-legend__item">
+            <span class="state-legend__dot" [style.background]="estado.cor"></span>
+            <span class="state-legend__label">{{ estado.nome }}</span>
+          </li>
+        }
       </ul>
     </div>
   </aside>
@@ -38,11 +40,21 @@
             formControlName="email"
             autocomplete="username"
             placeholder="nome@empresa.com"
+            [class.is-invalid]="isFieldInvalid('email')"
           />
-          <p class="field__error" *ngIf="email?.invalid && email?.touched">
-            <ng-container *ngIf="email?.errors?.['required']">Informe seu e-mail.</ng-container>
-            <ng-container *ngIf="email?.errors?.['email']">Informe um e-mail válido.</ng-container>
-          </p>
+          @if(isFieldInvalid('email')) {
+            <p class="field__error">
+              <ng-container>
+                @if(email?.errors?.['required']) {
+                  Informe seu e-mail.
+                } @else if(email?.errors?.['email']) {
+                  Informe um e-mail válido.
+                } @else {
+                  Valor inválido.
+                }
+              </ng-container>
+            </p>
+          }
         </div>
 
         <div class="field">
@@ -57,16 +69,35 @@
             autocomplete="current-password"
             placeholder="••••••"
           />
-          <p class="field__error" *ngIf="senha?.invalid && senha?.touched">
-            Informe sua senha.
-          </p>
+          @if(isFieldInvalid('senha')) {
+            <p class="field__error">
+              <ng-container>
+                @if(senha?.errors?.['required']) {
+                  Informe sua senha.
+                } @else if(senha?.errors?.['minlength']) {
+                  A senha deve ter pelo menos 8 caracteres.
+                } @else {
+                  Valor inválido.
+                }
+              </ng-container>
+            </p>
+          }
         </div>
 
-        <p class="form-error" *ngIf="loginError">{{ loginError }}</p>
+        @if(loginError) {
+          <p class="login-form__error">
+            {{ loginError }}
+          </p>
+        }
 
-        <button type="submit" class="btn-primary" [disabled]="submitting">
-          <span *ngIf="!submitting">Entrar</span>
-          <span *ngIf="submitting">Entrando…</span>
+        <button type="submit" class="btn-primary" [disabled]="submitting || form.invalid">
+          <span>
+            @if(submitting) {
+              <i class="fa-solid fa-spinner fa-spin"></i>
+            } @else {
+              Entrar
+            }
+          </span>
         </button>
       </form>
 
