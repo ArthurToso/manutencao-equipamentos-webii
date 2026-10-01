@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
-import { UsuarioDTO } from '../../../shared';
+import { FuncionarioDTO } from '../../../shared';
 import { RouterLink } from '@angular/router';
 
-const mockFuncionarios: UsuarioDTO[] = [
-  { id: 1, nome: 'Carlos Silva', email: "carlossilva@gmail.com", perfil: 'FUNCIONARIO' },
-  { id: 2, nome: 'Silva Carlos', email: "silvacarlos@gmail.com", perfil: 'FUNCIONARIO' }
+const mockFuncionarios: FuncionarioDTO[] = [
+  { id: 1, nome: 'Carlos Silva', email: "carlossilva@gmail.com", perfil: 'FUNCIONARIO', dtNasc: "01-01-2001" },
+  { id: 2, nome: 'Silva Carlos', email: "silvacarlos@gmail.com", perfil: 'FUNCIONARIO', dtNasc: "02-02-2002" }
 ];
 
 @Component({
@@ -16,7 +16,7 @@ const mockFuncionarios: UsuarioDTO[] = [
 
 export class FuncionarioFuncionarios {
 
-  funcionarios: UsuarioDTO[] = []
+  funcionarios: FuncionarioDTO[] = []
 
   ngOnInit(): void {
     this.carregarFuncionarios();
@@ -29,13 +29,13 @@ export class FuncionarioFuncionarios {
 
   excluirFuncionario(id: number | undefined): void {
     if (id === undefined) return;
-    if (confirm('Tem certeza que deseja excluir esta categoria?')) {
-      if (this.funcionarios.length === 1){
+    if (this.funcionarios.length === 1){
         window.alert('É necessário ter pelo menos 1 funcionário cadastrado!')
         return
-      }
+    }
+    if (confirm('Tem certeza que deseja excluir este funcionário?')) {
       this.funcionarios = this.funcionarios.filter(c => c.id !== id);
-      window.alert(`Categoria #${id} excluída com sucesso!`);
+      window.alert(`Funcionário #${id} excluído com sucesso!`);
     }
   }
 }
