@@ -44,6 +44,9 @@ public class Solicitacao {
     @Column(name = "valor_orcamento")
     private java.math.BigDecimal valorOrcamento;
 
+    @Column(name = "motivo_rejeicao")
+    private String motivoRejeicao;
+
     public Solicitacao() {}
 
     public Long getId() {
@@ -108,5 +111,13 @@ public class Solicitacao {
 
     public void setValorOrcamento(java.math.BigDecimal valorOrcamento) {
         this.valorOrcamento = valorOrcamento;
+    }
+
+    public String getMotivoRejeicao() {
+        return motivoRejeicao;
+    }
+
+    public void setMotivoRejeicao(String motivoRejeicao) {
+        this.motivoRejeicao = motivoRejeicao;
     }
 }
