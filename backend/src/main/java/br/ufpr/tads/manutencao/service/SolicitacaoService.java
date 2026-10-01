@@ -47,6 +47,38 @@ public class SolicitacaoService {
         return toResponse(solicitacao);
     }
 
+    public java.util.List<SolicitacaoResponse> buscarPorClienteId(Long clienteId) {
+        return solicitacaoRepository.findByClienteIdOrderByDataHoraDesc(clienteId)
+                .stream()
+                .map(this::toResponse)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    public SolicitacaoResponse aprovarServico(Long id) {
+        Solicitacao solicitacao = solicitacaoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Solicitação não encontrada"));
+        
+        if (solicitacao.getEstado() != EstadoSolicitacao.ORCADA) {
+            throw new IllegalStateException("A solicitação não está no estado ORCADA");
+        }
+        
+        solicitacao.setEstado(EstadoSolicitacao.APROVADA);
+        return toResponse(solicitacaoRepository.save(solicitacao));
+    }
+
+    public SolicitacaoResponse rejeitarServico(Long id, String motivo) {
+        Solicitacao solicitacao = solicitacaoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Solicitação não encontrada"));
+        
+        if (solicitacao.getEstado() != EstadoSolicitacao.ORCADA) {
+            throw new IllegalStateException("A solicitação não está no estado ORCADA");
+        }
+        
+        solicitacao.setEstado(EstadoSolicitacao.REJEITADA);
+        solicitacao.setMotivoRejeicao(motivo);
+        return toResponse(solicitacaoRepository.save(solicitacao));
+    }
+
     private SolicitacaoResponse toResponse(Solicitacao solicitacao) {
         SolicitacaoResponse response = new SolicitacaoResponse();
         response.setId(solicitacao.getId());
@@ -58,6 +90,7 @@ public class SolicitacaoService {
         response.setEstado(solicitacao.getEstado().name());
         response.setClienteId(solicitacao.getClienteId());
         response.setValorOrcamento(solicitacao.getValorOrcamento());
+        response.setMotivoRejeicao(solicitacao.getMotivoRejeicao());
         return response;
     }
 }

@@ -1,15 +1,19 @@
 package br.ufpr.tads.manutencao.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.ufpr.tads.manutencao.dto.RejeicaoRequest;
 import br.ufpr.tads.manutencao.dto.SolicitacaoRequest;
 import br.ufpr.tads.manutencao.dto.SolicitacaoResponse;
 import br.ufpr.tads.manutencao.service.SolicitacaoService;
@@ -35,6 +39,24 @@ public class SolicitacaoController {
     @GetMapping("/{id}/orcamento")
     public ResponseEntity<SolicitacaoResponse> buscarOrcamento(@PathVariable Long id) {
         SolicitacaoResponse response = solicitacaoService.buscarOrcamento(id);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/cliente/{clienteId}")
+    public ResponseEntity<List<SolicitacaoResponse>> buscarPorCliente(@PathVariable Long clienteId) {
+        List<SolicitacaoResponse> response = solicitacaoService.buscarPorClienteId(clienteId);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{id}/aprovar")
+    public ResponseEntity<SolicitacaoResponse> aprovarServico(@PathVariable Long id) {
+        SolicitacaoResponse response = solicitacaoService.aprovarServico(id);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{id}/rejeitar")
+    public ResponseEntity<SolicitacaoResponse> rejeitarServico(@PathVariable Long id, @Valid @RequestBody RejeicaoRequest request) {
+        SolicitacaoResponse response = solicitacaoService.rejeitarServico(id, request.getMotivo());
         return ResponseEntity.ok(response);
     }
 }

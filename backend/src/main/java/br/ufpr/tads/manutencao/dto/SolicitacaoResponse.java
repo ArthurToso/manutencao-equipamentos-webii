@@ -13,6 +13,7 @@ public class SolicitacaoResponse {
     private String estado;
     private Long clienteId;
     private java.math.BigDecimal valorOrcamento;
+    private String motivoRejeicao;
 
     public Long getId() {
         return id;
@@ -84,5 +85,13 @@ public class SolicitacaoResponse {
 
     public void setValorOrcamento(java.math.BigDecimal valorOrcamento) {
         this.valorOrcamento = valorOrcamento;
+    }
+
+    public String getMotivoRejeicao() {
+        return motivoRejeicao;
+    }
+
+    public void setMotivoRejeicao(String motivoRejeicao) {
+        this.motivoRejeicao = motivoRejeicao;
     }
 }
