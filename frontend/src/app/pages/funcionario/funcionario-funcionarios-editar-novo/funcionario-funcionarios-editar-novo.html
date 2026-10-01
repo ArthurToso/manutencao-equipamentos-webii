@@ -1,58 +1,114 @@
 <div class="category-form-container">
-  
+
   <header class="category-form__header">
     <div class="category-form__title-group">
       <h1>{{ isEdicao ? 'Editar Funcionário' : 'Novo Funcionário' }}</h1>
-      <p>{{ isEdicao ? 'Atualize o nome do funcionário selecionado.' : 'Preencha as informações para cadastrar um novo funcionário.' }}</p>
+      <p>{{ isEdicao ? 'Atualize os dados do funcionário selecionado.' : 'Preencha as informações para cadastrar um novo funcionário.' }}</p>
     </div>
   </header>
 
   <form [formGroup]="form" (ngSubmit)="salvar()" class="category-form">
-    
-    <div class="form-group" *ngIf="isEdicao">
-      <label for="id">ID</label>
-      <input type="text" id="id" [value]="funcionarioId" disabled class="form-control form-control--disabled" />
-    </div>
 
+    @if (isEdicao) {
+      <div class="form-group">
+        <label for="id">ID</label>
+        <input type="text" id="id" [value]="funcionarioId" disabled class="form-control form-control--disabled" />
+      </div>
+    }
+
+    @let nome = form.get('nome');
     <div class="form-group">
       <label for="nome">Nome do Funcionário</label>
-      <input 
-        type="text" 
-        id="nome" 
-        formControlName="nome"  
+      <input
+        type="text"
+        id="nome"
+        formControlName="nome"
         class="form-control"
-        [class.is-invalid]="form.get('nome')?.hasError('required') && (form.get('nome')?.dirty || form.get('nome')?.touched) || 
-                            form.get('nome')?.hasError('minlength') && (form.get('nome')?.dirty || form.get('nome')?.touched)"
+        [class.is-invalid]="nome?.invalid && (nome?.dirty || nome?.touched)"
       />
-      @if ( form.get('nome')?.hasError('required') && (form.get('nome')?.dirty || form.get('nome')?.touched)) {
-        <span class="error-message">O nome do funcionário é obrigatório.</span>
-      }
-      @if ( form.get('nome')?.hasError('minlength') && (form.get('nome')?.dirty || form.get('nome')?.touched)) {
-        <span class="error-message">O nome do funcionário precisa conter no mínimo 2 caracteres.</span>
-      }
-      <label for="email">E-mail do Funcionário</label>
-      <input 
-        type="text" 
-        id="email" 
-        formControlName="email" 
-        placeholder="Ex: funcionario@funcionario.com.br" 
-        class="form-control"
-        [class.is-invalid]="form.get('email')?.hasError('required') && (form.get('email')?.dirty || form.get('email')?.touched) || 
-                            form.get('email')?.hasError('email') && (form.get('email')?.dirty || form.get('email')?.touched)"
-      />
-      @if ( form.get('email')?.hasError('required') && (form.get('email')?.dirty || form.get('email')?.touched)) {
-        <span class="error-message">O e-mail do funcionário é obrigatório.</span>
-      }
-      @if ( form.get('email')?.hasError('email') && (form.get('email')?.dirty || form.get('email')?.touched)) {
-        <span class="error-message">Digite um e-mail válido.</span>
+      @if (nome?.dirty || nome?.touched) {
+        @if (nome?.hasError('required')) {
+          <span class="error-message">O nome do funcionário é obrigatório.</span>
+        }
+        @if (nome?.hasError('minlength')) {
+          <span class="error-message">O nome do funcionário precisa conter no mínimo 2 caracteres.</span>
+        }
       }
     </div>
+
+    @let email = form.get('email');
+    <div class="form-group">
+      <label for="email">E-mail do Funcionário</label>
+      <input
+        type="email"
+        id="email"
+        formControlName="email"
+        placeholder="Ex: funcionario@funcionario.com.br"
+        class="form-control"
+        [class.is-invalid]="email?.invalid && (email?.dirty || email?.touched)"
+      />
+      @if (email?.dirty || email?.touched) {
+        @if (email?.hasError('required')) {
+          <span class="error-message">O e-mail do funcionário é obrigatório.</span>
+        }
+        @if (email?.hasError('email')) {
+          <span class="error-message">Digite um e-mail válido.</span>
+        }
+      }
+    </div>
+
+    @let dtNasc = form.get('dtNasc');
+    <div class="form-group">
+      <label for="dtNasc">Data de Nascimento</label>
+      <div class="input-group">
+        <input
+          type="text"
+          id="dtNasc"
+          formControlName="dtNasc"
+          placeholder="dd/mm/aaaa"
+          class="form-control"
+          [class.is-invalid]="dtNasc?.invalid && (dtNasc?.dirty || dtNasc?.touched)"
+          ngbDatepicker
+          #dp="ngbDatepicker"
+          [maxDate]="hoje"
+        />
+        <button type="button" class="btn btn--outline" (click)="dp.toggle()" aria-label="Abrir calendário">
+          <i class="fa fa-calendar"></i>
+        </button>
+      </div>
+      @if (dtNasc?.hasError('required') && (dtNasc?.dirty || dtNasc?.touched)) {
+        <span class="error-message">A data de nascimento é obrigatória.</span>
+      }
+    </div>
+
+    @if (!isEdicao) {
+      @let senha = form.get('senha');
+      <div class="form-group">
+        <label for="senha">Senha</label>
+        <input
+          type="password"
+          id="senha"
+          formControlName="senha"
+          autocomplete="new-password"
+          class="form-control"
+          [class.is-invalid]="senha?.invalid && (senha?.dirty || senha?.touched)"
+        />
+        @if (senha?.dirty || senha?.touched) {
+          @if (senha?.hasError('required')) {
+            <span class="error-message">A senha é obrigatória.</span>
+          }
+          @if (senha?.hasError('minlength')) {
+            <span class="error-message">A senha precisa conter no mínimo 6 caracteres.</span>
+          }
+        }
+      </div>
+    }
 
     <div class="category-form__actions">
       <button type="button" class="btn btn--outline" [routerLink]="['/funcionario/funcionarios']">
         Cancelar
       </button>
-      <button type="submit" class="btn btn--primary" [disabled]="form.invalid">
+      <button type="submit" class="btn btn--primary">
         {{ isEdicao ? 'Salvar Alterações' : 'Cadastrar Funcionário' }}
       </button>
     </div>
