@@ -1,12 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { SolicitacaoDetailedDTO as Solicitacao, Categoria, UsuarioDTO, EstadoSolicitacao } from '../../../shared/';
+import { SolicitacaoDetailedDTO as Solicitacao, EstadoSolicitacao } from '../../../shared/';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { CommonModule } from '@angular/common';
-
-
-const CAT_NOTEBOOK: Categoria = { id: 1, nome: 'Notebook' }
-const CAT_IMPRESSORA: Categoria = { id: 2, nome: 'Impressora' }
+import { SolicitacaoService } from '../../../services/solicitacao.service';
 
 @Component({
   imports: [DatePipe, RouterLink, CommonModule],
@@ -17,58 +14,37 @@ const CAT_IMPRESSORA: Categoria = { id: 2, nome: 'Impressora' }
 
 export class ClienteSolicitacao implements OnInit{
   
-  private readonly mock: Solicitacao[] = [
-    {
-      id: 1,
-      descricaoEquipamento: 'Notebook Dell Inspiron 15',
-      categoriaEquipamento: CAT_NOTEBOOK,
-      descricaoProblema: 'Não liga, luz de energia não acende',
-      dataHora: new Date('2026-09-01T10:30:00'),
-      estado: EstadoSolicitacao.ARRUMADA,
-      valorOrcado: 450,
-      descricaoManutencao: 'Substituição da placa de energia',
-      orientacoesCliente: 'Evitar usar o notebook sem estabilizador',
-      historico: [
-        { id: 1, estado: EstadoSolicitacao.ABERTA,   dataHora: new Date('2026-09-01T10:30:00'), userResponsavel: {id: 1, nome: 'Jose Santos', email: 'jose@gmail.com'} },
-        { id: 2, estado: EstadoSolicitacao.ORCADA,   dataHora: new Date('2026-09-02T09:15:00'), userResponsavel: {id: 2, nome: 'Joao Costa', email: 'joao@gmail.com'} },
-        { id: 3, estado: EstadoSolicitacao.APROVADA, dataHora: new Date('2026-09-02T14:00:00'), userResponsavel: {id: 3, nome: 'Lucas Moura', email: 'lucas@gmail.com'} },
-        { id: 4, estado: EstadoSolicitacao.ARRUMADA, dataHora: new Date('2026-09-04T16:20:00'), userResponsavel: {id: 4, nome: 'Julia Motta', email: 'Julia@gmail.com'} }
-      ]
-    },
-    {
-      id: 2,
-      descricaoEquipamento: 'Impressora HP',
-      categoriaEquipamento: CAT_IMPRESSORA,
-      descricaoProblema: 'Não está imprimindo',
-      dataHora: new Date('2026-09-01T12:30:00'),
-      estado: EstadoSolicitacao.ABERTA,
-      historico: [
-        { id: 1, estado: EstadoSolicitacao.ABERTA,   dataHora: new Date('2026-09-01T12:30:00'), userResponsavel: {id: 4, nome: 'Julia Motta', email: 'Julia@gmail.com'} }
-      ]
-    },
-    {
-      id: 3,
-      descricaoEquipamento: 'Notebook Lenovo Thinkpad',
-      categoriaEquipamento: CAT_NOTEBOOK,
-      descricaoProblema: 'Não liga',
-      dataHora: new Date('2026-09-01T13:30:00'),
-      estado: EstadoSolicitacao.ORCADA,
-      valorOrcado: 250,
-      historico: [
-        { id: 1, estado: EstadoSolicitacao.ABERTA,   dataHora: new Date('2026-09-01T13:30:00'), userResponsavel: {id: 2, nome: 'Joao Costa', email: 'joao@gmail.com'} },
-        { id: 2, estado: EstadoSolicitacao.ORCADA,   dataHora: new Date('2026-09-02T15:15:00'), userResponsavel: {id: 5, nome: 'Maria Silva', email: 'maria@gmail.com'} }
-      ]
-    },
-  ]
+  solicitacao?: Solicitacao;
   
-  constructor(private route: ActivatedRoute){}
+  constructor(
+    private route: ActivatedRoute,
+    private solicitacaoService: SolicitacaoService
+  ){}
 
-  solicitacao?: Solicitacao
-  
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.solicitacao = this.mock.find(s => s.id === id);
-    //vou tratar undefined no template
+    this.solicitacaoService.buscarPorId(id).subscribe({
+      next: (res) => {
+        this.solicitacao = {
+          id: res.id,
+          descricaoEquipamento: res.descricaoEquipamento,
+          categoriaEquipamento: { id: res.categoriaId, nome: res.categoriaNome },
+          descricaoProblema: res.descricaoDefeito,
+          dataHora: new Date(res.dataHora),
+          estado: res.estado as EstadoSolicitacao,
+          valorOrcado: res.valorOrcamento,
+          motivoRejeicao: res.motivoRejeicao,
+          historico: res.historico ? res.historico.map((h: any, index: number) => ({
+            id: index,
+            estado: h.estado as EstadoSolicitacao,
+            dataHora: new Date(h.dataHora),
+            userResponsavel: h.nomeFuncionario ? { id: 0, nome: h.nomeFuncionario, email: '' } : { id: 0, nome: 'Cliente/Sistema', email: '' }
+          })) : []
+        };
+      },
+      error: (err) => {
+        console.error('Erro ao buscar solicitação', err);
+      }
+    });
   }
-
 }

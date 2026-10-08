@@ -13,12 +13,10 @@
       </p>
 
       <ul class="state-legend" aria-label="Estados de uma solicitação">
-        @for (estado of estados; track $index) {
-          <li class="state-legend__item">
-            <span class="state-legend__dot" [style.background]="estado.cor"></span>
-            <span class="state-legend__label">{{ estado.nome }}</span>
-          </li>
-        }
+        <li *ngFor="let estado of estados" class="state-legend__item">
+          <span class="state-legend__dot" [style.background]="estado.cor"></span>
+          <span class="state-legend__label">{{ estado.nome }}</span>
+        </li>
       </ul>
     </div>
   </aside>
@@ -34,27 +32,12 @@
 
         <div class="field">
           <label for="email">E-mail</label>
-          <input
-            id="email"
-            type="email"
-            formControlName="email"
-            autocomplete="username"
-            placeholder="nome@empresa.com"
-            [class.is-invalid]="isFieldInvalid('email')"
-          />
-          @if(isFieldInvalid('email')) {
-            <p class="field__error">
-              <ng-container>
-                @if(email?.errors?.['required']) {
-                  Informe seu e-mail.
-                } @else if(email?.errors?.['email']) {
-                  Informe um e-mail válido.
-                } @else {
-                  Valor inválido.
-                }
-              </ng-container>
-            </p>
-          }
+          <input id="email" type="email" formControlName="email" autocomplete="username"
+            placeholder="nome@empresa.com" />
+          <p class="field__error" *ngIf="email?.invalid && email?.touched">
+            <ng-container *ngIf="email?.errors?.['required']">Informe seu e-mail.</ng-container>
+            <ng-container *ngIf="email?.errors?.['email']">Informe um e-mail válido.</ng-container>
+          </p>
         </div>
 
         <div class="field">
@@ -62,42 +45,18 @@
             <label for="senha">Senha</label>
             <a routerLink="/recuperar-senha" class="field__aux-link">Esqueci minha senha</a>
           </div>
-          <input
-            id="senha"
-            type="password"
-            formControlName="senha"
-            autocomplete="current-password"
-            placeholder="••••••"
-          />
-          @if(isFieldInvalid('senha')) {
-            <p class="field__error">
-              <ng-container>
-                @if(senha?.errors?.['required']) {
-                  Informe sua senha.
-                } @else if(senha?.errors?.['minlength']) {
-                  A senha deve ter pelo menos 8 caracteres.
-                } @else {
-                  Valor inválido.
-                }
-              </ng-container>
-            </p>
-          }
+          <input id="senha" type="password" formControlName="senha" autocomplete="current-password"
+            placeholder="••••••" />
+          <p class="field__error" *ngIf="senha?.invalid && senha?.touched">
+            Informe sua senha.
+          </p>
         </div>
 
-        @if(loginError) {
-          <p class="login-form__error">
-            {{ loginError }}
-          </p>
-        }
+        <p class="form-error" *ngIf="loginError">{{ loginError }}</p>
 
-        <button type="submit" class="btn-primary" [disabled]="submitting || form.invalid">
-          <span>
-            @if(submitting) {
-              <i class="fa-solid fa-spinner fa-spin"></i>
-            } @else {
-              Entrar
-            }
-          </span>
+        <button type="submit" class="btn-primary" [disabled]="submitting" routerLink="/cliente/home">
+          <span *ngIf="!submitting">Entrar</span>
+          <span *ngIf="submitting">Entrando…</span>
         </button>
       </form>
 
