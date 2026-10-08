@@ -9,6 +9,9 @@ import br.ufpr.tads.manutencao.dto.SolicitacaoResponse;
 import br.ufpr.tads.manutencao.model.Categoria;
 import br.ufpr.tads.manutencao.model.EstadoSolicitacao;
 import br.ufpr.tads.manutencao.model.Solicitacao;
+import br.ufpr.tads.manutencao.dto.HistoricoDTO;
+import br.ufpr.tads.manutencao.model.HistoricoSolicitacao;
+import br.ufpr.tads.manutencao.repository.HistoricoSolicitacaoRepository;
 import br.ufpr.tads.manutencao.repository.CategoriaRepository;
 import br.ufpr.tads.manutencao.repository.SolicitacaoRepository;
 
@@ -17,11 +20,14 @@ public class SolicitacaoService {
 
     private final SolicitacaoRepository solicitacaoRepository;
     private final CategoriaRepository categoriaRepository;
+    private final HistoricoSolicitacaoRepository historicoSolicitacaoRepository;
 
     public SolicitacaoService(SolicitacaoRepository solicitacaoRepository,
-                              CategoriaRepository categoriaRepository) {
+                              CategoriaRepository categoriaRepository,
+                              HistoricoSolicitacaoRepository historicoSolicitacaoRepository) {
         this.solicitacaoRepository = solicitacaoRepository;
         this.categoriaRepository = categoriaRepository;
+        this.historicoSolicitacaoRepository = historicoSolicitacaoRepository;
     }
 
     public SolicitacaoResponse criarSolicitacao(SolicitacaoRequest request) {
@@ -37,6 +43,7 @@ public class SolicitacaoService {
         solicitacao.setClienteId(request.getClienteId());
 
         Solicitacao salva = solicitacaoRepository.save(solicitacao);
+        salvarHistorico(salva);
 
         return toResponse(salva);
     }
@@ -45,6 +52,12 @@ public class SolicitacaoService {
         Solicitacao solicitacao = solicitacaoRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Solicitação não encontrada"));
         return toResponse(solicitacao);
+    }
+
+    public SolicitacaoResponse buscarPorId(Long id) {
+        Solicitacao solicitacao = solicitacaoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Solicitação não encontrada"));
+        return toResponseComHistorico(solicitacao);
     }
 
     public java.util.List<SolicitacaoResponse> buscarPorClienteId(Long clienteId) {
@@ -63,7 +76,9 @@ public class SolicitacaoService {
         }
         
         solicitacao.setEstado(EstadoSolicitacao.APROVADA);
-        return toResponse(solicitacaoRepository.save(solicitacao));
+        Solicitacao salva = solicitacaoRepository.save(solicitacao);
+        salvarHistorico(salva);
+        return toResponse(salva);
     }
 
     public SolicitacaoResponse rejeitarServico(Long id, String motivo) {
@@ -76,7 +91,9 @@ public class SolicitacaoService {
         
         solicitacao.setEstado(EstadoSolicitacao.REJEITADA);
         solicitacao.setMotivoRejeicao(motivo);
-        return toResponse(solicitacaoRepository.save(solicitacao));
+        Solicitacao salva = solicitacaoRepository.save(solicitacao);
+        salvarHistorico(salva);
+        return toResponse(salva);
     }
 
     private SolicitacaoResponse toResponse(Solicitacao solicitacao) {
@@ -92,5 +109,29 @@ public class SolicitacaoService {
         response.setValorOrcamento(solicitacao.getValorOrcamento());
         response.setMotivoRejeicao(solicitacao.getMotivoRejeicao());
         return response;
+    }
+
+    private SolicitacaoResponse toResponseComHistorico(Solicitacao solicitacao) {
+        SolicitacaoResponse response = toResponse(solicitacao);
+        java.util.List<HistoricoSolicitacao> historicos = historicoSolicitacaoRepository.findBySolicitacaoIdOrderByDataHoraAsc(solicitacao.getId());
+        java.util.List<HistoricoDTO> historicoDTOs = historicos.stream().map(h -> {
+            HistoricoDTO dto = new HistoricoDTO();
+            dto.setEstado(h.getEstado().name());
+            dto.setDataHora(h.getDataHora());
+            if (h.getUsuario() != null) {
+                dto.setNomeFuncionario(h.getUsuario().getNome());
+            }
+            return dto;
+        }).collect(java.util.stream.Collectors.toList());
+        response.setHistorico(historicoDTOs);
+        return response;
+    }
+
+    private void salvarHistorico(Solicitacao solicitacao) {
+        HistoricoSolicitacao historico = new HistoricoSolicitacao();
+        historico.setSolicitacao(solicitacao);
+        historico.setEstado(solicitacao.getEstado());
+        historico.setDataHora(LocalDateTime.now());
+        historicoSolicitacaoRepository.save(historico);
     }
 }

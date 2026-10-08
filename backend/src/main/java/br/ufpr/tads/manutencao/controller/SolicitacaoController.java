@@ -59,4 +59,9 @@ public class SolicitacaoController {
         SolicitacaoResponse response = solicitacaoService.rejeitarServico(id, request.getMotivo());
         return ResponseEntity.ok(response);
     }
+    @GetMapping("/{id}")
+    public ResponseEntity<SolicitacaoResponse> buscarPorId(@PathVariable Long id) {
+        SolicitacaoResponse response = solicitacaoService.buscarPorId(id);
+        return ResponseEntity.ok(response);
+    }
 }

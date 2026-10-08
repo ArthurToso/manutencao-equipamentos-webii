@@ -94,4 +94,14 @@ public class SolicitacaoResponse {
     public void setMotivoRejeicao(String motivoRejeicao) {
         this.motivoRejeicao = motivoRejeicao;
     }
+
+    private java.util.List<HistoricoDTO> historico;
+
+    public java.util.List<HistoricoDTO> getHistorico() {
+        return historico;
+    }
+
+    public void setHistorico(java.util.List<HistoricoDTO> historico) {
+        this.historico = historico;
+    }
 }
