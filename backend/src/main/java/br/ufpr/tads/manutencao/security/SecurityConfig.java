@@ -54,6 +54,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/autocadastro").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/clientes").permitAll()
                 .requestMatchers("/api/funcionarios/**").hasRole("FUNCIONARIO")
+                .requestMatchers("/api/relatorios/**").hasRole("FUNCIONARIO")
                 .requestMatchers(HttpMethod.GET, "/api/categorias", "/api/categorias/**").hasAnyRole("CLIENTE", "FUNCIONARIO")
                 .requestMatchers(HttpMethod.POST, "/api/categorias", "/api/categorias/**").hasRole("FUNCIONARIO")
                 .requestMatchers(HttpMethod.PUT, "/api/categorias", "/api/categorias/**").hasRole("FUNCIONARIO")
