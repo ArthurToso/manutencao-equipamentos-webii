@@ -105,7 +105,12 @@ public class FuncionarioService {
             throw new IllegalStateException("Não é possível remover o único funcionário ativo");
         }
 
-        // TODO: impedir que o funcionário remova a si mesmo (depende do login, issue #16)
+        br.ufpr.tads.manutencao.security.UsuarioAutenticado usuarioLogado =
+                br.ufpr.tads.manutencao.security.SecurityUtils.getUsuarioAutenticadoObrigatorio();
+
+        if (id.equals(usuarioLogado.getFuncionarioId())) {
+            throw new IllegalStateException("Não é possível remover o próprio usuário conectado");
+        }
 
         funcionario.getUsuario().setAtivo(false);
         funcionarioRepository.save(funcionario);
