@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { CategoriaService } from '../../../services/categoria.service';
 
 @Component({
   selector: 'app-funcionario-categoria-editar-novo',
@@ -18,7 +19,8 @@ export class FuncionarioCategoriasEditarNovo implements OnInit {
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private categoriaService: CategoriaService
   ) {}
 
   ngOnInit(): void {
@@ -44,19 +46,18 @@ export class FuncionarioCategoriasEditarNovo implements OnInit {
   }
 
   carregarDadosCategoria(id: number): void {
-    // Mock temporário para simular dados existentes
-    const categoriasMock = [
-      { id: 1, nome: 'Notebooks e Laptops' },
-      { id: 2, nome: 'Smartphones e Tablets' },
-      { id: 3, nome: 'Impressoras' }
-    ];
-
-    const categoria = categoriasMock.find(c => c.id === id);
-    if (categoria) {
-      this.form.patchValue({
-        nome: categoria.nome
-      });
-    }
+    this.categoriaService.listar().subscribe({
+      next: categorias => {
+        const categoria = categorias.find(c => c.id === id);
+        if (categoria) {
+          this.form.patchValue({ nome: categoria.nome });
+        } else {
+          window.alert('Categoria não encontrada.');
+          this.router.navigate(['/funcionario/categorias']);
+        }
+      },
+      error: () => window.alert('Não foi possível carregar a categoria.')
+    });
   }
 
   salvar(): void {
@@ -65,17 +66,25 @@ export class FuncionarioCategoriasEditarNovo implements OnInit {
       return;
     }
 
-    const dadosFormulario = this.form.value;
+    const nome = this.form.value.nome.trim();
 
-    if (this.isEdicao) {
-      console.log(`Atualizando categoria #${this.categoriaId}:`, dadosFormulario);
-      window.alert(`Categoria #${this.categoriaId} atualizada com sucesso!`);
+    if (this.isEdicao && this.categoriaId) {
+      this.categoriaService.atualizar(this.categoriaId, nome).subscribe({
+        next: () => {
+          window.alert(`Categoria #${this.categoriaId} atualizada com sucesso!`);
+          this.router.navigate(['/funcionario/categorias']);
+        },
+        error: () => window.alert('Não foi possível atualizar a categoria.')
+      });
     } else {
-      console.log('Criando nova categoria:', dadosFormulario);
-      window.alert('Categoria cadastrada com sucesso!');
+      this.categoriaService.criar(nome).subscribe({
+        next: () => {
+          window.alert('Categoria cadastrada com sucesso!');
+          this.router.navigate(['/funcionario/categorias']);
+        },
+        error: () => window.alert('Não foi possível cadastrar a categoria.')
+      });
     }
-
-    this.router.navigate(['/funcionario/categorias']);
   }
 
 }
