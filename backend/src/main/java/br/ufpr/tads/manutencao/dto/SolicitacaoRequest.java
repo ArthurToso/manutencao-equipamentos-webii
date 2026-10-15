@@ -14,9 +14,6 @@ public class SolicitacaoRequest {
     @NotBlank
     private String descricaoDefeito;
 
-    @NotNull
-    private Long clienteId;
-
     public String getDescricaoEquipamento() {
         return descricaoEquipamento;
     }
@@ -39,13 +36,5 @@ public class SolicitacaoRequest {
 
     public void setDescricaoDefeito(String descricaoDefeito) {
         this.descricaoDefeito = descricaoDefeito;
-    }
-
-    public Long getClienteId() {
-        return clienteId;
-    }
-
-    public void setClienteId(Long clienteId) {
-        this.clienteId = clienteId;
     }
 }

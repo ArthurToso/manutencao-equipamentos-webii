@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,15 +34,21 @@ public class SolicitacaoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @GetMapping("/minhas")
+    public ResponseEntity<List<SolicitacaoResponse>> buscarMinhas() {
+        List<SolicitacaoResponse> response = solicitacaoService.buscarMinhas();
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/{id}/orcamento")
     public ResponseEntity<SolicitacaoResponse> buscarOrcamento(@PathVariable Long id) {
         SolicitacaoResponse response = solicitacaoService.buscarOrcamento(id);
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/cliente/{clienteId}")
-    public ResponseEntity<List<SolicitacaoResponse>> buscarPorCliente(@PathVariable Long clienteId) {
-        List<SolicitacaoResponse> response = solicitacaoService.buscarPorClienteId(clienteId);
+    @GetMapping("/{id}")
+    public ResponseEntity<SolicitacaoResponse> buscarPorId(@PathVariable Long id) {
+        SolicitacaoResponse response = solicitacaoService.buscarPorId(id);
         return ResponseEntity.ok(response);
     }
 
@@ -56,11 +61,6 @@ public class SolicitacaoController {
     @PutMapping("/{id}/rejeitar")
     public ResponseEntity<SolicitacaoResponse> rejeitarServico(@PathVariable Long id, @Valid @RequestBody RejeicaoRequest request) {
         SolicitacaoResponse response = solicitacaoService.rejeitarServico(id, request.getMotivo());
-        return ResponseEntity.ok(response);
-    }
-    @GetMapping("/{id}")
-    public ResponseEntity<SolicitacaoResponse> buscarPorId(@PathVariable Long id) {
-        SolicitacaoResponse response = solicitacaoService.buscarPorId(id);
         return ResponseEntity.ok(response);
     }
 }
