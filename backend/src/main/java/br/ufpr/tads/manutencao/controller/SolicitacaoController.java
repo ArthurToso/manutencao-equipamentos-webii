@@ -21,7 +21,6 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/solicitacoes")
-@CrossOrigin(origins = "http://localhost:4200")
 public class SolicitacaoController {
 
     private final SolicitacaoService solicitacaoService;
