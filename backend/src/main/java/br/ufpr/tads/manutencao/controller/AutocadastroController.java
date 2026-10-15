@@ -15,7 +15,6 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "http://localhost:4200")
 public class AutocadastroController {
 
     private final ClienteService clienteService;
