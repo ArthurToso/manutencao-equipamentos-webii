@@ -1,7 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -10,7 +11,7 @@ import { Router, RouterLink } from '@angular/router';
   templateUrl: './login.html',
   styleUrl: './login.scss'
 })
-export class Login {
+export class Login implements OnInit {
 
   readonly estados = [
     { nome: 'Aberta', cor: '#8A93A3' },
@@ -25,13 +26,21 @@ export class Login {
 
   private fb = inject(FormBuilder);
   private router = inject(Router);
+  private authService = inject(AuthService);
+
   submitting = false;
   loginError: string | null = null;
 
   form: FormGroup = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
-    senha: ['', [Validators.required, Validators.minLength(8)]]
+    senha: ['', [Validators.required]]
   });
+
+  ngOnInit(): void {
+    if (this.authService.isLoggedIn()) {
+      this.redirecionarPorPerfil();
+    }
+  }
 
   get email() {
     return this.form.get('email');
@@ -45,7 +54,7 @@ export class Login {
     const field = this.form.get(fieldName);
     return !!(field && field.invalid && (field.dirty || field.touched));
   }
-  
+
   onSubmit(): void {
     this.loginError = null;
 
@@ -56,10 +65,35 @@ export class Login {
 
     this.submitting = true;
 
-    // TODO: substituir pela chamada real ao endpoint RF002 (POST /auth/login)
-    setTimeout(() => {
-      this.submitting = false;
-      // this.router.navigate(['/']);
-    }, 800);
+    const email = this.form.value.email;
+    const senha = this.form.value.senha;
+
+    this.authService.login(email, senha).subscribe({
+      next: (res) => {
+        this.submitting = false;
+        if (res.usuario?.perfil === 'FUNCIONARIO') {
+          this.router.navigate(['/funcionario/home']);
+        } else {
+          this.router.navigate(['/cliente/home']);
+        }
+      },
+      error: (err) => {
+        this.submitting = false;
+        if (err.status === 401) {
+          this.loginError = err.error?.mensagem || err.error?.message || 'E-mail ou senha inválidos';
+        } else {
+          this.loginError = 'Não foi possível entrar. Tente novamente.';
+        }
+      }
+    });
+  }
+
+  private redirecionarPorPerfil(): void {
+    const perfil = this.authService.perfil();
+    if (perfil === 'FUNCIONARIO') {
+      this.router.navigate(['/funcionario/home']);
+    } else {
+      this.router.navigate(['/cliente/home']);
+    }
   }
 }

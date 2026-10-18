@@ -5,6 +5,8 @@ export interface UsuarioDTO {
     nome: string;
     email: string;
     perfil?: 'CLIENTE' | 'FUNCIONARIO';
+    clienteId?: number;
+    funcionarioId?: number;
 }
 
 export interface ClienteDTO extends UsuarioDTO {

@@ -9,8 +9,8 @@
             <a>
                 <i class="fa fa-user fa-xl"></i>
             </a>
-            <span class="user-profile__name">Lucas — Cliente</span>
-            <button class="btn-logout" routerLink="/login">Sair</button>
+            <span class="user-profile__name">{{ nome() }} — Cliente</span>
+            <button class="btn-logout" (click)="sair()">Sair</button>
         </div>
         </div>
     </header>
