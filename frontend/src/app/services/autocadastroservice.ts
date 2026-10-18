@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface EnderecoPayload {
   cep: string;
@@ -25,8 +26,7 @@ export class AutocadastroService {
 
   private http = inject(HttpClient)
 
-  // TODO: migrar para environment.ts (decidido com a equipe)
-  private readonly baseUrl = 'http://localhost:8080/api'
+  private readonly baseUrl = environment.apiUrl
 
   // TODO: confirmar contrato com o backend
   // - path do endpoint

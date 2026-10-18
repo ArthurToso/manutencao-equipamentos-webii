@@ -1,4 +1,13 @@
+import { UsuarioDTO } from './usuario.model';
+
 export interface LoginDTO {
-    login : string;
-    senha : string;
+  email: string;
+  senha: string;
+}
+
+export interface LoginResponseDTO {
+  token: string;
+  tipo: string;
+  expiraEm: number | string;
+  usuario: UsuarioDTO;
 }

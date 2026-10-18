@@ -54,7 +54,7 @@
 
         <p class="form-error" *ngIf="loginError">{{ loginError }}</p>
 
-        <button type="submit" class="btn-primary" [disabled]="submitting" routerLink="/cliente/home">
+        <button type="submit" class="btn-primary" [disabled]="submitting">
           <span *ngIf="!submitting">Entrar</span>
           <span *ngIf="submitting">Entrando…</span>
         </button>

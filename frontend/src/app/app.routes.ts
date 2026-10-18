@@ -1,4 +1,6 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './guards/auth.guard';
+import { perfilGuard } from './guards/perfil.guard';
 import {
   Login, Autocadastro,
   ClienteLayout, ClienteHome, ClienteNovaSolicitacao, ClienteOrcamento, ClienteSolicitacao,
@@ -14,6 +16,7 @@ export const routes: Routes = [
   { path: 'cadastro', component: Autocadastro },
   { path: 'cliente', 
     component: ClienteLayout, 
+    canActivate: [authGuard, perfilGuard('CLIENTE')],
     children: [
       { path: 'home', component: ClienteHome },
       { path: 'nova-solicitacao', component: ClienteNovaSolicitacao },
@@ -25,6 +28,7 @@ export const routes: Routes = [
     ]},
   { path: 'funcionario',
     component: FuncionarioLayout,
+    canActivate: [authGuard, perfilGuard('FUNCIONARIO')],
     children: [
       { path: 'home', component: FuncionarioHome },
       { path: 'orcamento/:id', component: FuncionarioOrcamento },

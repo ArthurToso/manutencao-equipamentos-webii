@@ -2,13 +2,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { SolicitacaoDetailedDTO } from '../shared';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SolicitacaoService {
 
-  private readonly API = 'http://localhost:8080/api/solicitacoes';
+  private readonly API = `${environment.apiUrl}/solicitacoes`;
 
   constructor(private http: HttpClient) { }
 
