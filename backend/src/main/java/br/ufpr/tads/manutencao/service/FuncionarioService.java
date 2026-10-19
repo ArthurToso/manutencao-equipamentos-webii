@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import br.ufpr.tads.manutencao.dto.FuncionarioRequest;
 import br.ufpr.tads.manutencao.dto.FuncionarioResponse;
@@ -13,7 +14,7 @@ import br.ufpr.tads.manutencao.model.Usuario;
 import br.ufpr.tads.manutencao.repository.FuncionarioRepository;
 import br.ufpr.tads.manutencao.repository.UsuarioRepository;
 import br.ufpr.tads.manutencao.util.SenhaUtils;
-import jakarta.transaction.Transactional;
+
 
 @Service 
 public class FuncionarioService {
@@ -50,7 +51,7 @@ public class FuncionarioService {
                 .orElseThrow(() -> new IllegalArgumentException("Funcionário não encontrado"));
     }
 
-    @Transactional
+    @Transactional 
     public FuncionarioResponse criar(FuncionarioRequest request) {
         String senha = request.getSenha();
         if (senha == null || senha.isBlank()) {

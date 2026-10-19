@@ -10,7 +10,7 @@
     </div>
   </header>
 
-  @for (f of funcionarios; track f.id) {
+  @for (f of funcionarios(); track f.id) {
     <div class="category-card">
       <div class="category-card__header">
         <span class="category-card__code">ID: {{ f.id }}</span>
@@ -27,7 +27,7 @@
     </div>
   } @empty {
     <div class="empty-state">
-      <p>Não há categorias cadastradas no momento.</p>
+      <p>Não há funcionarios cadastrados no momento.</p>
     </div>
   }
 

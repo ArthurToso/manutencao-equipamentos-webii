@@ -16,10 +16,10 @@ export interface ClienteDTO extends UsuarioDTO {
 }
 
 export interface FuncionarioDTO extends UsuarioDTO {
-    dtNasc: string;
+    dataNascimento: string;
 }
 
 //funcionario precisa passar a senha ao back
 export interface FuncionarioCrudDTO extends FuncionarioDTO {
-    senha: string;
+    senha?: string;
 }
