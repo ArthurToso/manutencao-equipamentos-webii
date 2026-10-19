@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { FuncionarioCrudDTO, FuncionarioDTO } from '../../../shared';
+import { FuncionarioCrudDTO } from '../../../shared';
+import { FuncionarioService } from '../../../services/funcionario-service';
 import { NgbDatepickerModule, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
@@ -19,7 +20,8 @@ export class FuncionarioFuncionariosEditarNovo implements OnInit {
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private funcionarioService: FuncionarioService
   ) {
     const agora = new Date();
     this.hoje = {
@@ -59,20 +61,19 @@ export class FuncionarioFuncionariosEditarNovo implements OnInit {
   }
 
   carregarDadosFuncionario(id: number): void {
-    // Mock temporário para simular dados existentes
-    const funcionariosMock: FuncionarioDTO[] = [
-      { id: 1, nome: 'Carlos Silva', email: 'carlossilva@gmail.com', perfil: 'FUNCIONARIO', dtNasc: '2001-01-01' },
-      { id: 2, nome: 'Silva Carlos', email: 'silvacarlos@gmail.com', perfil: 'FUNCIONARIO', dtNasc: '2002-02-02' },
-    ];
-
-    const funcionario = funcionariosMock.find((f) => f.id === id);
-    if (funcionario) {
-      this.form.patchValue({
-        nome: funcionario.nome,
-        email: funcionario.email,
-        dtNasc: this.isoParaData(funcionario.dtNasc),
-      });
-    }
+    this.funcionarioService.buscarPorId(id).subscribe({
+      next: (funcionario) => {
+        this.form.patchValue({
+          nome: funcionario.nome,
+          email: funcionario.email,
+          dtNasc: this.isoParaData(funcionario.dataNascimento),
+        });
+      },
+      error: (err) => {
+        window.alert(err.error?.mensagem ?? 'Não foi possível carregar o funcionário.');
+        this.router.navigate(['/funcionario/funcionarios']);
+      },
+    });
   }
 
   salvar(): void {
@@ -83,31 +84,30 @@ export class FuncionarioFuncionariosEditarNovo implements OnInit {
 
     const { nome, email, dtNasc, senha } = this.form.value;
 
-    if (this.isEdicao) {
-      const funcionario: FuncionarioDTO = {
-        id: this.funcionarioId ?? undefined,
-        nome,
-        email,
-        perfil: 'FUNCIONARIO',
-        dtNasc: this.dataParaIso(dtNasc),
-      };
-
-      console.log(`Atualizando funcionário #${this.funcionarioId}:`, funcionario);
-      window.alert(`Funcionário #${this.funcionarioId} atualizado com sucesso!`);
-    } else {
-      const funcionario: FuncionarioCrudDTO = {
-        nome,
-        email,
-        perfil: 'FUNCIONARIO',
-        dtNasc: this.dataParaIso(dtNasc),
-        senha,
-      };
-
-      console.log('Criando novo funcionário:', { ...funcionario, senha: '***' });
-      window.alert('Funcionário cadastrado com sucesso!');
+    const dados: FuncionarioCrudDTO = {
+      nome,
+      email,
+      dataNascimento: this.dataParaIso(dtNasc),
+    };
+    if (senha) {
+      dados.senha = senha;
     }
 
-    this.router.navigate(['/funcionario/funcionarios']);
+    const requisicao = this.isEdicao && this.funcionarioId !== null
+      ? this.funcionarioService.atualizar(this.funcionarioId, dados)
+      : this.funcionarioService.criar(dados);
+
+    requisicao.subscribe({
+      next: () => {
+        window.alert(this.isEdicao
+          ? 'Funcionário atualizado com sucesso!'
+          : 'Funcionário cadastrado com sucesso!');
+        this.router.navigate(['/funcionario/funcionarios']);
+      },
+      error: (err) => {
+        window.alert(err.error?.mensagem ?? 'Não foi possível salvar o funcionário.');
+      },
+    });
   }
 
   private isoParaData(iso: string): NgbDateStruct | null {

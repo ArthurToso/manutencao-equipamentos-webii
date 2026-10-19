@@ -1,11 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FuncionarioDTO } from '../../../shared';
 import { RouterLink } from '@angular/router';
-
-const mockFuncionarios: FuncionarioDTO[] = [
-  { id: 1, nome: 'Carlos Silva', email: "carlossilva@gmail.com", perfil: 'FUNCIONARIO', dtNasc: "01-01-2001" },
-  { id: 2, nome: 'Silva Carlos', email: "silvacarlos@gmail.com", perfil: 'FUNCIONARIO', dtNasc: "02-02-2002" }
-];
+import { FuncionarioService } from '../../../services/funcionario-service';
 
 @Component({
   imports: [RouterLink],
@@ -16,15 +12,19 @@ const mockFuncionarios: FuncionarioDTO[] = [
 
 export class FuncionarioFuncionarios {
 
-  funcionarios: FuncionarioDTO[] = []
+  private funcionarioService = inject(FuncionarioService)
+
+  funcionarios =  signal<FuncionarioDTO[]>([])
 
   ngOnInit(): void {
     this.carregarFuncionarios();
   }
 
   carregarFuncionarios(): void {
-    const data = mockFuncionarios;
-    this.funcionarios = data
+    this.funcionarioService.listar().subscribe({
+      next: (lista) => {this.funcionarios.set(lista)},
+      error: (err) => {console.log(err)}
+    })
   }
 
   excluirFuncionario(id: number | undefined): void {
@@ -34,8 +34,16 @@ export class FuncionarioFuncionarios {
         return
     }
     if (confirm('Tem certeza que deseja excluir este funcionário?')) {
-      this.funcionarios = this.funcionarios.filter(c => c.id !== id);
-      window.alert(`Funcionário #${id} excluído com sucesso!`);
+      this.funcionarioService.remover(id).subscribe({
+        next: () => {
+          this.funcionarios.update(lista => lista.filter(f => f.id !== id))
+          window.alert(`Funcionário excluído com sucesso!`)
+        },
+        error: (err) => {
+          const mensagem = err.error?.mensagem ?? 'Não foi possível excluir o funcionário.'
+          window.alert(mensagem)
+        }
+      })
     }
   }
 }
