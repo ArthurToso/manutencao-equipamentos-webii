@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.ufpr.tads.manutencao.dto.OrcamentoRequest;
 import br.ufpr.tads.manutencao.dto.RejeicaoRequest;
 import br.ufpr.tads.manutencao.dto.SolicitacaoRequest;
 import br.ufpr.tads.manutencao.dto.SolicitacaoResponse;
@@ -28,6 +29,22 @@ public class SolicitacaoController {
 
     public SolicitacaoController(SolicitacaoService solicitacaoService) {
         this.solicitacaoService = solicitacaoService;
+    }
+
+    @GetMapping("/abertas")
+    public ResponseEntity<List<SolicitacaoResponse>> buscarAbertas(
+            @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado) {
+        List<SolicitacaoResponse> response = solicitacaoService.buscarAbertas(usuarioAutenticado);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/{id}/orcamento")
+    public ResponseEntity<SolicitacaoResponse> efetuarOrcamento(
+            @PathVariable Long id,
+            @Valid @RequestBody OrcamentoRequest request,
+            @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado) {
+        SolicitacaoResponse response = solicitacaoService.efetuarOrcamento(id, request.getValor(), usuarioAutenticado);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping
