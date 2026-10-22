@@ -6,6 +6,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -21,22 +22,45 @@ public class HistoricoSolicitacao {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "solicitacao_id", nullable = false)
     private Solicitacao solicitacao;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "estado_anterior")
+    private EstadoSolicitacao estadoAnterior;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado", nullable = false)
     private EstadoSolicitacao estado;
 
     @Column(name = "data_hora", nullable = false)
     private LocalDateTime dataHora;
 
-    @ManyToOne
-    @JoinColumn(name = "usuario_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_destino_id")
+    private Usuario usuarioDestino;
+
+    @Column(name = "observacao", length = 500)
+    private String observacao;
+
     public HistoricoSolicitacao() {}
+
+    public HistoricoSolicitacao(Solicitacao solicitacao, EstadoSolicitacao estadoAnterior,
+                                EstadoSolicitacao estado, LocalDateTime dataHora,
+                                Usuario usuario, Usuario usuarioDestino, String observacao) {
+        this.solicitacao = solicitacao;
+        this.estadoAnterior = estadoAnterior;
+        this.estado = estado;
+        this.dataHora = dataHora;
+        this.usuario = usuario;
+        this.usuarioDestino = usuarioDestino;
+        this.observacao = observacao;
+    }
 
     public Long getId() {
         return id;
@@ -52,6 +76,14 @@ public class HistoricoSolicitacao {
 
     public void setSolicitacao(Solicitacao solicitacao) {
         this.solicitacao = solicitacao;
+    }
+
+    public EstadoSolicitacao getEstadoAnterior() {
+        return estadoAnterior;
+    }
+
+    public void setEstadoAnterior(EstadoSolicitacao estadoAnterior) {
+        this.estadoAnterior = estadoAnterior;
     }
 
     public EstadoSolicitacao getEstado() {
@@ -76,5 +108,21 @@ public class HistoricoSolicitacao {
 
     public void setUsuario(Usuario usuario) {
         this.usuario = usuario;
+    }
+
+    public Usuario getUsuarioDestino() {
+        return usuarioDestino;
+    }
+
+    public void setUsuarioDestino(Usuario usuarioDestino) {
+        this.usuarioDestino = usuarioDestino;
+    }
+
+    public String getObservacao() {
+        return observacao;
+    }
+
+    public void setObservacao(String observacao) {
+        this.observacao = observacao;
     }
 }

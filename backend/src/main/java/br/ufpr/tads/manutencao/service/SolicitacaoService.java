@@ -6,17 +6,17 @@ import java.util.stream.Collectors;
 
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import br.ufpr.tads.manutencao.dto.HistoricoDTO;
 import br.ufpr.tads.manutencao.dto.SolicitacaoRequest;
 import br.ufpr.tads.manutencao.dto.SolicitacaoResponse;
+import br.ufpr.tads.manutencao.mapper.SolicitacaoMapper;
 import br.ufpr.tads.manutencao.model.Categoria;
 import br.ufpr.tads.manutencao.model.EstadoSolicitacao;
 import br.ufpr.tads.manutencao.model.HistoricoSolicitacao;
 import br.ufpr.tads.manutencao.model.Solicitacao;
 import br.ufpr.tads.manutencao.model.Usuario;
 import br.ufpr.tads.manutencao.repository.CategoriaRepository;
-import br.ufpr.tads.manutencao.repository.HistoricoSolicitacaoRepository;
 import br.ufpr.tads.manutencao.repository.SolicitacaoRepository;
 import br.ufpr.tads.manutencao.repository.UsuarioRepository;
 import br.ufpr.tads.manutencao.security.SecurityUtils;
@@ -27,23 +27,54 @@ public class SolicitacaoService {
 
     private final SolicitacaoRepository solicitacaoRepository;
     private final CategoriaRepository categoriaRepository;
-    private final HistoricoSolicitacaoRepository historicoSolicitacaoRepository;
     private final UsuarioRepository usuarioRepository;
+    private final HistoricoSolicitacaoService historicoSolicitacaoService;
+    private final SolicitacaoMapper solicitacaoMapper;
 
     public SolicitacaoService(SolicitacaoRepository solicitacaoRepository,
                               CategoriaRepository categoriaRepository,
-                              HistoricoSolicitacaoRepository historicoSolicitacaoRepository,
-                              UsuarioRepository usuarioRepository) {
+                              UsuarioRepository usuarioRepository,
+                              HistoricoSolicitacaoService historicoSolicitacaoService,
+                              SolicitacaoMapper solicitacaoMapper) {
         this.solicitacaoRepository = solicitacaoRepository;
         this.categoriaRepository = categoriaRepository;
-        this.historicoSolicitacaoRepository = historicoSolicitacaoRepository;
         this.usuarioRepository = usuarioRepository;
+        this.historicoSolicitacaoService = historicoSolicitacaoService;
+        this.solicitacaoMapper = solicitacaoMapper;
     }
 
-    public SolicitacaoResponse criarSolicitacao(SolicitacaoRequest request) {
-        UsuarioAutenticado usuarioLogado = SecurityUtils.getUsuarioAutenticadoObrigatorio();
+    @Transactional
+    public Solicitacao alterarEstado(Solicitacao solicitacao, EstadoSolicitacao novoEstado,
+                                     Usuario responsavel, Usuario destino, String observacao) {
+        if (solicitacao == null) {
+            throw new IllegalArgumentException("Solicitação é obrigatória");
+        }
+        if (novoEstado == null) {
+            throw new IllegalArgumentException("Novo estado é obrigatório");
+        }
 
-        if (usuarioLogado.getClienteId() == null) {
+        EstadoSolicitacao anterior = solicitacao.getEstado();
+        FluxoSolicitacao.validarTransicao(anterior, novoEstado);
+
+        LocalDateTime agora = LocalDateTime.now();
+        solicitacao.setEstado(novoEstado);
+        solicitacao.setDataHora(agora);
+
+        if (novoEstado == EstadoSolicitacao.REJEITADA) {
+            solicitacao.setMotivoRejeicao(observacao);
+        }
+
+        Solicitacao salva = solicitacaoRepository.save(solicitacao);
+        historicoSolicitacaoService.registrar(salva, anterior, novoEstado, responsavel, destino, observacao, agora);
+
+        return salva;
+    }
+
+    @Transactional
+    public SolicitacaoResponse criarSolicitacao(SolicitacaoRequest request, UsuarioAutenticado usuarioLogado) {
+        final UsuarioAutenticado usuario = usuarioLogado != null ? usuarioLogado : SecurityUtils.getUsuarioAutenticadoObrigatorio();
+
+        if (usuario.getClienteId() == null) {
             throw new AccessDeniedException("Apenas clientes podem criar solicitações");
         }
 
@@ -54,84 +85,99 @@ public class SolicitacaoService {
         solicitacao.setDescricaoEquipamento(request.getDescricaoEquipamento());
         solicitacao.setCategoria(categoria);
         solicitacao.setDescricaoDefeito(request.getDescricaoDefeito());
-        solicitacao.setDataHora(LocalDateTime.now());
-        solicitacao.setEstado(EstadoSolicitacao.ABERTA);
-        solicitacao.setClienteId(usuarioLogado.getClienteId());
+        solicitacao.setClienteId(usuario.getClienteId());
 
-        Solicitacao salva = solicitacaoRepository.save(solicitacao);
+        Usuario responsavel = usuarioRepository.findById(usuario.getId())
+                .orElseGet(() -> usuarioRepository.getReferenceById(usuario.getId()));
 
-        Usuario responsavel = usuarioRepository.getReferenceById(usuarioLogado.getId());
-        salvarHistorico(salva, responsavel);
+        Solicitacao salva = alterarEstado(solicitacao, EstadoSolicitacao.ABERTA, responsavel, null, null);
+        return solicitacaoMapper.toResponse(salva);
+    }
 
-        return toResponse(salva);
+    public SolicitacaoResponse criarSolicitacao(SolicitacaoRequest request) {
+        return criarSolicitacao(request, null);
+    }
+
+    @Transactional(readOnly = true)
+    public SolicitacaoResponse buscarOrcamento(Long id, UsuarioAutenticado usuarioLogado) {
+        final UsuarioAutenticado usuario = usuarioLogado != null ? usuarioLogado : SecurityUtils.getUsuarioAutenticadoObrigatorio();
+        Solicitacao solicitacao = solicitacaoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Solicitação não encontrada"));
+        validarPropriedadeCliente(solicitacao, usuario);
+        return solicitacaoMapper.toResponse(solicitacao);
     }
 
     public SolicitacaoResponse buscarOrcamento(Long id) {
-        UsuarioAutenticado usuarioLogado = SecurityUtils.getUsuarioAutenticadoObrigatorio();
+        return buscarOrcamento(id, null);
+    }
+
+    @Transactional(readOnly = true)
+    public SolicitacaoResponse buscarPorId(Long id, UsuarioAutenticado usuarioLogado) {
+        final UsuarioAutenticado usuario = usuarioLogado != null ? usuarioLogado : SecurityUtils.getUsuarioAutenticadoObrigatorio();
         Solicitacao solicitacao = solicitacaoRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Solicitação não encontrada"));
-        validarPropriedadeCliente(solicitacao, usuarioLogado);
-        return toResponse(solicitacao);
+        validarAcesso(solicitacao, usuario);
+
+        List<HistoricoSolicitacao> historico = historicoSolicitacaoService.listar(solicitacao.getId());
+        return solicitacaoMapper.toResponseComHistorico(solicitacao, historico);
     }
 
     public SolicitacaoResponse buscarPorId(Long id) {
-        UsuarioAutenticado usuarioLogado = SecurityUtils.getUsuarioAutenticadoObrigatorio();
-        Solicitacao solicitacao = solicitacaoRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Solicitação não encontrada"));
-        validarAcesso(solicitacao, usuarioLogado);
-        return toResponseComHistorico(solicitacao);
+        return buscarPorId(id, null);
     }
 
-    public List<SolicitacaoResponse> buscarMinhas() {
-        UsuarioAutenticado usuarioLogado = SecurityUtils.getUsuarioAutenticadoObrigatorio();
+    @Transactional(readOnly = true)
+    public List<SolicitacaoResponse> buscarMinhas(UsuarioAutenticado usuarioLogado) {
+        final UsuarioAutenticado usuario = usuarioLogado != null ? usuarioLogado : SecurityUtils.getUsuarioAutenticadoObrigatorio();
 
-        if (usuarioLogado.getClienteId() == null) {
+        if (usuario.getClienteId() == null) {
             throw new AccessDeniedException("Apenas clientes possuem solicitações próprias");
         }
 
-        return solicitacaoRepository.findByClienteIdOrderByDataHoraDesc(usuarioLogado.getClienteId())
+        return solicitacaoRepository.findByClienteIdOrderByDataHoraDesc(usuario.getClienteId())
                 .stream()
-                .map(this::toResponse)
+                .map(solicitacaoMapper::toResponse)
                 .collect(Collectors.toList());
     }
 
-    public SolicitacaoResponse aprovarServico(Long id) {
-        UsuarioAutenticado usuarioLogado = SecurityUtils.getUsuarioAutenticadoObrigatorio();
+    public List<SolicitacaoResponse> buscarMinhas() {
+        return buscarMinhas(null);
+    }
+
+    @Transactional
+    public SolicitacaoResponse aprovarServico(Long id, UsuarioAutenticado usuarioLogado) {
+        final UsuarioAutenticado usuario = usuarioLogado != null ? usuarioLogado : SecurityUtils.getUsuarioAutenticadoObrigatorio();
         Solicitacao solicitacao = solicitacaoRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Solicitação não encontrada"));
-        validarPropriedadeCliente(solicitacao, usuarioLogado);
+        validarPropriedadeCliente(solicitacao, usuario);
 
-        if (solicitacao.getEstado() != EstadoSolicitacao.ORCADA) {
-            throw new IllegalStateException("A solicitação não está no estado ORCADA");
-        }
+        Usuario responsavel = usuarioRepository.findById(usuario.getId())
+                .orElseGet(() -> usuarioRepository.getReferenceById(usuario.getId()));
 
-        solicitacao.setEstado(EstadoSolicitacao.APROVADA);
-        Solicitacao salva = solicitacaoRepository.save(solicitacao);
+        Solicitacao salva = alterarEstado(solicitacao, EstadoSolicitacao.APROVADA, responsavel, null, null);
+        return solicitacaoMapper.toResponse(salva);
+    }
 
-        Usuario responsavel = usuarioRepository.getReferenceById(usuarioLogado.getId());
-        salvarHistorico(salva, responsavel);
+    public SolicitacaoResponse aprovarServico(Long id) {
+        return aprovarServico(id, null);
+    }
 
-        return toResponse(salva);
+    @Transactional
+    public SolicitacaoResponse rejeitarServico(Long id, String motivo, UsuarioAutenticado usuarioLogado) {
+        final UsuarioAutenticado usuario = usuarioLogado != null ? usuarioLogado : SecurityUtils.getUsuarioAutenticadoObrigatorio();
+        Solicitacao solicitacao = solicitacaoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Solicitação não encontrada"));
+        validarPropriedadeCliente(solicitacao, usuario);
+
+        Usuario responsavel = usuarioRepository.findById(usuario.getId())
+                .orElseGet(() -> usuarioRepository.getReferenceById(usuario.getId()));
+
+        Solicitacao salva = alterarEstado(solicitacao, EstadoSolicitacao.REJEITADA, responsavel, null, motivo);
+        return solicitacaoMapper.toResponse(salva);
     }
 
     public SolicitacaoResponse rejeitarServico(Long id, String motivo) {
-        UsuarioAutenticado usuarioLogado = SecurityUtils.getUsuarioAutenticadoObrigatorio();
-        Solicitacao solicitacao = solicitacaoRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Solicitação não encontrada"));
-        validarPropriedadeCliente(solicitacao, usuarioLogado);
-
-        if (solicitacao.getEstado() != EstadoSolicitacao.ORCADA) {
-            throw new IllegalStateException("A solicitação não está no estado ORCADA");
-        }
-
-        solicitacao.setEstado(EstadoSolicitacao.REJEITADA);
-        solicitacao.setMotivoRejeicao(motivo);
-        Solicitacao salva = solicitacaoRepository.save(solicitacao);
-
-        Usuario responsavel = usuarioRepository.getReferenceById(usuarioLogado.getId());
-        salvarHistorico(salva, responsavel);
-
-        return toResponse(salva);
+        return rejeitarServico(id, motivo, null);
     }
 
     private void validarPropriedadeCliente(Solicitacao solicitacao, UsuarioAutenticado usuario) {
@@ -145,45 +191,5 @@ public class SolicitacaoService {
             return;
         }
         validarPropriedadeCliente(solicitacao, usuario);
-    }
-
-    private SolicitacaoResponse toResponse(Solicitacao solicitacao) {
-        SolicitacaoResponse response = new SolicitacaoResponse();
-        response.setId(solicitacao.getId());
-        response.setDescricaoEquipamento(solicitacao.getDescricaoEquipamento());
-        response.setCategoriaId(solicitacao.getCategoria().getId());
-        response.setCategoriaNome(solicitacao.getCategoria().getNome());
-        response.setDescricaoDefeito(solicitacao.getDescricaoDefeito());
-        response.setDataHora(solicitacao.getDataHora());
-        response.setEstado(solicitacao.getEstado().name());
-        response.setClienteId(solicitacao.getClienteId());
-        response.setValorOrcamento(solicitacao.getValorOrcamento());
-        response.setMotivoRejeicao(solicitacao.getMotivoRejeicao());
-        return response;
-    }
-
-    private SolicitacaoResponse toResponseComHistorico(Solicitacao solicitacao) {
-        SolicitacaoResponse response = toResponse(solicitacao);
-        List<HistoricoSolicitacao> historicos = historicoSolicitacaoRepository.findBySolicitacaoIdOrderByDataHoraAsc(solicitacao.getId());
-        List<HistoricoDTO> historicoDTOs = historicos.stream().map(h -> {
-            HistoricoDTO dto = new HistoricoDTO();
-            dto.setEstado(h.getEstado().name());
-            dto.setDataHora(h.getDataHora());
-            if (h.getUsuario() != null) {
-                dto.setNomeFuncionario(h.getUsuario().getNome());
-            }
-            return dto;
-        }).collect(Collectors.toList());
-        response.setHistorico(historicoDTOs);
-        return response;
-    }
-
-    private void salvarHistorico(Solicitacao solicitacao, Usuario usuario) {
-        HistoricoSolicitacao historico = new HistoricoSolicitacao();
-        historico.setSolicitacao(solicitacao);
-        historico.setEstado(solicitacao.getEstado());
-        historico.setDataHora(LocalDateTime.now());
-        historico.setUsuario(usuario);
-        historicoSolicitacaoRepository.save(historico);
     }
 }

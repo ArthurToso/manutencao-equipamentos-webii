@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import br.ufpr.tads.manutencao.dto.RejeicaoRequest;
 import br.ufpr.tads.manutencao.dto.SolicitacaoRequest;
 import br.ufpr.tads.manutencao.dto.SolicitacaoResponse;
+import br.ufpr.tads.manutencao.security.UsuarioAutenticado;
 import br.ufpr.tads.manutencao.service.SolicitacaoService;
 import jakarta.validation.Valid;
 
@@ -29,38 +31,50 @@ public class SolicitacaoController {
     }
 
     @PostMapping
-    public ResponseEntity<SolicitacaoResponse> criar(@Valid @RequestBody SolicitacaoRequest request) {
-        SolicitacaoResponse response = solicitacaoService.criarSolicitacao(request);
+    public ResponseEntity<SolicitacaoResponse> criar(
+            @Valid @RequestBody SolicitacaoRequest request,
+            @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado) {
+        SolicitacaoResponse response = solicitacaoService.criarSolicitacao(request, usuarioAutenticado);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/minhas")
-    public ResponseEntity<List<SolicitacaoResponse>> buscarMinhas() {
-        List<SolicitacaoResponse> response = solicitacaoService.buscarMinhas();
+    public ResponseEntity<List<SolicitacaoResponse>> buscarMinhas(
+            @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado) {
+        List<SolicitacaoResponse> response = solicitacaoService.buscarMinhas(usuarioAutenticado);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}/orcamento")
-    public ResponseEntity<SolicitacaoResponse> buscarOrcamento(@PathVariable Long id) {
-        SolicitacaoResponse response = solicitacaoService.buscarOrcamento(id);
+    public ResponseEntity<SolicitacaoResponse> buscarOrcamento(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado) {
+        SolicitacaoResponse response = solicitacaoService.buscarOrcamento(id, usuarioAutenticado);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<SolicitacaoResponse> buscarPorId(@PathVariable Long id) {
-        SolicitacaoResponse response = solicitacaoService.buscarPorId(id);
+    public ResponseEntity<SolicitacaoResponse> buscarPorId(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado) {
+        SolicitacaoResponse response = solicitacaoService.buscarPorId(id, usuarioAutenticado);
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}/aprovar")
-    public ResponseEntity<SolicitacaoResponse> aprovarServico(@PathVariable Long id) {
-        SolicitacaoResponse response = solicitacaoService.aprovarServico(id);
+    public ResponseEntity<SolicitacaoResponse> aprovarServico(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado) {
+        SolicitacaoResponse response = solicitacaoService.aprovarServico(id, usuarioAutenticado);
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}/rejeitar")
-    public ResponseEntity<SolicitacaoResponse> rejeitarServico(@PathVariable Long id, @Valid @RequestBody RejeicaoRequest request) {
-        SolicitacaoResponse response = solicitacaoService.rejeitarServico(id, request.getMotivo());
+    public ResponseEntity<SolicitacaoResponse> rejeitarServico(
+            @PathVariable Long id,
+            @Valid @RequestBody RejeicaoRequest request,
+            @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado) {
+        SolicitacaoResponse response = solicitacaoService.rejeitarServico(id, request.getMotivo(), usuarioAutenticado);
         return ResponseEntity.ok(response);
     }
 }
