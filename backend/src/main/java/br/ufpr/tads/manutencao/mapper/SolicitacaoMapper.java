@@ -6,10 +6,13 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
+import br.ufpr.tads.manutencao.dto.ClienteResponseDTO;
+import br.ufpr.tads.manutencao.dto.EnderecoDTO;
 import br.ufpr.tads.manutencao.dto.FuncionarioDestinoDTO;
 import br.ufpr.tads.manutencao.dto.HistoricoDTO;
 import br.ufpr.tads.manutencao.dto.SolicitacaoResponse;
 import br.ufpr.tads.manutencao.dto.UsuarioResumoDTO;
+import br.ufpr.tads.manutencao.model.Cliente;
 import br.ufpr.tads.manutencao.model.HistoricoSolicitacao;
 import br.ufpr.tads.manutencao.model.Solicitacao;
 
@@ -17,6 +20,10 @@ import br.ufpr.tads.manutencao.model.Solicitacao;
 public class SolicitacaoMapper {
 
     public SolicitacaoResponse toResponse(Solicitacao solicitacao) {
+        return toResponse(solicitacao, null);
+    }
+
+    public SolicitacaoResponse toResponse(Solicitacao solicitacao, Cliente cliente) {
         if (solicitacao == null) {
             return null;
         }
@@ -35,11 +42,46 @@ public class SolicitacaoMapper {
         response.setClienteId(solicitacao.getClienteId());
         response.setValorOrcamento(solicitacao.getValorOrcamento());
         response.setMotivoRejeicao(solicitacao.getMotivoRejeicao());
+
+        if (cliente != null) {
+            response.setNomeCliente(cliente.getNome());
+            response.setCliente(toClienteResponseDTO(cliente));
+        }
+
         return response;
     }
 
+    public ClienteResponseDTO toClienteResponseDTO(Cliente cliente) {
+        if (cliente == null) {
+            return null;
+        }
+        ClienteResponseDTO dto = new ClienteResponseDTO();
+        dto.setId(cliente.getId());
+        dto.setNome(cliente.getNome());
+        dto.setCpf(cliente.getCpf());
+        dto.setEmail(cliente.getEmail());
+        dto.setTelefone(cliente.getTelefone());
+        if (cliente.getEndereco() != null) {
+            EnderecoDTO enderecoDTO = new EnderecoDTO(
+                    cliente.getEndereco().getCep(),
+                    cliente.getEndereco().getLogradouro(),
+                    cliente.getEndereco().getNumero(),
+                    cliente.getEndereco().getComplemento(),
+                    cliente.getEndereco().getBairro(),
+                    cliente.getEndereco().getCidade(),
+                    cliente.getEndereco().getUf()
+            );
+            dto.setEndereco(enderecoDTO);
+        }
+        return dto;
+    }
+
     public SolicitacaoResponse toResponseComHistorico(Solicitacao solicitacao, List<HistoricoSolicitacao> historicos) {
-        SolicitacaoResponse response = toResponse(solicitacao);
+        return toResponseComHistorico(solicitacao, historicos, null);
+    }
+
+    public SolicitacaoResponse toResponseComHistorico(Solicitacao solicitacao, List<HistoricoSolicitacao> historicos, Cliente cliente) {
+        SolicitacaoResponse response = toResponse(solicitacao, cliente);
         if (response != null) {
             if (historicos != null && !historicos.isEmpty()) {
                 response.setHistorico(historicos.stream()

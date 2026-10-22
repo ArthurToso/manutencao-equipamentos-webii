@@ -23,17 +23,20 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.access.AccessDeniedException;
 
 import br.ufpr.tads.manutencao.dto.SolicitacaoRequest;
 import br.ufpr.tads.manutencao.dto.SolicitacaoResponse;
 import br.ufpr.tads.manutencao.mapper.SolicitacaoMapper;
 import br.ufpr.tads.manutencao.model.Categoria;
+import br.ufpr.tads.manutencao.model.Cliente;
 import br.ufpr.tads.manutencao.model.EstadoSolicitacao;
 import br.ufpr.tads.manutencao.model.HistoricoSolicitacao;
 import br.ufpr.tads.manutencao.model.Perfil;
 import br.ufpr.tads.manutencao.model.Solicitacao;
 import br.ufpr.tads.manutencao.model.Usuario;
 import br.ufpr.tads.manutencao.repository.CategoriaRepository;
+import br.ufpr.tads.manutencao.repository.ClienteRepository;
 import br.ufpr.tads.manutencao.repository.SolicitacaoRepository;
 import br.ufpr.tads.manutencao.repository.UsuarioRepository;
 import br.ufpr.tads.manutencao.security.UsuarioAutenticado;
@@ -49,6 +52,9 @@ class SolicitacaoServiceHistoricoTest {
 
     @Mock
     private UsuarioRepository usuarioRepository;
+
+    @Mock
+    private ClienteRepository clienteRepository;
 
     @Mock
     private HistoricoSolicitacaoService historicoSolicitacaoService;
@@ -230,6 +236,94 @@ class SolicitacaoServiceHistoricoTest {
         assertEquals("ORCADA", response.getHistorico().get(1).getEstado());
         assertEquals("Maria", response.getHistorico().get(1).getResponsavel().getNome());
         assertEquals("FUNCIONARIO", response.getHistorico().get(1).getResponsavel().getPerfil());
+    }
+
+    @Test
+    @DisplayName("Funcionário lista solicitações abertas ordenadas por data/hora asc")
+    void funcionarioListaSolicitacoesAbertas() {
+        UsuarioAutenticado authFuncionario = new UsuarioAutenticado(1L, "maria@example.com", "FUNCIONARIO", null, 1L);
+
+        Solicitacao sAberta = new Solicitacao();
+        sAberta.setId(101L);
+        sAberta.setClienteId(10L);
+        sAberta.setDescricaoEquipamento("Impressora Epson");
+        sAberta.setDescricaoDefeito("Não imprime");
+        sAberta.setEstado(EstadoSolicitacao.ABERTA);
+        sAberta.setDataHora(LocalDateTime.now());
+
+        Cliente cliente = new Cliente();
+        cliente.setId(10L);
+        cliente.setNome("João");
+
+        when(solicitacaoRepository.findByEstadoOrderByDataHoraAsc(EstadoSolicitacao.ABERTA)).thenReturn(List.of(sAberta));
+        when(clienteRepository.findById(10L)).thenReturn(Optional.of(cliente));
+
+        List<SolicitacaoResponse> abertas = solicitacaoService.buscarAbertas(authFuncionario);
+
+        assertNotNull(abertas);
+        assertEquals(1, abertas.size());
+        assertEquals("ABERTA", abertas.get(0).getEstado());
+        assertEquals("João", abertas.get(0).getNomeCliente());
+        assertEquals("Impressora Epson", abertas.get(0).getDescricaoEquipamento());
+    }
+
+    @Test
+    @DisplayName("Cliente não pode listar solicitações abertas de funcionário")
+    void clienteNaoPodeListarAbertas() {
+        assertThrows(AccessDeniedException.class, () -> solicitacaoService.buscarAbertas(authCliente));
+    }
+
+    @Test
+    @DisplayName("Funcionário efetua orçamento em solicitação aberta com sucesso")
+    void funcionarioEfetuaOrcamentoComSucesso() {
+        UsuarioAutenticado authFuncionario = new UsuarioAutenticado(1L, "maria@example.com", "FUNCIONARIO", null, 1L);
+
+        Solicitacao sAberta = new Solicitacao();
+        sAberta.setId(102L);
+        sAberta.setClienteId(10L);
+        sAberta.setDescricaoEquipamento("Monitor Dell");
+        sAberta.setDescricaoDefeito("Tela piscando");
+        sAberta.setEstado(EstadoSolicitacao.ABERTA);
+        sAberta.setDataHora(LocalDateTime.now().minusHours(2));
+
+        when(solicitacaoRepository.findById(102L)).thenReturn(Optional.of(sAberta));
+        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(funcionarioMaria));
+        when(solicitacaoRepository.save(any(Solicitacao.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        SolicitacaoResponse response = solicitacaoService.efetuarOrcamento(102L, new BigDecimal("320.00"), authFuncionario);
+
+        assertNotNull(response);
+        assertEquals("ORCADA", response.getEstado());
+        assertEquals(new BigDecimal("320.00"), response.getValorOrcamento());
+        verify(historicoSolicitacaoService).registrar(
+                any(Solicitacao.class),
+                eq(EstadoSolicitacao.ABERTA),
+                eq(EstadoSolicitacao.ORCADA),
+                eq(funcionarioMaria),
+                eq(null),
+                eq(null),
+                any(LocalDateTime.class)
+        );
+    }
+
+    @Test
+    @DisplayName("Efetuar orçamento com valor zero ou negativo lança exceção")
+    void efetuarOrcamentoComValorInvalidoLancaExcecao() {
+        UsuarioAutenticado authFuncionario = new UsuarioAutenticado(1L, "maria@example.com", "FUNCIONARIO", null, 1L);
+        assertThrows(IllegalArgumentException.class, () ->
+                solicitacaoService.efetuarOrcamento(102L, BigDecimal.ZERO, authFuncionario));
+        assertThrows(IllegalArgumentException.class, () ->
+                solicitacaoService.efetuarOrcamento(102L, new BigDecimal("-10.00"), authFuncionario));
+    }
+
+    @Test
+    @DisplayName("Efetuar orçamento em solicitação que não está ABERTA lança IllegalStateException")
+    void efetuarOrcamentoEmSolicitacaoNaoAbertaFalha() {
+        UsuarioAutenticado authFuncionario = new UsuarioAutenticado(1L, "maria@example.com", "FUNCIONARIO", null, 1L);
+        when(solicitacaoRepository.findById(100L)).thenReturn(Optional.of(solicitacaoOrcada));
+
+        assertThrows(IllegalStateException.class, () ->
+                solicitacaoService.efetuarOrcamento(100L, new BigDecimal("400.00"), authFuncionario));
     }
 }
 

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { SolicitacaoDetailedDTO } from '../shared';
+import { SolicitacaoCardFuncDTO } from '../shared';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -15,5 +15,13 @@ export class SolicitacaoService {
 
   buscarPorId(id: number): Observable<any> {
     return this.http.get<any>(`${this.API}/${id}`);
+  }
+
+  buscarAbertas(): Observable<SolicitacaoCardFuncDTO[]> {
+    return this.http.get<SolicitacaoCardFuncDTO[]>(`${this.API}/abertas`);
+  }
+
+  efetuarOrcamento(id: number, valor: number): Observable<any> {
+    return this.http.post<any>(`${this.API}/${id}/orcamento`, { valor });
   }
 }

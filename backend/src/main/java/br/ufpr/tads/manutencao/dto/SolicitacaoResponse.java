@@ -12,6 +12,8 @@ public class SolicitacaoResponse {
     private LocalDateTime dataHora;
     private String estado;
     private Long clienteId;
+    private String nomeCliente;
+    private ClienteResponseDTO cliente;
     private java.math.BigDecimal valorOrcamento;
     private String motivoRejeicao;
 
@@ -77,6 +79,22 @@ public class SolicitacaoResponse {
 
     public void setClienteId(Long clienteId) {
         this.clienteId = clienteId;
+    }
+
+    public String getNomeCliente() {
+        return nomeCliente;
+    }
+
+    public void setNomeCliente(String nomeCliente) {
+        this.nomeCliente = nomeCliente;
+    }
+
+    public ClienteResponseDTO getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(ClienteResponseDTO cliente) {
+        this.cliente = cliente;
     }
 
     public java.math.BigDecimal getValorOrcamento() {
