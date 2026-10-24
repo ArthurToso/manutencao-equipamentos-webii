@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormGroup } from "@angular/forms";
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
@@ -7,6 +7,7 @@ import { ViaCepResponse } from './response';
 import { RouterLink } from '@angular/router';
 import { EstadoUF } from '../../shared/enums';
 import { ClienteDTO } from '../../shared';
+import { AutocadastroPayload, AutocadastroService } from '../../services/autocadastroservice';
 
 @Component({
   imports: [ReactiveFormsModule, NgxMaskDirective, RouterLink],
@@ -18,10 +19,13 @@ import { ClienteDTO } from '../../shared';
 export class Autocadastro {
   
   private http = inject(HttpClient)
-  cepNaoEncontrado: boolean = false
-  erroRequisicao: boolean = false
-  cadastroConcluido: boolean   = false
-  ufs = Object.entries(EstadoUF).map((sigla, estado) => ({sigla, estado}));
+  private autocadastroService = inject(AutocadastroService)
+  cepNaoEncontrado = signal(false)
+  erroRequisicao = signal(false)
+  cadastroConcluido = signal(false)
+  erroCadastro = signal<string | null>(null)
+  enviando = signal(false)
+  ufs = Object.entries(EstadoUF).map(([sigla, estado]) => ({sigla, estado}));
   
   cadastroForm = new FormGroup({
     cpf: new FormControl('',
@@ -62,26 +66,44 @@ export class Autocadastro {
   })
 
   onSubmit(){
-    if(this.cadastroForm.valid){
-      const form = this.cadastroForm.value;
-      const newUser: ClienteDTO = {
-        nome : form.nome ?? '',
-        email : form.email ?? '',
-        cpf : form.cpf ?? '',
-        telefone : form.telefone ?? '',
-        endereco: {
-          cep : form.endereco?.cep ?? '',
-          logradouro : form.endereco?.logradouro ?? '',
-          numero : Number(form.endereco?.numero) ?? 0,
-          complemento : form.endereco?.complemento ?? undefined,
-          bairro : form.endereco?.bairro ?? '',
-          cidade : form.endereco?.cidade ?? '',
-          estado : form.endereco?.uf as EstadoUF ?? '' as EstadoUF
-        }
-      };
-      console.log(newUser);
-      this.cadastroConcluido = true
+
+    if(this.cadastroForm.invalid){
+      this.cadastroForm.markAllAsTouched()
+      return
     }
+
+    const form = this.cadastroForm.getRawValue()
+
+    const dados: AutocadastroPayload = {
+      nome: form.nome ?? '',
+      email: form.email ?? '',
+      cpf: form.cpf ?? '',
+      telefone: form.telefone ?? '',
+      endereco: {
+        cep: form.endereco.cep ?? '',
+        logradouro: form.endereco.logradouro ?? '',
+        numero: form.endereco.numero ?? '',
+        complemento: form.endereco.complemento || undefined,
+        bairro: form.endereco.bairro ?? '',
+        cidade: form.endereco.cidade ?? '',
+        uf: form.endereco.uf ?? '',
+      },
+    }
+
+    this.enviando.set(true)
+    this.erroCadastro.set(null)
+
+    this.autocadastroService.cadastrar(dados).subscribe({
+      next: () => {
+        this.enviando.set(false)
+        this.cadastroConcluido.set(true)
+      },
+      error: (err) => {
+        this.enviando.set(false)
+        this.erroCadastro.set(err.error?.mensagem ?? 'Não foi possível concluir o cadastro.')
+      }
+    })
+
   }
 
   temErro(formControl: string, nomeErro: string): boolean {
@@ -98,8 +120,8 @@ export class Autocadastro {
     const cep = this.cadastroForm.get('endereco.cep')?.value
 
     if (cep?.length !== 8){
-      this.cepNaoEncontrado = false
-      this.erroRequisicao = false
+      this.cepNaoEncontrado.set(false)
+      this.erroRequisicao.set(false)
       this.cadastroForm.patchValue({endereco: {logradouro: '', 
                                   bairro: '', 
                                   cidade: '', 
@@ -108,12 +130,12 @@ export class Autocadastro {
     }
 
 
-    this.cepNaoEncontrado = false
-    this.erroRequisicao = false
+    this.cepNaoEncontrado.set(false)
+    this.erroRequisicao.set(false)
     this.http.get<ViaCepResponse>(`https://viacep.com.br/ws/${cep}/json/`).subscribe({
       next: (resposta) => {
         if (resposta.erro){
-          this.cepNaoEncontrado = true
+          this.cepNaoEncontrado.set(true)
           this.cadastroForm.patchValue({endereco: {logradouro: '', 
                                   bairro: '', 
                                   cidade: '', 
@@ -127,7 +149,7 @@ export class Autocadastro {
       },
       error: (err) => {
         console.error(err)
-        this.erroRequisicao = true
+        this.erroRequisicao.set(true)
       } 
     });
     
