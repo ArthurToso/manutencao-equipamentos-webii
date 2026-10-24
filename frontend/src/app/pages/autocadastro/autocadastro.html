@@ -1,6 +1,6 @@
 <div class="container">
     <div class="row">
-        @if (cadastroConcluido) {
+        @if (cadastroConcluido()) {
             <div class="col-md-6 col-lg-4 mx-auto min-vh-100 d-flex flex-column justify-content-center">
                 <h1 class="mb-3">Cadastro Concluído!</h1>
                 <div class="alert alert-success">
@@ -59,8 +59,8 @@
                                                 temErro('endereco.cep', 'minlength')">
                             @if (temErro('endereco.cep', 'required')) {<div class="invalid-feedback">CEP é obrigatório</div>}
                             @if (temErro('endereco.cep', 'minlength')) {<div class="invalid-feedback">CEP precisa conter 8 digitos</div>}
-                            @if (cepNaoEncontrado) {<div class="text-danger">CEP inválido</div>}
-                            @if (erroRequisicao) {<div class="text-danger">Erro na requisição, tente novamente</div>}
+                            @if (cepNaoEncontrado()) {<div class="text-danger">CEP inválido</div>}
+                            @if (erroRequisicao()) {<div class="text-danger">Erro na requisição, tente novamente</div>}
                         </div>
                         <div class="mb-3">
                             <label for="logradouro" class="form-label">Logradouro: </label>
@@ -107,8 +107,10 @@
                         </div>
                     </div>
                 </fieldset>
-
-                <button type="submit" [disabled]="!cadastroForm.valid" class="btn btn-primary mb-3">salvar</button> 
+                @if (erroCadastro()) {
+                    <div class="alert alert-danger">{{ erroCadastro() }}</div>
+                }
+                <button type="submit" [disabled]="enviando()" class="btn btn-primary mb-3">salvar</button> 
                 <div class="text-start mb-3">
                     Já possui uma conta? <a routerLink="/login">Entrar</a>
                  </div>
