@@ -72,6 +72,9 @@
         </header>
 
         <div class="custom-form">
+            @if (erro) {
+                <div class="alert alert-danger">{{ erro }}</div>
+            }
             <div class="valor-destaque">
                 <span class="valor-destaque__label">Valor a pagar</span>
                 <span class="valor-destaque__valor">R$ {{ solicitacao.valorOrcado | number:'1.2-2' }}</span>
@@ -114,8 +117,8 @@
             </section>
 
             <div class="form-actions">
-                <button type="button" class="btn btn--primary" (click)="confirmarPagamento(solicitacao)">
-                    Confirmar pagamento
+                <button type="button" class="btn btn--primary" [disabled]="processando" (click)="confirmarPagamento(solicitacao)">
+                    {{ processando ? 'Processando...' : 'Confirmar pagamento' }}
                 </button>
             </div>
         </div>

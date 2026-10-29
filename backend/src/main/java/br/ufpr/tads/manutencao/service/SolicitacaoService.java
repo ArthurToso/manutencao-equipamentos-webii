@@ -253,6 +253,42 @@ public class SolicitacaoService {
         return rejeitarServico(id, motivo, null);
     }
 
+    @Transactional
+    public SolicitacaoResponse resgatarServico(Long id, UsuarioAutenticado usuarioLogado) {
+        final UsuarioAutenticado usuario = usuarioLogado != null ? usuarioLogado : SecurityUtils.getUsuarioAutenticadoObrigatorio();
+        Solicitacao solicitacao = solicitacaoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Solicitação não encontrada"));
+        validarPropriedadeCliente(solicitacao, usuario);
+
+        Usuario responsavel = usuarioRepository.findById(usuario.getId())
+                .orElseGet(() -> usuarioRepository.getReferenceById(usuario.getId()));
+
+        Solicitacao salva = alterarEstado(solicitacao, EstadoSolicitacao.APROVADA, responsavel, null, null);
+        return solicitacaoMapper.toResponse(salva);
+    }
+
+    public SolicitacaoResponse resgatarServico(Long id) {
+        return resgatarServico(id, null);
+    }
+
+    @Transactional
+    public SolicitacaoResponse pagarServico(Long id, UsuarioAutenticado usuarioLogado) {
+        final UsuarioAutenticado usuario = usuarioLogado != null ? usuarioLogado : SecurityUtils.getUsuarioAutenticadoObrigatorio();
+        Solicitacao solicitacao = solicitacaoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Solicitação não encontrada"));
+        validarPropriedadeCliente(solicitacao, usuario);
+
+        Usuario responsavel = usuarioRepository.findById(usuario.getId())
+                .orElseGet(() -> usuarioRepository.getReferenceById(usuario.getId()));
+
+        Solicitacao salva = alterarEstado(solicitacao, EstadoSolicitacao.PAGA, responsavel, null, null);
+        return solicitacaoMapper.toResponse(salva);
+    }
+
+    public SolicitacaoResponse pagarServico(Long id) {
+        return pagarServico(id, null);
+    }
+
     private void validarPropriedadeCliente(Solicitacao solicitacao, UsuarioAutenticado usuario) {
         if (usuario.getClienteId() == null || !usuario.getClienteId().equals(solicitacao.getClienteId())) {
             throw new AccessDeniedException("Você não tem permissão para acessar esta solicitação");

@@ -32,4 +32,12 @@ export class SolicitacaoService {
   criar(dados: NovaSolicitacaoDTO): Observable<SolicitacaoCardDTO> {
     return this.http.post<SolicitacaoCardDTO>(this.API, dados);
   }
+
+  resgatarServico(id: number): Observable<any> {
+    return this.http.put<any>(`${this.API}/${id}/resgatar`, {});
+  }
+
+  pagarServico(id: number): Observable<any> {
+    return this.http.put<any>(`${this.API}/${id}/pagar`, {});
+  }
 }
