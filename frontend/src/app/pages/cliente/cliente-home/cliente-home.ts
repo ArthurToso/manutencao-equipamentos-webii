@@ -43,7 +43,17 @@ export class ClienteHome implements OnInit {
   }
 
   resgatarServico(solicitacao: Solicitacao): void {
-    solicitacao.estado = this.estado.APROVADA
+    if (!confirm('Deseja realmente resgatar este serviço?')) {
+      return;
+    }
+    this.solicitacaoService.resgatarServico(solicitacao.id).subscribe({
+      next: () => {
+        this.carregarSolicitacoes();
+      },
+      error: (err) => {
+        this.erro.set(err.error?.mensagem ?? 'Não foi possível resgatar o serviço.');
+      }
+    });
   }
 
 }

@@ -325,5 +325,99 @@ class SolicitacaoServiceHistoricoTest {
         assertThrows(IllegalStateException.class, () ->
                 solicitacaoService.efetuarOrcamento(100L, new BigDecimal("400.00"), authFuncionario));
     }
+
+    @Test
+    @DisplayName("Resgatar grava REJEITADA->APROVADA")
+    void resgatarGravaRejeitadaParaAprovada() {
+        Solicitacao sRejeitada = new Solicitacao();
+        sRejeitada.setId(201L);
+        sRejeitada.setClienteId(10L);
+        sRejeitada.setCategoria(categoriaNotebook);
+        sRejeitada.setDescricaoEquipamento("Notebook Dell");
+        sRejeitada.setDescricaoDefeito("Teclado quebrado");
+        sRejeitada.setEstado(EstadoSolicitacao.REJEITADA);
+        sRejeitada.setValorOrcamento(new BigDecimal("250.00"));
+        sRejeitada.setDataHora(LocalDateTime.now().minusDays(1));
+
+        when(solicitacaoRepository.findById(201L)).thenReturn(Optional.of(sRejeitada));
+        when(usuarioRepository.findById(3L)).thenReturn(Optional.of(usuarioCliente));
+        when(solicitacaoRepository.save(any(Solicitacao.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        SolicitacaoResponse response = solicitacaoService.resgatarServico(201L, authCliente);
+
+        assertNotNull(response);
+        assertEquals("APROVADA", response.getEstado());
+
+        verify(historicoSolicitacaoService).registrar(
+                any(Solicitacao.class),
+                eq(EstadoSolicitacao.REJEITADA),
+                eq(EstadoSolicitacao.APROVADA),
+                eq(usuarioCliente),
+                eq(null),
+                eq(null),
+                any(LocalDateTime.class)
+        );
+    }
+
+    @Test
+    @DisplayName("Pagar grava ARRUMADA->PAGA")
+    void pagarGravaArrumadaParaPaga() {
+        Solicitacao sArrumada = new Solicitacao();
+        sArrumada.setId(202L);
+        sArrumada.setClienteId(10L);
+        sArrumada.setCategoria(categoriaNotebook);
+        sArrumada.setDescricaoEquipamento("Notebook Dell");
+        sArrumada.setDescricaoDefeito("Teclado quebrado");
+        sArrumada.setEstado(EstadoSolicitacao.ARRUMADA);
+        sArrumada.setValorOrcamento(new BigDecimal("250.00"));
+        sArrumada.setDataHora(LocalDateTime.now().minusDays(1));
+
+        when(solicitacaoRepository.findById(202L)).thenReturn(Optional.of(sArrumada));
+        when(usuarioRepository.findById(3L)).thenReturn(Optional.of(usuarioCliente));
+        when(solicitacaoRepository.save(any(Solicitacao.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        SolicitacaoResponse response = solicitacaoService.pagarServico(202L, authCliente);
+
+        assertNotNull(response);
+        assertEquals("PAGA", response.getEstado());
+
+        verify(historicoSolicitacaoService).registrar(
+                any(Solicitacao.class),
+                eq(EstadoSolicitacao.ARRUMADA),
+                eq(EstadoSolicitacao.PAGA),
+                eq(usuarioCliente),
+                eq(null),
+                eq(null),
+                any(LocalDateTime.class)
+        );
+    }
+
+    @Test
+    @DisplayName("Resgatar de outro cliente lança AccessDeniedException")
+    void resgatarDeOutroClienteLancaAccessDenied() {
+        Solicitacao sOutro = new Solicitacao();
+        sOutro.setId(203L);
+        sOutro.setClienteId(99L);
+        sOutro.setEstado(EstadoSolicitacao.REJEITADA);
+
+        when(solicitacaoRepository.findById(203L)).thenReturn(Optional.of(sOutro));
+
+        assertThrows(AccessDeniedException.class, () ->
+                solicitacaoService.resgatarServico(203L, authCliente));
+    }
+
+    @Test
+    @DisplayName("Pagar de outro cliente lança AccessDeniedException")
+    void pagarDeOutroClienteLancaAccessDenied() {
+        Solicitacao sOutro = new Solicitacao();
+        sOutro.setId(204L);
+        sOutro.setClienteId(99L);
+        sOutro.setEstado(EstadoSolicitacao.ARRUMADA);
+
+        when(solicitacaoRepository.findById(204L)).thenReturn(Optional.of(sOutro));
+
+        assertThrows(AccessDeniedException.class, () ->
+                solicitacaoService.pagarServico(204L, authCliente));
+    }
 }
 

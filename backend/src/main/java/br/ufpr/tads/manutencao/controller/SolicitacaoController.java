@@ -94,4 +94,20 @@ public class SolicitacaoController {
         SolicitacaoResponse response = solicitacaoService.rejeitarServico(id, request.getMotivo(), usuarioAutenticado);
         return ResponseEntity.ok(response);
     }
+
+    @PutMapping("/{id}/resgatar")
+    public ResponseEntity<SolicitacaoResponse> resgatarServico(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado) {
+        SolicitacaoResponse response = solicitacaoService.resgatarServico(id, usuarioAutenticado);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{id}/pagar")
+    public ResponseEntity<SolicitacaoResponse> pagarServico(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado) {
+        SolicitacaoResponse response = solicitacaoService.pagarServico(id, usuarioAutenticado);
+        return ResponseEntity.ok(response);
+    }
 }
