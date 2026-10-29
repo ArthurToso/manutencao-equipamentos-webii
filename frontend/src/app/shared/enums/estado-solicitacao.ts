@@ -1,6 +1,6 @@
 export enum EstadoSolicitacao {
   ABERTA = 'ABERTA',
-  ORCADA = 'ORÇADA',
+  ORCADA = 'ORCADA',
   APROVADA = 'APROVADA',
   REJEITADA = 'REJEITADA',
   REDIRECIONADA = 'REDIRECIONADA',

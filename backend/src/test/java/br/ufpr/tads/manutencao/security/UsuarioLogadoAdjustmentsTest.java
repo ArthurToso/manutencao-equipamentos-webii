@@ -177,7 +177,7 @@ class UsuarioLogadoAdjustmentsTest {
     @Test
     @DisplayName("João consulta suas próprias solicitações via /api/solicitacoes/minhas (200)")
     void joaoConsultaMinhasSolicitacoes() throws Exception {
-        when(solicitacaoRepository.findByClienteIdOrderByDataHoraDesc(20L))
+        when(solicitacaoRepository.findByClienteIdOrderByDataHoraAsc(20L))
                 .thenReturn(List.of(solicitacaoDoJoao));
 
         mockMvc.perform(get("/api/solicitacoes/minhas")

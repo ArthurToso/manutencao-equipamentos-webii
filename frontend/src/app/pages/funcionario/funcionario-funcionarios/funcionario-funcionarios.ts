@@ -29,7 +29,7 @@ export class FuncionarioFuncionarios {
 
   excluirFuncionario(id: number | undefined): void {
     if (id === undefined) return;
-    if (this.funcionarios.length === 1){
+    if (this.funcionarios().length === 1){
         window.alert('É necessário ter pelo menos 1 funcionário cadastrado!')
         return
     }

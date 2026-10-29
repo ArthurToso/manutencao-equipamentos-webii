@@ -288,7 +288,7 @@
 }
 
 .state-badge--aberta { background: #F1F5F9; color: var(--color-slate); }
-.state-badge--orçada { background: #F5EBE0; color: #78350F; }
+.state-badge--orcada { background: #F5EBE0; color: #78350F; }
 .state-badge--rejeitada { background: #FEE2E2; color: var(--color-error); }
 .state-badge--aprovada { background: #FEF9C3; color: #854D0E; }
 .state-badge--redirecionada { background: #F3E8FF; color: #6B21A8; }

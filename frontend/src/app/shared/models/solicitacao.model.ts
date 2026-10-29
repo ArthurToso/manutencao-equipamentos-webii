@@ -30,3 +30,9 @@ export interface SolicitacaoDetailedDTO extends SolicitacaoCardDTO {
 export interface SolicitacaoDetailedFuncDTO extends SolicitacaoDetailedDTO {
         cliente: ClienteDTO;
 }
+
+export interface NovaSolicitacaoDTO {
+    descricaoEquipamento: string;
+    categoriaId: number;
+    descricaoDefeito: string;
+}
