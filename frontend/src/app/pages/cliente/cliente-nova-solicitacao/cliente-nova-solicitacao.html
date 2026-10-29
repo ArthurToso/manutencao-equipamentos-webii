@@ -51,9 +51,9 @@
         formControlName="categoria" 
         class="form-select"
         [class.is-invalid]="categoria?.invalid && categoria?.touched">
-        <option value="" disabled selected>Selecione uma categoria...</option>
-        @for (cat of categorias; track cat) {
-          <option [value]="cat">{{ cat }}</option>
+        <option [ngValue]="null" disabled>Selecione uma categoria...</option>
+        @for (cat of categorias(); track cat.id) {
+          <option [ngValue]="cat.id">{{ cat.nome }}</option>
         }
       </select>
       
@@ -88,11 +88,15 @@
       }
     </div>
 
+    @if (erro()) {
+      <div class="alert alert-danger">{{ erro() }}</div>
+    }
+
     <div class="form-actions d-flex justify-content-end gap-2">
       <button type="button" class="btn btn-secondary" routerLink="/cliente/home">Cancelar</button>
       
-      <button type="submit" class="btn btn-primary" [disabled]="submitting">
-        @if (!submitting) {
+      <button type="submit" class="btn btn-primary" [disabled]="submitting()">
+        @if (!submitting()) {
           <span>Registrar solicitação</span>
         } @else {
           <span>Registrando…</span>
