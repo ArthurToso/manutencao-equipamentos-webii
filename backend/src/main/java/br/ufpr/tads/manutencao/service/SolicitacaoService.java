@@ -64,7 +64,9 @@ public class SolicitacaoService {
 
         LocalDateTime agora = LocalDateTime.now();
         solicitacao.setEstado(novoEstado);
-        solicitacao.setDataHora(agora);
+        if (solicitacao.getDataHora() == null) {
+            solicitacao.setDataHora(agora);
+        }   
 
         if (novoEstado == EstadoSolicitacao.REJEITADA) {
             solicitacao.setMotivoRejeicao(observacao);
@@ -205,7 +207,7 @@ public class SolicitacaoService {
             throw new AccessDeniedException("Apenas clientes possuem solicitações próprias");
         }
 
-        return solicitacaoRepository.findByClienteIdOrderByDataHoraDesc(usuario.getClienteId())
+        return solicitacaoRepository.findByClienteIdOrderByDataHoraAsc(usuario.getClienteId())
                 .stream()
                 .map(solicitacaoMapper::toResponse)
                 .collect(Collectors.toList());

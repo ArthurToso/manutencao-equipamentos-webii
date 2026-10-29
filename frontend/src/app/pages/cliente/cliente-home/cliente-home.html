@@ -11,7 +11,11 @@
     </button>
   </header>
 
-  <div class="request-card" *ngFor="let solicitacao of solicitacoes">
+  <p *ngIf="carregando()" class="text-muted">Carregando solicitações...</p>
+
+  <div *ngIf="erro()" class="alert alert-danger">{{ erro() }}</div>
+
+  <div class="request-card" *ngFor="let solicitacao of solicitacoes()">
     <div class="request-card__header">
       <span class="request-card__date">{{ solicitacao.dataHora | date:'dd/MM/yyyy HH:mm' }}</span>
       <span class="state-badge" [ngClass]="'state-badge--' + solicitacao.estado.toLowerCase()">
@@ -44,7 +48,7 @@
     </div>
   </div>
 
-  <div *ngIf="solicitacoes.length === 0" class="empty-state">
+  <div *ngIf="!carregando() && !erro() && solicitacoes().length === 0" class="empty-state">
     <p>Você ainda não possui solicitações de manutenção.</p>
   </div>
 

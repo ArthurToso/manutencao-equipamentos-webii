@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { SolicitacaoCardFuncDTO } from '../shared';
+import { NovaSolicitacaoDTO, SolicitacaoCardDTO, SolicitacaoCardFuncDTO } from '../shared';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -23,5 +23,13 @@ export class SolicitacaoService {
 
   efetuarOrcamento(id: number, valor: number): Observable<any> {
     return this.http.post<any>(`${this.API}/${id}/orcamento`, { valor });
+  }
+
+  listarMinhas(): Observable<SolicitacaoCardDTO[]> {
+    return this.http.get<SolicitacaoCardDTO[]>(`${this.API}/minhas`);
+  }
+
+  criar(dados: NovaSolicitacaoDTO): Observable<SolicitacaoCardDTO> {
+    return this.http.post<SolicitacaoCardDTO>(this.API, dados);
   }
 }
