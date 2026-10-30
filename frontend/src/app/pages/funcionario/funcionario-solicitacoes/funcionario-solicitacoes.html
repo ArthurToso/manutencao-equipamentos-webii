@@ -17,6 +17,10 @@
     </div>
   </header>
 
+  @if (erroFinalizacao) {
+    <div class="alert alert-danger" role="alert">{{ erroFinalizacao }}</div>
+  }
+
   @if(dateFilterOpen){
     <div class="filter-body__header">
       <div class="filtro-container">
@@ -84,8 +88,10 @@
       }
       @else if(s.estado === estados.PAGA){
         <div class="request-card__actions">
-            <button class="btn btn--warning" (click)="finalizarSolicitacao(s.id)">
-                Finalizar Solicitação</button>
+            <button class="btn btn--warning"
+                    [disabled]="finalizandoId === s.id"
+                    (click)="finalizarSolicitacao(s.id)">
+                {{ finalizandoId === s.id ? 'Finalizando...' : 'Finalizar Solicitação' }}</button>
         </div>
       }
 

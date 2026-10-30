@@ -110,4 +110,12 @@ public class SolicitacaoController {
         SolicitacaoResponse response = solicitacaoService.pagarServico(id, usuarioAutenticado);
         return ResponseEntity.ok(response);
     }
+
+    @PutMapping("/{id}/finalizar")
+    public ResponseEntity<SolicitacaoResponse> finalizarSolicitacao(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado) {
+        SolicitacaoResponse response = solicitacaoService.finalizarSolicitacao(id, usuarioAutenticado);
+        return ResponseEntity.ok(response);
+    }
 }

@@ -289,6 +289,35 @@ public class SolicitacaoService {
         return pagarServico(id, null);
     }
 
+    @Transactional
+    public SolicitacaoResponse finalizarSolicitacao(Long id, UsuarioAutenticado usuarioLogado) {
+        final UsuarioAutenticado usuario = usuarioLogado != null
+                ? usuarioLogado
+                : SecurityUtils.getUsuarioAutenticadoObrigatorio();
+
+        if (!"FUNCIONARIO".equals(usuario.getPerfil())) {
+            throw new AccessDeniedException("Apenas funcionários podem finalizar solicitações");
+        }
+
+        Solicitacao solicitacao = solicitacaoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Solicitação não encontrada"));
+
+        if (solicitacao.getEstado() != EstadoSolicitacao.PAGA) {
+            throw new IllegalStateException("Apenas solicitações pagas podem ser finalizadas");
+        }
+
+        Usuario responsavel = usuarioRepository.findById(usuario.getId())
+                .orElseGet(() -> usuarioRepository.getReferenceById(usuario.getId()));
+
+        Solicitacao salva = alterarEstado(
+                solicitacao, EstadoSolicitacao.FINALIZADA, responsavel, null, null);
+        return solicitacaoMapper.toResponse(salva);
+    }
+
+    public SolicitacaoResponse finalizarSolicitacao(Long id) {
+        return finalizarSolicitacao(id, null);
+    }
+
     private void validarPropriedadeCliente(Solicitacao solicitacao, UsuarioAutenticado usuario) {
         if (usuario.getClienteId() == null || !usuario.getClienteId().equals(solicitacao.getClienteId())) {
             throw new AccessDeniedException("Você não tem permissão para acessar esta solicitação");
