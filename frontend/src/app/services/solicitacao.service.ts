@@ -40,4 +40,8 @@ export class SolicitacaoService {
   pagarServico(id: number): Observable<any> {
     return this.http.put<any>(`${this.API}/${id}/pagar`, {});
   }
+
+  finalizarServico(id: number): Observable<SolicitacaoCardDTO> {
+    return this.http.put<SolicitacaoCardDTO>(`${this.API}/${id}/finalizar`, {});
+  }
 }

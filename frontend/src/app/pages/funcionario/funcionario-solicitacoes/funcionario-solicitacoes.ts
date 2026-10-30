@@ -7,6 +7,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDatepickerModule, DateRange } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
+import { SolicitacaoService } from '../../../services/solicitacao.service';
 
 const mock: SolicitacaoCardFuncDTO[] = [
   { id: 6, dataHora: new Date('2026-09-16T08:40:00'), nomeCliente: 'José', descricaoEquipamento: 'Impressora Epson L3250', estado: EstadoSolicitacao.ABERTA },
@@ -29,11 +30,15 @@ const mock: SolicitacaoCardFuncDTO[] = [
   templateUrl: './funcionario-solicitacoes.html',
 })
 export class FuncionarioSolicitacoes implements OnInit {
+  constructor(private solicitacaoService: SolicitacaoService) {}
+
   estados = EstadoSolicitacao;
 
   todasSolicitacoes: SolicitacaoCardFuncDTO[] = [];
 
   solicitacoes: SolicitacaoCardFuncDTO[] = [];
+  finalizandoId: number | null = null;
+  erroFinalizacao: string | null = null;
 
   dateFilterOpen = false;
   dateFilferActive = false;
@@ -52,7 +57,7 @@ export class FuncionarioSolicitacoes implements OnInit {
 
   carregarSolicitacoes(): void{
     //carregar do service
-    const data = mock;
+    const data = mock.map(solicitacao => ({ ...solicitacao }));
 
     if(data) 
       this.todasSolicitacoes = data.sort((a, b) => a.dataHora.getTime() - b.dataHora.getTime());
@@ -152,9 +157,22 @@ export class FuncionarioSolicitacoes implements OnInit {
   
   finalizarSolicitacao(id: number): void {
     const sol = this.solicitacoes.find(s => s.id === id);
-    if(sol) {
-      sol.estado = EstadoSolicitacao.FINALIZADA;
-      window.alert(`Solicitação #${id} finalizada com sucesso!`);
+    if (!sol || sol.estado !== EstadoSolicitacao.PAGA || this.finalizandoId !== null) {
+      return;
     }
+
+    this.finalizandoId = id;
+    this.erroFinalizacao = null;
+    this.solicitacaoService.finalizarServico(id).subscribe({
+      next: () => {
+        sol.estado = EstadoSolicitacao.FINALIZADA;
+        this.finalizandoId = null;
+      },
+      error: (err) => {
+        this.erroFinalizacao = err.error?.mensagem
+          ?? 'Não foi possível finalizar a solicitação. Tente novamente.';
+        this.finalizandoId = null;
+      }
+    });
   }
 }
