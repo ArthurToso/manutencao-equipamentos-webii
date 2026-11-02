@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import br.ufpr.tads.manutencao.dto.SolicitacaoRequest;
 import br.ufpr.tads.manutencao.dto.SolicitacaoResponse;
+import br.ufpr.tads.manutencao.exception.RecursoNaoEncontradoException;
 import br.ufpr.tads.manutencao.mapper.SolicitacaoMapper;
 import br.ufpr.tads.manutencao.model.Categoria;
 import br.ufpr.tads.manutencao.model.Cliente;
@@ -110,8 +111,13 @@ public class SolicitacaoService {
     public SolicitacaoResponse buscarOrcamento(Long id, UsuarioAutenticado usuarioLogado) {
         final UsuarioAutenticado usuario = usuarioLogado != null ? usuarioLogado : SecurityUtils.getUsuarioAutenticadoObrigatorio();
         Solicitacao solicitacao = solicitacaoRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Solicitação não encontrada"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Solicitação não encontrada"));
         validarPropriedadeCliente(solicitacao, usuario);
+
+        if (solicitacao.getEstado() == EstadoSolicitacao.ABERTA || solicitacao.getValorOrcamento() == null) {
+            throw new IllegalStateException("A solicitação ainda não foi orçada");
+        }
+
         return solicitacaoMapper.toResponse(solicitacao);
     }
 
@@ -221,8 +227,14 @@ public class SolicitacaoService {
     public SolicitacaoResponse aprovarServico(Long id, UsuarioAutenticado usuarioLogado) {
         final UsuarioAutenticado usuario = usuarioLogado != null ? usuarioLogado : SecurityUtils.getUsuarioAutenticadoObrigatorio();
         Solicitacao solicitacao = solicitacaoRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Solicitação não encontrada"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Solicitação não encontrada"));
         validarPropriedadeCliente(solicitacao, usuario);
+
+        if (solicitacao.getEstado() != EstadoSolicitacao.ORCADA
+                || solicitacao.getValorOrcamento() == null
+                || solicitacao.getValorOrcamento().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalStateException("Só é possível aprovar uma solicitação orçada");
+        }
 
         Usuario responsavel = usuarioRepository.findById(usuario.getId())
                 .orElseGet(() -> usuarioRepository.getReferenceById(usuario.getId()));

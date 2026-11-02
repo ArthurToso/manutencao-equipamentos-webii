@@ -279,3 +279,49 @@
   color: var(--color-slate);
   margin: 0;
 }
+
+/* ---------- Avisos e Alertas ---------- */
+
+.aviso-orcamento {
+  background-color: #FEF3C7;
+  color: #92400E;
+  border: 1px solid #FCD34D;
+  border-radius: 4px;
+  padding: 1rem;
+  text-align: center;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.alert {
+  padding: 0.85rem 1.25rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.alert-danger {
+  background-color: #FEE2E2;
+  color: #991B1B;
+  border: 1px solid #F87171;
+}
+
+.alert-warning {
+  background-color: #FEF3C7;
+  color: #92400E;
+  border: 1px solid #FCD34D;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.py-4 {
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+}
+
+.text-muted {
+  color: var(--color-slate);
+  font-size: 0.95rem;
+}

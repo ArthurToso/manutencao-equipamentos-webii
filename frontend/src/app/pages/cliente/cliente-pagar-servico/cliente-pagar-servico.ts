@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { EstadoSolicitacao, SolicitacaoDetailedDTO } from '../../../shared';
+import { EstadoSolicitacao, HistoricoApiDTO, SolicitacaoDetailedDTO, mapearEstadoSolicitacao } from '../../../shared';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
 import { SolicitacaoService } from '../../../services/solicitacao.service';
@@ -34,13 +34,13 @@ export class ClientePagarServico implements OnInit {
           categoriaEquipamento: { id: res.categoriaId, nome: res.categoriaNome },
           descricaoProblema: res.descricaoDefeito,
           dataHora: new Date(res.dataHora),
-          estado: res.estado as EstadoSolicitacao,
-          valorOrcado: res.valorOrcamento,
-          motivoRejeicao: res.motivoRejeicao,
-          historico: res.historico ? res.historico.map((h: any, index: number) => ({
+          estado: mapearEstadoSolicitacao(res.estado),
+          valorOrcado: res.valorOrcamento ?? undefined,
+          motivoRejeicao: res.motivoRejeicao ?? undefined,
+          historico: res.historico ? res.historico.map((h: HistoricoApiDTO, index: number) => ({
             id: index,
-            estado: h.estado as EstadoSolicitacao,
-            dataHora: new Date(h.dataHora),
+            estado: mapearEstadoSolicitacao(h.estado),
+            dataHora: new Date(h.dataHora ?? ''),
             userResponsavel: h.nomeFuncionario ? { id: 0, nome: h.nomeFuncionario, email: '' } : { id: 0, nome: 'Cliente/Sistema', email: '' }
           })) : []
         };
