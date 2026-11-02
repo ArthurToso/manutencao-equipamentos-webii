@@ -2,5 +2,6 @@ export * from './categoria.model';
 export * from './endereco.model';
 export * from './usuario.model';
 export * from './solicitacao.model';
+export * from './solicitacao.mapper';
 export * from './historico.model';
 export * from './login.model';

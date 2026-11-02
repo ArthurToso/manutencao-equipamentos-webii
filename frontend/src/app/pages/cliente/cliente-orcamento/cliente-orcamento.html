@@ -1,4 +1,40 @@
-<div class="form-container" *ngIf="solicitacao as s">
+<!-- Carregando -->
+<div class="form-container" *ngIf="estadoTela === 'carregando'">
+  <header class="form-header">
+    <div>
+      <h1>Orçamento da Solicitação</h1>
+      <p>Carregando dados do orçamento...</p>
+    </div>
+  </header>
+  <div class="custom-form text-center py-4">
+    <p class="text-muted">Carregando informações da solicitação...</p>
+  </div>
+</div>
+
+<!-- Erro -->
+<div class="form-container" *ngIf="estadoTela === 'erro'">
+  <header class="form-header">
+    <div>
+      <h1>Orçamento da Solicitação</h1>
+    </div>
+    <button class="btn btn--secondary" routerLink="/cliente/home" *ngIf="mostrarBotaoVoltar">
+      🠔 Voltar
+    </button>
+  </header>
+  <div class="custom-form">
+    <div class="alert alert-danger" role="alert">
+      {{ mensagemErro }}
+    </div>
+    <div class="form-actions" *ngIf="mostrarBotaoVoltar">
+      <button class="btn btn--secondary" routerLink="/cliente/home">
+        Voltar para a Página Inicial
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Pronto -->
+<div class="form-container" *ngIf="estadoTela === 'pronto' && solicitacao as s">
 
   <header class="form-header">
     <div>
@@ -47,8 +83,19 @@
       <span class="valor-destaque__valor">{{ formatarMoeda(s.valorOrcado!) }}</span>
     </section>
 
-    <div class="form-actions" *ngIf="etapa === 'orcamento'">
-      <button type="button" class="btn btn--danger" (click)="irParaRejeicao()">
+    <!-- Aviso caso o orçamento não esteja aguardando a decisão (não ORCADA) -->
+    <div *ngIf="s.estado !== EstadoSolicitacao.ORCADA" class="aviso-orcamento alert alert-warning" role="alert">
+      Este orçamento não está aguardando a sua decisão
+    </div>
+
+    <!-- Erro ao aprovar serviço -->
+    <div *ngIf="erroAprovacao" class="alert alert-danger" role="alert">
+      {{ erroAprovacao }}
+    </div>
+
+    <!-- Ações permitidas apenas quando estado == ORCADA -->
+    <div class="form-actions" *ngIf="s.estado === EstadoSolicitacao.ORCADA && etapa === 'orcamento'">
+      <button type="button" class="btn btn--danger" [disabled]="processando" (click)="irParaRejeicao()">
         Rejeitar Serviço
       </button>
 
@@ -58,7 +105,7 @@
       </button>
     </div>
 
-    <div class="form-group" *ngIf="etapa === 'rejeitar'">
+    <div class="form-group" *ngIf="s.estado === EstadoSolicitacao.ORCADA && etapa === 'rejeitar'">
       <label for="motivo">Motivo da rejeição</label>
       <textarea
         id="motivo"
@@ -73,7 +120,7 @@
       </p>
 
       <div class="form-actions">
-        <button type="button" class="btn btn--secondary" (click)="cancelarRejeicao()">
+        <button type="button" class="btn btn--secondary" [disabled]="processando" (click)="cancelarRejeicao()">
           Cancelar
         </button>
 
@@ -87,10 +134,11 @@
   </div>
 </div>
 
-<div class="modal-overlay" *ngIf="mensagem">
+<!-- Modal acessível -->
+<div class="modal-overlay" *ngIf="mensagem" role="dialog" aria-modal="true" aria-labelledby="modal-titulo">
   <div class="modal-box">
-    <h2 class="modal-box__title">{{ mensagem.titulo }}</h2>
+    <h2 id="modal-titulo" class="modal-box__title">{{ mensagem.titulo }}</h2>
     <p class="modal-box__texto">{{ mensagem.texto }}</p>
-    <button type="button" class="btn btn--primary" (click)="fecharMensagem()">OK</button>
+    <button #btnOk type="button" class="btn btn--primary" (click)="fecharMensagem()">OK</button>
   </div>
 </div>
