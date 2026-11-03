@@ -140,23 +140,32 @@ export class ClienteOrcamento implements OnInit {
   }
 
   confirmarRejeicao(): void {
-    // TODO RF007: ligar ao PUT /rejeitar
     this.motivoTocado = true;
-    if (!this.motivoRejeicao.trim() || this.processando) return;
+    if (!this.solicitacao || !this.motivoRejeicao.trim() || this.processando) return;
 
     this.processando = true;
+    this.erroAprovacao = null;
+    this.cdr.markForCheck();
 
-    setTimeout(() => {
-      this.processando = false;
-      this.solicitacao!.estado = EstadoSolicitacao.REJEITADA;
-      this.mensagem = {
-        titulo: 'Serviço Rejeitado',
-        texto: 'Serviço Rejeitado'
-      };
-      setTimeout(() => {
-        this.btnOk?.nativeElement?.focus();
-      }, 0);
-    }, 500);
+    this.solicitacaoService.rejeitar(this.solicitacao.id, this.motivoRejeicao.trim()).subscribe({
+      next: () => {
+        this.processando = false;
+        this.solicitacao!.estado = EstadoSolicitacao.REJEITADA;
+        this.mensagem = {
+          titulo: 'Serviço Rejeitado',
+          texto: 'Serviço Rejeitado'
+        };
+        this.cdr.markForCheck();
+        setTimeout(() => {
+          this.btnOk?.nativeElement?.focus();
+        }, 0);
+      },
+      error: (err) => {
+        this.processando = false;
+        this.erroAprovacao = err.error?.mensagem ?? 'Não foi possível rejeitar o serviço.';
+        this.cdr.markForCheck();
+      }
+    });
   }
 
   fecharMensagem(): void {

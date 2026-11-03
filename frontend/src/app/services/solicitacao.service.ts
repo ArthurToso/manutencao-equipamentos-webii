@@ -41,6 +41,10 @@ export class SolicitacaoService {
     return this.http.put<SolicitacaoApiDTO>(`${this.API}/${id}/aprovar`, null);
   }
 
+  rejeitar(id: number, motivo: string): Observable<SolicitacaoApiDTO> {
+    return this.http.put<SolicitacaoApiDTO>(`${this.API}/${id}/rejeitar`, { motivo });
+  }
+
   resgatarServico(id: number): Observable<any> {
     return this.http.put<any>(`${this.API}/${id}/resgatar`, {});
   }
