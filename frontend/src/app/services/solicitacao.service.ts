@@ -56,4 +56,8 @@ export class SolicitacaoService {
   finalizarServico(id: number): Observable<SolicitacaoCardDTO> {
     return this.http.put<SolicitacaoCardDTO>(`${this.API}/${id}/finalizar`, {});
   }
+
+  redirecionarManutencao(id: number, funcionarioDestinoId: number): Observable<any> {
+    return this.http.put<any>(`${this.API}/${id}/redirecionar`, { funcionarioDestinoId });
+  }
 }

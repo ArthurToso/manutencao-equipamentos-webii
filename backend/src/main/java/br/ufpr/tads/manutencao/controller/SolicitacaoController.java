@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.ufpr.tads.manutencao.dto.OrcamentoRequest;
+import br.ufpr.tads.manutencao.dto.RedirecionamentoRequest;
 import br.ufpr.tads.manutencao.dto.RejeicaoRequest;
 import br.ufpr.tads.manutencao.dto.SolicitacaoRequest;
 import br.ufpr.tads.manutencao.dto.SolicitacaoResponse;
@@ -116,6 +117,16 @@ public class SolicitacaoController {
             @PathVariable Long id,
             @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado) {
         SolicitacaoResponse response = solicitacaoService.finalizarSolicitacao(id, usuarioAutenticado);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{id}/redirecionar")
+    public ResponseEntity<SolicitacaoResponse> redirecionarManutencao(
+            @PathVariable Long id,
+            @Valid @RequestBody RedirecionamentoRequest request,
+            @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado) {
+        SolicitacaoResponse response = solicitacaoService.redirecionarManutencao(
+                id, request.getFuncionarioDestinoId(), usuarioAutenticado);
         return ResponseEntity.ok(response);
     }
 }

@@ -34,4 +34,15 @@ describe('SolicitacaoService', () => {
     expect(request.request.body).toEqual({});
     request.flush({ id: 42, estado: 'FINALIZADA' });
   });
+
+  it('sends a PUT request to redirect the maintenance', () => {
+    service.redirecionarManutencao(10, 2).subscribe();
+
+    const request = httpTestingController.expectOne(
+      `${environment.apiUrl}/solicitacoes/10/redirecionar`
+    );
+    expect(request.request.method).toBe('PUT');
+    expect(request.request.body).toEqual({ funcionarioDestinoId: 2 });
+    request.flush({ id: 10, estado: 'REDIRECIONADA' });
+  });
 });
