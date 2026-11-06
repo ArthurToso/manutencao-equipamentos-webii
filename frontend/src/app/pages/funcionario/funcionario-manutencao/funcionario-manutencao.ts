@@ -1,66 +1,17 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { EstadoUF, SolicitacaoDetailedFuncDTO as Solicitacao, EstadoSolicitacao } from '../../../shared';
+import {
+  EstadoSolicitacao,
+  EstadoUF,
+  FuncionarioDTO,
+  mapearEstadoSolicitacao,
+  SolicitacaoDetailedFuncDTO as Solicitacao
+} from '../../../shared';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
-
-const mock: Solicitacao[] = [
-  {
-    id: 8,
-    dataHora: new Date('2026-08-18T09:55:00'),
-    descricaoEquipamento: 'Monitor LG UltraWide 29 polegadas',
-    categoriaEquipamento: {id: 3, nome: 'Monitor'},
-    descricaoProblema: 'Tela piscando',
-    estado: EstadoSolicitacao.APROVADA,
-    historico: [],
-    cliente: {
-      id: 2,
-      nome: 'Joana Silva',
-      email: 'joana@gmail.com',
-      telefone: '41999999999',
-      cpf: '09876543211',
-      endereco: {
-        logradouro: 'Rua das Flores',
-        numero: 123,
-        complemento: '',
-        bairro: 'Centro',
-        cidade: 'Curitiba',
-        estado: EstadoUF.PR,
-        cep: '80000000'
-      }
-    }
-  },
-  {
-    id: 10,
-    dataHora: new Date('2026-08-16T08:40:00'),
-    descricaoEquipamento: 'Mouse Razer',
-    categoriaEquipamento: {id: 4, nome: 'Mouse'},
-    descricaoProblema: 'Clique duplo falhando',
-    estado: EstadoSolicitacao.REDIRECIONADA,
-    historico: [],
-    cliente: {
-      id: 1,
-      nome: 'José',
-      email: 'jose@gmail.com',
-      telefone: '41988888888',
-      cpf: '12345678900',
-      endereco: {
-        logradouro: 'Av Silva',
-        numero: 10,
-        complemento: '',
-        bairro: 'Centro',
-        cidade: 'Curitiba',
-        estado: EstadoUF.PR,
-        cep: '80000000'
-      }
-    }
-  }
-];
-
-const mockFuncionarios = [
-  { id: 2, nome: 'Maria Silva' },
-  { id: 3, nome: 'Carlos Souza' }
-];
+import { SolicitacaoService } from '../../../services/solicitacao.service';
+import { FuncionarioService } from '../../../services/funcionario-service';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   imports: [CommonModule, RouterLink, ReactiveFormsModule, DatePipe],
@@ -72,12 +23,16 @@ export class FuncionarioManutencao implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private fb = inject(FormBuilder);
+  private solicitacaoService = inject(SolicitacaoService);
+  private funcionarioService = inject(FuncionarioService);
+  private authService = inject(AuthService);
 
   solicitacaoId!: number;
-  solicitacao?: Solicitacao; 
-  funcionarios = mockFuncionarios;
+  solicitacao?: Solicitacao;
+  funcionarios: FuncionarioDTO[] = [];
 
   processando = false;
+  erroOperacao = false;
   mensagem: { titulo: string; texto: string } | null = null;
   exibirModalRedirecionar = false;
 
@@ -92,55 +47,147 @@ export class FuncionarioManutencao implements OnInit {
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    if(id) this.solicitacaoId = id;
-    this.carregarSolicitacao();
+    if (id) {
+      this.solicitacaoId = id;
+      this.carregarSolicitacao();
+    }
+    this.carregarFuncionarios();
   }
 
   carregarSolicitacao(): void {
-    this.solicitacao = mock.find((item) => item.id === this.solicitacaoId);
+    this.solicitacaoService.buscarPorId(this.solicitacaoId).subscribe({
+      next: (res) => {
+        this.solicitacao = {
+          id: res.id,
+          dataHora: res.dataHora ? new Date(res.dataHora) : new Date(),
+          descricaoEquipamento: res.descricaoEquipamento,
+          categoriaEquipamento: { id: res.categoriaId, nome: res.categoriaNome },
+          descricaoProblema: res.descricaoDefeito,
+          estado: mapearEstadoSolicitacao(res.estado),
+          historico: res.historico || [],
+          cliente: res.cliente ? {
+            id: res.cliente.id,
+            nome: res.cliente.nome,
+            email: res.cliente.email,
+            telefone: res.cliente.telefone,
+            cpf: res.cliente.cpf,
+            endereco: {
+              logradouro: res.cliente.endereco?.logradouro || '',
+              numero: Number(res.cliente.endereco?.numero) || 0,
+              complemento: res.cliente.endereco?.complemento || '',
+              bairro: res.cliente.endereco?.bairro || '',
+              cidade: res.cliente.endereco?.cidade || '',
+              estado: res.cliente.endereco?.uf || EstadoUF.PR,
+              cep: res.cliente.endereco?.cep || ''
+            }
+          } : {
+            nome: res.nomeCliente || '',
+            email: '',
+            telefone: '',
+            cpf: '',
+            endereco: {
+              logradouro: '',
+              numero: 0,
+              complemento: '',
+              bairro: '',
+              cidade: '',
+              estado: EstadoUF.PR,
+              cep: ''
+            }
+          }
+        };
+      },
+      error: (err) => {
+        console.error(err);
+      }
+    });
+  }
+
+  carregarFuncionarios(): void {
+    const usuarioLogado = this.authService.usuarioAtual();
+    this.funcionarioService.listar().subscribe({
+      next: (lista) => {
+        this.funcionarios = lista.filter((func) => {
+          if (!usuarioLogado) {
+            return true;
+          }
+          if (usuarioLogado.funcionarioId != null && func.id === usuarioLogado.funcionarioId) {
+            return false;
+          }
+          if (usuarioLogado.email && func.email && func.email.toLowerCase() === usuarioLogado.email.toLowerCase()) {
+            return false;
+          }
+          return true;
+        });
+      },
+      error: (err) => {
+        console.error(err);
+      }
+    });
   }
 
   salvarManutencao(): void {
-    if(this.formManutencao.invalid) return;
+    if (this.formManutencao.invalid || this.processando) return;
 
     this.processando = true;
-    
+    this.erroOperacao = false;
+
     setTimeout(() => {
       this.mensagem = {
-        titulo : 'Manutenção Efetuada!',
-        texto : 'A manutenção foi registrada com sucesso e o estado alterado para ARRUMADA.'
+        titulo: 'Manutenção Efetuada!',
+        texto: 'A manutenção foi registrada com sucesso e o estado alterado para ARRUMADA.'
       };
       this.processando = false;
     }, 500);
   }
-  
+
   abrirModalRedirecionar(): void {
     this.exibirModalRedirecionar = true;
   }
 
   fecharModalRedirecionar(): void {
     this.exibirModalRedirecionar = false;
-    this.formRedirecionar.reset();
+    this.formRedirecionar.reset({ funcionarioId: '' });
   }
 
   salvarRedirecionamento(): void {
-    if (this.formRedirecionar.invalid) return;
+    if (this.formRedirecionar.invalid || this.processando) return;
+
+    const funcionarioDestinoId = Number(this.formRedirecionar.value.funcionarioId);
+    if (!funcionarioDestinoId) return;
 
     this.processando = true;
-    const funcSelecionado = this.funcionarios.find(f => f.id == this.formRedirecionar.value.funcionarioId);
+    this.erroOperacao = false;
+    const funcSelecionado = this.funcionarios.find((f) => f.id === funcionarioDestinoId);
 
-    setTimeout(() => {
-      this.mensagem = {
-        titulo : 'Solicitação Redirecionada',
-        texto : `A solicitação foi redirecionada para ${funcSelecionado?.nome}.`
-      };
-      this.processando = false;
-      this.exibirModalRedirecionar = false;
-    }, 500);
+    this.solicitacaoService.redirecionar(this.solicitacaoId, { funcionarioId: funcionarioDestinoId }).subscribe({
+      next: () => {
+        this.processando = false;
+        this.exibirModalRedirecionar = false;
+        this.formRedirecionar.reset({ funcionarioId: '' });
+        this.mensagem = {
+          titulo: 'Solicitação Redirecionada',
+          texto: `A solicitação foi redirecionada para ${funcSelecionado?.nome || 'o funcionário selecionado'}.`
+        };
+      },
+      error: (err) => {
+        this.processando = false;
+        this.exibirModalRedirecionar = false;
+        this.erroOperacao = true;
+        this.mensagem = {
+          titulo: 'Erro ao Redirecionar',
+          texto: err.error?.mensagem || 'Não foi possível redirecionar a solicitação. Tente novamente.'
+        };
+      }
+    });
   }
 
   fecharMensagem(): void {
+    const houveErro = this.erroOperacao;
     this.mensagem = null;
-    this.router.navigate(['/funcionario/solicitacoes']);
+    this.erroOperacao = false;
+    if (!houveErro) {
+      this.router.navigate(['/funcionario/solicitacoes']);
+    }
   }
 }

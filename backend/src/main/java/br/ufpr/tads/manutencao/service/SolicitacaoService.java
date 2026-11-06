@@ -3,8 +3,10 @@ package br.ufpr.tads.manutencao.service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,11 +18,14 @@ import br.ufpr.tads.manutencao.mapper.SolicitacaoMapper;
 import br.ufpr.tads.manutencao.model.Categoria;
 import br.ufpr.tads.manutencao.model.Cliente;
 import br.ufpr.tads.manutencao.model.EstadoSolicitacao;
+import br.ufpr.tads.manutencao.model.Funcionario;
 import br.ufpr.tads.manutencao.model.HistoricoSolicitacao;
+import br.ufpr.tads.manutencao.model.Perfil;
 import br.ufpr.tads.manutencao.model.Solicitacao;
 import br.ufpr.tads.manutencao.model.Usuario;
 import br.ufpr.tads.manutencao.repository.CategoriaRepository;
 import br.ufpr.tads.manutencao.repository.ClienteRepository;
+import br.ufpr.tads.manutencao.repository.FuncionarioRepository;
 import br.ufpr.tads.manutencao.repository.SolicitacaoRepository;
 import br.ufpr.tads.manutencao.repository.UsuarioRepository;
 import br.ufpr.tads.manutencao.security.SecurityUtils;
@@ -33,6 +38,7 @@ public class SolicitacaoService {
     private final CategoriaRepository categoriaRepository;
     private final UsuarioRepository usuarioRepository;
     private final ClienteRepository clienteRepository;
+    private final FuncionarioRepository funcionarioRepository;
     private final HistoricoSolicitacaoService historicoSolicitacaoService;
     private final SolicitacaoMapper solicitacaoMapper;
 
@@ -42,10 +48,23 @@ public class SolicitacaoService {
                               ClienteRepository clienteRepository,
                               HistoricoSolicitacaoService historicoSolicitacaoService,
                               SolicitacaoMapper solicitacaoMapper) {
+        this(solicitacaoRepository, categoriaRepository, usuarioRepository,
+                clienteRepository, null, historicoSolicitacaoService, solicitacaoMapper);
+    }
+
+    @Autowired
+    public SolicitacaoService(SolicitacaoRepository solicitacaoRepository,
+                              CategoriaRepository categoriaRepository,
+                              UsuarioRepository usuarioRepository,
+                              ClienteRepository clienteRepository,
+                              FuncionarioRepository funcionarioRepository,
+                              HistoricoSolicitacaoService historicoSolicitacaoService,
+                              SolicitacaoMapper solicitacaoMapper) {
         this.solicitacaoRepository = solicitacaoRepository;
         this.categoriaRepository = categoriaRepository;
         this.usuarioRepository = usuarioRepository;
         this.clienteRepository = clienteRepository;
+        this.funcionarioRepository = funcionarioRepository;
         this.historicoSolicitacaoService = historicoSolicitacaoService;
         this.solicitacaoMapper = solicitacaoMapper;
     }
@@ -328,6 +347,75 @@ public class SolicitacaoService {
 
     public SolicitacaoResponse finalizarSolicitacao(Long id) {
         return finalizarSolicitacao(id, null);
+    }
+
+    @Transactional
+    public SolicitacaoResponse redirecionarManutencao(Long id, Long funcionarioDestinoId, UsuarioAutenticado usuarioLogado) {
+        final UsuarioAutenticado usuario = usuarioLogado != null
+                ? usuarioLogado
+                : SecurityUtils.getUsuarioAutenticadoObrigatorio();
+
+        if (!"FUNCIONARIO".equals(usuario.getPerfil())) {
+            throw new AccessDeniedException("Apenas funcionários podem redirecionar solicitações");
+        }
+
+        if (funcionarioDestinoId == null) {
+            throw new IllegalArgumentException("Funcionário de destino é obrigatório");
+        }
+
+        Solicitacao solicitacao = solicitacaoRepository.findById(id)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Solicitação não encontrada"));
+
+        if (solicitacao.getEstado() != EstadoSolicitacao.APROVADA
+                && solicitacao.getEstado() != EstadoSolicitacao.REDIRECIONADA) {
+            throw new IllegalStateException("Apenas solicitações aprovadas ou redirecionadas podem ser redirecionadas");
+        }
+
+        Usuario destino = null;
+        if (funcionarioRepository != null) {
+            Optional<Funcionario> funcOpt = funcionarioRepository.findById(funcionarioDestinoId);
+            if (funcOpt.isPresent()) {
+                Funcionario funcDestino = funcOpt.get();
+                if (usuario.getFuncionarioId() != null && usuario.getFuncionarioId().equals(funcDestino.getId())) {
+                    throw new IllegalArgumentException("Funcionário destino não pode ser o mesmo funcionário responsável");
+                }
+                destino = funcDestino.getUsuario();
+            }
+        }
+
+        if (destino == null) {
+            destino = usuarioRepository.findById(funcionarioDestinoId)
+                    .orElseThrow(() -> new IllegalArgumentException("Funcionário de destino não encontrado"));
+        }
+
+        if (destino.getId() != null && destino.getId().equals(usuario.getId())) {
+            throw new IllegalArgumentException("Funcionário destino não pode ser o mesmo funcionário responsável");
+        }
+
+        if (destino.getPerfil() != Perfil.FUNCIONARIO) {
+            throw new IllegalArgumentException("Funcionário destino deve ser do perfil FUNCIONARIO");
+        }
+
+        if (!destino.isAtivo()) {
+            throw new IllegalStateException("Funcionário destino deve estar ativo");
+        }
+
+        Usuario responsavel = usuarioRepository.findById(usuario.getId())
+                .orElseGet(() -> usuarioRepository.getReferenceById(usuario.getId()));
+
+        Solicitacao salva = alterarEstado(solicitacao, EstadoSolicitacao.REDIRECIONADA, responsavel, destino, null);
+
+        Cliente cliente = null;
+        if (salva.getClienteId() != null) {
+            cliente = clienteRepository.findById(salva.getClienteId()).orElse(null);
+        }
+
+        List<HistoricoSolicitacao> historico = historicoSolicitacaoService.listar(salva.getId());
+        return solicitacaoMapper.toResponseComHistorico(salva, historico, cliente);
+    }
+
+    public SolicitacaoResponse redirecionarManutencao(Long id, Long funcionarioDestinoId) {
+        return redirecionarManutencao(id, funcionarioDestinoId, null);
     }
 
     private void validarPropriedadeCliente(Solicitacao solicitacao, UsuarioAutenticado usuario) {

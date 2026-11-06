@@ -31,12 +31,14 @@ import br.ufpr.tads.manutencao.mapper.SolicitacaoMapper;
 import br.ufpr.tads.manutencao.model.Categoria;
 import br.ufpr.tads.manutencao.model.Cliente;
 import br.ufpr.tads.manutencao.model.EstadoSolicitacao;
+import br.ufpr.tads.manutencao.model.Funcionario;
 import br.ufpr.tads.manutencao.model.HistoricoSolicitacao;
 import br.ufpr.tads.manutencao.model.Perfil;
 import br.ufpr.tads.manutencao.model.Solicitacao;
 import br.ufpr.tads.manutencao.model.Usuario;
 import br.ufpr.tads.manutencao.repository.CategoriaRepository;
 import br.ufpr.tads.manutencao.repository.ClienteRepository;
+import br.ufpr.tads.manutencao.repository.FuncionarioRepository;
 import br.ufpr.tads.manutencao.repository.SolicitacaoRepository;
 import br.ufpr.tads.manutencao.repository.UsuarioRepository;
 import br.ufpr.tads.manutencao.security.UsuarioAutenticado;
@@ -55,6 +57,9 @@ class SolicitacaoServiceHistoricoTest {
 
     @Mock
     private ClienteRepository clienteRepository;
+
+    @Mock
+    private FuncionarioRepository funcionarioRepository;
 
     @Mock
     private HistoricoSolicitacaoService historicoSolicitacaoService;
@@ -418,6 +423,111 @@ class SolicitacaoServiceHistoricoTest {
 
         assertThrows(AccessDeniedException.class, () ->
                 solicitacaoService.pagarServico(204L, authCliente));
+    }
+
+    @Test
+    @DisplayName("RF015: Redirecionar solicitação APROVADA grava REDIRECIONADA com origem e destino")
+    void redirecionarAprovadaGravaRedirecionadaComOrigemEDestino() {
+        UsuarioAutenticado authMaria = new UsuarioAutenticado(1L, "maria@example.com", "FUNCIONARIO", null, 1L);
+        Usuario usuarioMario = new Usuario("Mário", "mario@example.com", "hash", "salt", Perfil.FUNCIONARIO);
+        usuarioMario.setId(2L);
+        Funcionario funcMario = new Funcionario(usuarioMario, java.time.LocalDate.of(1985, 11, 2));
+        funcMario.setId(2L);
+
+        Solicitacao sAprovada = new Solicitacao();
+        sAprovada.setId(301L);
+        sAprovada.setClienteId(10L);
+        sAprovada.setCategoria(categoriaNotebook);
+        sAprovada.setDescricaoEquipamento("Notebook Dell");
+        sAprovada.setDescricaoDefeito("Bateria viciada");
+        sAprovada.setEstado(EstadoSolicitacao.APROVADA);
+        sAprovada.setDataHora(LocalDateTime.now().minusDays(1));
+
+        when(solicitacaoRepository.findById(301L)).thenReturn(Optional.of(sAprovada));
+        when(funcionarioRepository.findById(2L)).thenReturn(Optional.of(funcMario));
+        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(funcionarioMaria));
+        when(solicitacaoRepository.save(any(Solicitacao.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        SolicitacaoResponse response = solicitacaoService.redirecionarManutencao(301L, 2L, authMaria);
+
+        assertNotNull(response);
+        assertEquals("REDIRECIONADA", response.getEstado());
+        verify(historicoSolicitacaoService).registrar(
+                any(Solicitacao.class),
+                eq(EstadoSolicitacao.APROVADA),
+                eq(EstadoSolicitacao.REDIRECIONADA),
+                eq(funcionarioMaria),
+                eq(usuarioMario),
+                eq(null),
+                any(LocalDateTime.class)
+        );
+    }
+
+    @Test
+    @DisplayName("RF015: Redirecionar várias vezes seguidas (REDIRECIONADA -> REDIRECIONADA) funciona")
+    void redirecionarVariasVezesSeguidasFunciona() {
+        Usuario usuarioMario = new Usuario("Mário", "mario@example.com", "hash", "salt", Perfil.FUNCIONARIO);
+        usuarioMario.setId(2L);
+        UsuarioAutenticado authMario = new UsuarioAutenticado(2L, "mario@example.com", "FUNCIONARIO", null, 2L);
+
+        Funcionario funcMaria = new Funcionario(funcionarioMaria, java.time.LocalDate.of(1990, 3, 15));
+        funcMaria.setId(1L);
+
+        Solicitacao sRedirecionada = new Solicitacao();
+        sRedirecionada.setId(302L);
+        sRedirecionada.setClienteId(10L);
+        sRedirecionada.setCategoria(categoriaNotebook);
+        sRedirecionada.setDescricaoEquipamento("Desktop HP");
+        sRedirecionada.setDescricaoDefeito("Não dá vídeo");
+        sRedirecionada.setEstado(EstadoSolicitacao.REDIRECIONADA);
+        sRedirecionada.setDataHora(LocalDateTime.now().minusDays(1));
+
+        when(solicitacaoRepository.findById(302L)).thenReturn(Optional.of(sRedirecionada));
+        when(funcionarioRepository.findById(1L)).thenReturn(Optional.of(funcMaria));
+        when(usuarioRepository.findById(2L)).thenReturn(Optional.of(usuarioMario));
+        when(solicitacaoRepository.save(any(Solicitacao.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        SolicitacaoResponse response = solicitacaoService.redirecionarManutencao(302L, 1L, authMario);
+
+        assertNotNull(response);
+        assertEquals("REDIRECIONADA", response.getEstado());
+        verify(historicoSolicitacaoService).registrar(
+                any(Solicitacao.class),
+                eq(EstadoSolicitacao.REDIRECIONADA),
+                eq(EstadoSolicitacao.REDIRECIONADA),
+                eq(usuarioMario),
+                eq(funcionarioMaria),
+                eq(null),
+                any(LocalDateTime.class)
+        );
+    }
+
+    @Test
+    @DisplayName("RF015: Redirecionar para si mesmo lança IllegalArgumentException")
+    void redirecionarParaSiMesmoLancaExcecao() {
+        UsuarioAutenticado authMaria = new UsuarioAutenticado(1L, "maria@example.com", "FUNCIONARIO", null, 1L);
+        Funcionario funcMaria = new Funcionario(funcionarioMaria, java.time.LocalDate.of(1990, 3, 15));
+        funcMaria.setId(1L);
+
+        Solicitacao sAprovada = new Solicitacao();
+        sAprovada.setId(303L);
+        sAprovada.setEstado(EstadoSolicitacao.APROVADA);
+
+        when(solicitacaoRepository.findById(303L)).thenReturn(Optional.of(sAprovada));
+        when(funcionarioRepository.findById(1L)).thenReturn(Optional.of(funcMaria));
+
+        assertThrows(IllegalArgumentException.class, () ->
+                solicitacaoService.redirecionarManutencao(303L, 1L, authMaria));
+
+        verify(solicitacaoRepository, never()).save(any());
+        verify(historicoSolicitacaoService, never()).registrar(any(), any(), any(), any(), any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("RF015: Cliente não pode redirecionar manutenção")
+    void clienteNaoPodeRedirecionarManutencao() {
+        assertThrows(AccessDeniedException.class, () ->
+                solicitacaoService.redirecionarManutencao(301L, 2L, authCliente));
     }
 }
 
