@@ -35,6 +35,15 @@ export interface NovaSolicitacaoDTO {
     descricaoDefeito: string;
 }
 
+export interface EfetuarManutencaoDTO {
+    descricaoManutencao: string;
+    orientacoesCliente: string;
+}
+
+export interface RedirecionarSolicitacaoDTO {
+    funcionarioId: number;
+}
+
 export interface HistoricoApiDTO {
     id?: number;
     estadoAnterior?: string | null;

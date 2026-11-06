@@ -1,9 +1,12 @@
 package br.ufpr.tads.manutencao.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+
 import jakarta.validation.constraints.NotNull;
 
 public class RedirecionamentoRequest {
 
+    @JsonAlias("funcionarioId")
     @NotNull(message = "O funcionário de destino é obrigatório")
     private Long funcionarioDestinoId;
 

@@ -1,7 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { NovaSolicitacaoDTO, SolicitacaoApiDTO, SolicitacaoCardDTO, SolicitacaoCardFuncDTO } from '../shared';
+import {
+  EfetuarManutencaoDTO,
+  NovaSolicitacaoDTO,
+  RedirecionarSolicitacaoDTO,
+  SolicitacaoApiDTO,
+  SolicitacaoCardDTO,
+  SolicitacaoCardFuncDTO
+} from '../shared';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -57,7 +64,17 @@ export class SolicitacaoService {
     return this.http.put<SolicitacaoCardDTO>(`${this.API}/${id}/finalizar`, {});
   }
 
-  redirecionarManutencao(id: number, funcionarioDestinoId: number): Observable<any> {
-    return this.http.put<any>(`${this.API}/${id}/redirecionar`, { funcionarioDestinoId });
+  efetuarManutencao(
+    id: number,
+    dados: EfetuarManutencaoDTO
+  ): Observable<SolicitacaoApiDTO> {
+    return this.http.put<SolicitacaoApiDTO>(`${this.API}/${id}/manutencao`, dados);
+  }
+
+  redirecionar(
+    id: number,
+    dados: RedirecionarSolicitacaoDTO
+  ): Observable<SolicitacaoApiDTO> {
+    return this.http.put<SolicitacaoApiDTO>(`${this.API}/${id}/redirecionar`, dados);
   }
 }

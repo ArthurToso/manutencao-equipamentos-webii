@@ -160,7 +160,7 @@ export class FuncionarioManutencao implements OnInit {
     this.erroOperacao = false;
     const funcSelecionado = this.funcionarios.find((f) => f.id === funcionarioDestinoId);
 
-    this.solicitacaoService.redirecionarManutencao(this.solicitacaoId, funcionarioDestinoId).subscribe({
+    this.solicitacaoService.redirecionar(this.solicitacaoId, { funcionarioId: funcionarioDestinoId }).subscribe({
       next: () => {
         this.processando = false;
         this.exibirModalRedirecionar = false;

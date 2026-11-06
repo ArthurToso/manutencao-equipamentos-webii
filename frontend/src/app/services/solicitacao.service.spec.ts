@@ -35,14 +35,32 @@ describe('SolicitacaoService', () => {
     request.flush({ id: 42, estado: 'FINALIZADA' });
   });
 
-  it('sends a PUT request to redirect the maintenance', () => {
-    service.redirecionarManutencao(10, 2).subscribe();
+  it('sends maintenance details to the API', () => {
+    const dados = {
+      descricaoManutencao: 'Substituição da fonte',
+      orientacoesCliente: 'Utilizar filtro de linha'
+    };
+
+    service.efetuarManutencao(42, dados).subscribe();
 
     const request = httpTestingController.expectOne(
-      `${environment.apiUrl}/solicitacoes/10/redirecionar`
+      `${environment.apiUrl}/solicitacoes/42/manutencao`
     );
     expect(request.request.method).toBe('PUT');
-    expect(request.request.body).toEqual({ funcionarioDestinoId: 2 });
-    request.flush({ id: 10, estado: 'REDIRECIONADA' });
+    expect(request.request.body).toEqual(dados);
+    request.flush({ id: 42, estado: 'ARRUMADA' });
+  });
+
+  it('sends the selected employee when redirecting a solicitation', () => {
+    const dados = { funcionarioId: 7 };
+
+    service.redirecionar(42, dados).subscribe();
+
+    const request = httpTestingController.expectOne(
+      `${environment.apiUrl}/solicitacoes/42/redirecionar`
+    );
+    expect(request.request.method).toBe('PUT');
+    expect(request.request.body).toEqual(dados);
+    request.flush({ id: 42, estado: 'REDIRECIONADA' });
   });
 });
