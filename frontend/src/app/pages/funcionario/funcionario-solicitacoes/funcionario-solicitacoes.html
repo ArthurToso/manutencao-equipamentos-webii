@@ -21,6 +21,10 @@
     <div class="alert alert-danger" role="alert">{{ erroFinalizacao }}</div>
   }
 
+  @if (erroCarregamento) {
+    <div class="alert alert-danger" role="alert">{{ erroCarregamento }}</div>
+  }
+
   @if(dateFilterOpen){
     <div class="filter-body__header">
       <div class="filtro-container">
@@ -61,45 +65,52 @@
       </div>
     </div>
   }
-  @for (s of solicitacoes; track s.id) {
-    <div class="request-card">
-      <div class="request-card__header">
-        <span class="request-card__date">{{ s.dataHora | date:'dd/MM/yyyy HH:mm' }}</span>
-        <span class="state-badge" [ngClass]="'state-badge--' + s.estado.toLocaleLowerCase()">
-          {{ s.estado }}
-        </span>
-      </div>
 
-      <div class="request-card__body">
-        <h3 class="request-card__title">{{ getEquipamentoLimitado(s.descricaoEquipamento) }}</h3>
-        <p class="request-card__client">Cliente: {{ s.nomeCliente }}</p>
-      </div>
-      @if(s.estado === estados.ABERTA){
-        <div class="request-card__actions">
-            <button class="btn btn--primary" [routerLink]="['/funcionario/orcamento', s.id]">
-                Efetuar Orçamento</button>
+  @if (carregando) {
+    <div class="loading-state">
+      <p>Carregando solicitações...</p>
+    </div>
+  } @else {
+    @for (s of solicitacoes; track s.id) {
+      <div class="request-card">
+        <div class="request-card__header">
+          <span class="request-card__date">{{ s.dataHora | date:'dd/MM/yyyy HH:mm' }}</span>
+          <span class="state-badge" [ngClass]="'state-badge--' + s.estado.toLocaleLowerCase()">
+            {{ s.estado }}
+          </span>
         </div>
-      }
-      @else if((s.estado === estados.REDIRECIONADA) || (s.estado === estados.APROVADA)){
-        <div class="request-card__actions">
-            <button class="btn btn--success" [routerLink]="['/funcionario/manutencao', s.id]">
-                Efetuar Manutenção</button>
-        </div>
-      }
-      @else if(s.estado === estados.PAGA){
-        <div class="request-card__actions">
-            <button class="btn btn--warning"
-                    [disabled]="finalizandoId === s.id"
-                    (click)="finalizarSolicitacao(s.id)">
-                {{ finalizandoId === s.id ? 'Finalizando...' : 'Finalizar Solicitação' }}</button>
-        </div>
-      }
 
-    </div>
-  } @empty {
-    <div class="empty-state">
-      <p>Não há solicitações ativas.</p>
-    </div>
+        <div class="request-card__body">
+          <h3 class="request-card__title">{{ getEquipamentoLimitado(s.descricaoEquipamento) }}</h3>
+          <p class="request-card__client">Cliente: {{ s.nomeCliente }}</p>
+        </div>
+        @if(s.estado === estados.ABERTA){
+          <div class="request-card__actions">
+              <button class="btn btn--primary" [routerLink]="['/funcionario/orcamento', s.id]">
+                  Efetuar Orçamento</button>
+          </div>
+        }
+        @else if((s.estado === estados.REDIRECIONADA) || (s.estado === estados.APROVADA)){
+          <div class="request-card__actions">
+              <button class="btn btn--success" [routerLink]="['/funcionario/manutencao', s.id]">
+                  Efetuar Manutenção</button>
+          </div>
+        }
+        @else if(s.estado === estados.PAGA){
+          <div class="request-card__actions">
+              <button class="btn btn--warning"
+                      [disabled]="finalizandoId === s.id"
+                      (click)="finalizarSolicitacao(s.id)">
+                  {{ finalizandoId === s.id ? 'Finalizando...' : 'Finalizar Solicitação' }}</button>
+          </div>
+        }
+
+      </div>
+    } @empty {
+      <div class="empty-state">
+        <p>Não há solicitações ativas.</p>
+      </div>
+    }
   }
 
 </div>

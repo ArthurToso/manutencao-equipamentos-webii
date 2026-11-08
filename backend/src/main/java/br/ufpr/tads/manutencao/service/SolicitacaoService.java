@@ -1,6 +1,7 @@
 package br.ufpr.tads.manutencao.service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -185,6 +186,47 @@ public class SolicitacaoService {
 
     public List<SolicitacaoResponse> buscarAbertas() {
         return buscarAbertas(null);
+    }
+
+    @Transactional(readOnly = true)
+    public List<SolicitacaoResponse> listarParaFuncionario(String filtro, LocalDate dataInicial, LocalDate dataFinal, UsuarioAutenticado usuarioLogado) {
+        final UsuarioAutenticado usuario = usuarioLogado != null ? usuarioLogado : SecurityUtils.getUsuarioAutenticadoObrigatorio();
+        if (!"FUNCIONARIO".equals(usuario.getPerfil())) {
+            throw new AccessDeniedException("Apenas funcionários podem visualizar solicitações");
+        }
+
+        String filtroNorm = (filtro == null || filtro.isBlank()) ? "TODAS" : filtro.trim().toUpperCase();
+
+        if ("HOJE".equals(filtroNorm)) {
+            LocalDate hoje = LocalDate.now();
+            LocalDateTime inicio = hoje.atStartOfDay();
+            LocalDateTime fim = hoje.plusDays(1).atStartOfDay();
+            return solicitacaoRepository.listarPorPeriodoParaFuncionario(usuario.getId(), inicio, fim);
+        } else if ("PERIODO".equals(filtroNorm)) {
+            if (dataInicial != null && dataFinal != null && dataInicial.isAfter(dataFinal)) {
+                throw new IllegalArgumentException("A data inicial não pode ser posterior à data final");
+            }
+            LocalDateTime inicio = dataInicial != null ? dataInicial.atStartOfDay() : null;
+            LocalDateTime fim = dataFinal != null ? dataFinal.plusDays(1).atStartOfDay() : null;
+
+            if (inicio != null && fim != null) {
+                return solicitacaoRepository.listarPorPeriodoParaFuncionario(usuario.getId(), inicio, fim);
+            } else if (inicio != null) {
+                return solicitacaoRepository.listarAposDataParaFuncionario(usuario.getId(), inicio);
+            } else if (fim != null) {
+                return solicitacaoRepository.listarAteDataParaFuncionario(usuario.getId(), fim);
+            } else {
+                return solicitacaoRepository.listarTodasParaFuncionario(usuario.getId());
+            }
+        } else if ("TODAS".equals(filtroNorm)) {
+            return solicitacaoRepository.listarTodasParaFuncionario(usuario.getId());
+        } else {
+            throw new IllegalArgumentException("Filtro inválido. Use HOJE, PERIODO ou TODAS");
+        }
+    }
+
+    public List<SolicitacaoResponse> listarParaFuncionario(String filtro, LocalDate dataInicial, LocalDate dataFinal) {
+        return listarParaFuncionario(filtro, dataInicial, dataFinal, null);
     }
 
     @Transactional

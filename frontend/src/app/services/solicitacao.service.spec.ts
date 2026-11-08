@@ -63,4 +63,29 @@ describe('SolicitacaoService', () => {
     expect(request.request.body).toEqual(dados);
     request.flush({ id: 42, estado: 'REDIRECIONADA' });
   });
+
+  it('sends GET request to list solicitations for funcionario with params and maps them', () => {
+    service.listarTodas('PERIODO', '2026-09-01', '2026-09-30').subscribe(resultado => {
+      expect(resultado.length).toBe(1);
+      expect(resultado[0].id).toBe(10);
+      expect(resultado[0].descricaoEquipamento).toBe('Mouse Razer');
+      expect(resultado[0].estado).toBe('REDIRECIONADA');
+      expect(resultado[0].nomeCliente).toBe('José');
+      expect(resultado[0].dataHora instanceof Date).toBe(true);
+    });
+
+    const request = httpTestingController.expectOne(
+      `${environment.apiUrl}/solicitacoes?filtro=PERIODO&dataInicial=2026-09-01&dataFinal=2026-09-30`
+    );
+    expect(request.request.method).toBe('GET');
+    request.flush([
+      {
+        id: 10,
+        descricaoEquipamento: 'Mouse Razer',
+        dataHora: '2026-09-15T10:00:00',
+        estado: 'REDIRECIONADA',
+        nomeCliente: 'José'
+      }
+    ]);
+  });
 });
