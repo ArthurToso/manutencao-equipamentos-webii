@@ -1,13 +1,15 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import {
   EfetuarManutencaoDTO,
   NovaSolicitacaoDTO,
   RedirecionarSolicitacaoDTO,
   SolicitacaoApiDTO,
   SolicitacaoCardDTO,
-  SolicitacaoCardFuncDTO
+  SolicitacaoCardFuncDTO,
+  mapearEstadoSolicitacao
 } from '../shared';
 import { environment } from '../../environments/environment';
 
@@ -19,6 +21,31 @@ export class SolicitacaoService {
   private readonly API = `${environment.apiUrl}/solicitacoes`;
 
   constructor(private http: HttpClient) { }
+
+  listarTodas(
+    filtro: 'HOJE' | 'PERIODO' | 'TODAS',
+    dataInicial?: string,
+    dataFinal?: string
+  ): Observable<SolicitacaoCardFuncDTO[]> {
+    let params = new HttpParams().set('filtro', filtro);
+    if (dataInicial) {
+      params = params.set('dataInicial', dataInicial);
+    }
+    if (dataFinal) {
+      params = params.set('dataFinal', dataFinal);
+    }
+    return this.http.get<SolicitacaoApiDTO[]>(this.API, { params }).pipe(
+      map(lista =>
+        lista.map(item => ({
+          id: item.id,
+          dataHora: new Date(item.dataHora.includes('T') ? item.dataHora : item.dataHora.replace(' ', 'T')),
+          descricaoEquipamento: item.descricaoEquipamento,
+          estado: mapearEstadoSolicitacao(item.estado),
+          nomeCliente: item.nomeCliente || item.cliente?.nome || ''
+        }))
+      )
+    );
+  }
 
   buscarPorId(id: number): Observable<any> {
     return this.http.get<any>(`${this.API}/${id}`);

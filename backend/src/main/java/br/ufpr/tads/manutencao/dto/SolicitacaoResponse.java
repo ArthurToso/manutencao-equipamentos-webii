@@ -2,6 +2,8 @@ package br.ufpr.tads.manutencao.dto;
 
 import java.time.LocalDateTime;
 
+import br.ufpr.tads.manutencao.model.EstadoSolicitacao;
+
 public class SolicitacaoResponse {
 
     private Long id;
@@ -16,6 +18,26 @@ public class SolicitacaoResponse {
     private ClienteResponseDTO cliente;
     private java.math.BigDecimal valorOrcamento;
     private String motivoRejeicao;
+
+    public SolicitacaoResponse() {}
+
+    public SolicitacaoResponse(Long id, LocalDateTime dataHora, String descricaoEquipamento,
+                               String descricaoDefeito, EstadoSolicitacao estado,
+                               Long categoriaId, String categoriaNome,
+                               Long clienteId, String nomeCliente,
+                               java.math.BigDecimal valorOrcamento, String motivoRejeicao) {
+        this.id = id;
+        this.dataHora = dataHora;
+        this.descricaoEquipamento = descricaoEquipamento;
+        this.descricaoDefeito = descricaoDefeito;
+        this.estado = estado != null ? estado.name() : null;
+        this.categoriaId = categoriaId;
+        this.categoriaNome = categoriaNome;
+        this.clienteId = clienteId;
+        this.nomeCliente = nomeCliente;
+        this.valorOrcamento = valorOrcamento;
+        this.motivoRejeicao = motivoRejeicao;
+    }
 
     public Long getId() {
         return id;

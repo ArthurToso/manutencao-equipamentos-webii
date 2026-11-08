@@ -1,7 +1,9 @@
 package br.ufpr.tads.manutencao.controller;
 
+import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.ufpr.tads.manutencao.dto.OrcamentoRequest;
@@ -30,6 +33,16 @@ public class SolicitacaoController {
 
     public SolicitacaoController(SolicitacaoService solicitacaoService) {
         this.solicitacaoService = solicitacaoService;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<SolicitacaoResponse>> listar(
+            @RequestParam(defaultValue = "TODAS") String filtro,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataInicial,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataFinal,
+            @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado) {
+        List<SolicitacaoResponse> response = solicitacaoService.listarParaFuncionario(filtro, dataInicial, dataFinal, usuarioAutenticado);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/abertas")
