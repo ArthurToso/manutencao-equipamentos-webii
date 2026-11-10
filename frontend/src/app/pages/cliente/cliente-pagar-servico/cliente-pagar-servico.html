@@ -1,126 +1,146 @@
-@if (!solicitacao) {
-   <div class="form-container">
-        <header class="form-header">
-            <div>
-            <h1>Solicitação Não Encontrada</h1>
-            </div>
-            <a class="btn btn--secondary" routerLink="/cliente">
-                🠔 Voltar
-            </a>
-        </header>
-    </div>
-} @else if (pagamentoConfirmado) {
-    <div class="form-container">
-        <header class="form-header">
-            <div>
-                <h1>Pagamento Confirmado</h1>
-                <p>O pagamento foi registrado com sucesso.</p>
-            </div>
-        </header>
-
-        <div class="custom-form">
-            <div class="valor-destaque">
-                <span class="valor-destaque__label">Valor pago</span>
-                <span class="valor-destaque__valor">R$ {{ solicitacao.valorOrcado | number:'1.2-2' }}</span>
-            </div>
-
-            <section class="request-summary">
-                <div class="request-summary__row">
-                    <span class="request-summary__label">Equipamento</span>
-                    <span class="request-summary__value">{{ solicitacao.descricaoEquipamento }}</span>
-                </div>
-
-                <div class="request-summary__row">
-                    <span class="request-summary__label">Data/Hora do Pagamento</span>
-                    <span class="request-summary__value">{{ dataPagamento | date:'dd/MM/yyyy HH:mm' }}</span>
-                </div>
-
-                <div class="request-summary__row">
-                    <span class="request-summary__label">Estado atual</span>
-                    <span class="state-badge state-badge--paga">{{ solicitacao.estado }}</span>
-                </div>
-            </section>
-
-            <div class="form-actions">
-                <a class="btn btn--primary" routerLink="/cliente/home">
-                    Voltar para minhas solicitações
-                </a>
-            </div>
-        </div>
-    </div>
-} @else if (solicitacao.estado !== estadoSolicitacao.ARRUMADA) {
-   <div class="form-container">
-        <header class="form-header">
-            <div>
-            <h1>Solicitação Não Está Pronta Para Pagar</h1>
-            </div>
-            <a class="btn btn--secondary" routerLink="/cliente">
-                🠔 Voltar
-            </a>
-        </header>
-    </div>
-} @else {
-    <div class="form-container">
+@if (carregando) {
+    <div class="form-container" role="status">
         <header class="form-header">
             <div>
                 <h1>Pagar Serviço</h1>
-                <p>Confira os dados e confirme o pagamento.</p>
+                <p>Carregando os dados da solicitação...</p>
             </div>
-            <a class="btn btn--secondary" routerLink="/cliente">
+        </header>
+        <div class="custom-form">
+            <p class="text-muted">Aguarde enquanto buscamos os dados para pagamento.</p>
+        </div>
+    </div>
+} @else if (erroCarregamento) {
+    <div class="form-container">
+        <header class="form-header">
+            <div>
+                <h1>Não foi possível carregar a solicitação</h1>
+            </div>
+            <a class="btn btn--secondary" routerLink="/cliente/home">
                 🠔 Voltar
             </a>
         </header>
-
         <div class="custom-form">
-            @if (erro) {
-                <div class="alert alert-danger">{{ erro }}</div>
-            }
-            <div class="valor-destaque">
-                <span class="valor-destaque__label">Valor a pagar</span>
-                <span class="valor-destaque__valor">R$ {{ solicitacao.valorOrcado | number:'1.2-2' }}</span>
-            </div>
-
-            <section class="request-summary">
-                <div class="request-summary__row">
-                    <span class="request-summary__label">Equipamento</span>
-                    <span class="request-summary__value">{{ solicitacao.descricaoEquipamento }}</span>
-                </div>
-
-                <div class="request-summary__row">
-                    <span class="request-summary__label">Categoria</span>
-                    <span class="request-summary__value">{{ solicitacao.categoriaEquipamento.nome }}</span>
-                </div>
-
-                <div class="request-summary__row">
-                    <span class="request-summary__label">Data/Hora Solicitação</span>
-                    <span class="request-summary__value">{{ solicitacao.dataHora | date:'dd/MM/yyyy HH:mm' }}</span>
-                </div>
-
-                <div class="request-summary__row request-summary__row--block">
-                    <span class="request-summary__label">Descrição do defeito</span>
-                    <p class="request-summary__text">{{ solicitacao.descricaoProblema }}</p>
-                </div>
-
-                @if (solicitacao.descricaoManutencao) {
-                    <div class="request-summary__row request-summary__row--block">
-                        <span class="request-summary__label">Descrição da Manutenção</span>
-                        <p class="request-summary__text">{{ solicitacao.descricaoManutencao }}</p>
-                    </div>
-                }
-
-                @if (solicitacao.orientacoesCliente) {
-                    <div class="request-summary__row request-summary__row--block">
-                        <span class="request-summary__label">Orientações ao cliente</span>
-                        <p class="request-summary__text">{{ solicitacao.orientacoesCliente }}</p>
-                    </div>
-                }
-            </section>
-
+            <div class="alert alert-danger" role="alert">{{ erroCarregamento }}</div>
             <div class="form-actions">
-                <button type="button" class="btn btn--primary" [disabled]="processando" (click)="confirmarPagamento(solicitacao)">
-                    {{ processando ? 'Processando...' : 'Confirmar pagamento' }}
-                </button>
+                <a class="btn btn--secondary" routerLink="/cliente/home">Voltar para minhas solicitações</a>
             </div>
         </div>
     </div>
+} @else if (solicitacao; as s) {
+    @if (pagamentoConfirmado) {
+        <div class="form-container">
+            <header class="form-header">
+                <div>
+                    <h1>Pagamento Confirmado</h1>
+                    <p>O pagamento foi registrado com sucesso.</p>
+                </div>
+            </header>
+
+            <div class="custom-form">
+                <div class="valor-destaque">
+                    <span class="valor-destaque__label">Valor pago</span>
+                    <span class="valor-destaque__valor">R$ {{ s.valorOrcado | number:'1.2-2' }}</span>
+                </div>
+
+                <section class="request-summary">
+                    <div class="request-summary__row">
+                        <span class="request-summary__label">Equipamento</span>
+                        <span class="request-summary__value">{{ s.descricaoEquipamento }}</span>
+                    </div>
+
+                    <div class="request-summary__row">
+                        <span class="request-summary__label">Data/Hora do Pagamento</span>
+                        <span class="request-summary__value">{{ dataPagamento | date:'dd/MM/yyyy HH:mm' }}</span>
+                    </div>
+
+                    <div class="request-summary__row">
+                        <span class="request-summary__label">Estado atual</span>
+                        <span class="state-badge state-badge--paga">{{ s.estado }}</span>
+                    </div>
+                </section>
+
+                <div class="form-actions">
+                    <a class="btn btn--primary" routerLink="/cliente/home">
+                        Voltar para minhas solicitações
+                    </a>
+                </div>
+            </div>
+        </div>
+    } @else if (s.estado !== estadoSolicitacao.ARRUMADA) {
+        <div class="form-container">
+            <header class="form-header">
+                <div>
+                    <h1>Solicitação Não Está Pronta Para Pagar</h1>
+                </div>
+                <a class="btn btn--secondary" routerLink="/cliente/home">
+                    🠔 Voltar
+                </a>
+            </header>
+        </div>
+    } @else {
+        <div class="form-container">
+            <header class="form-header">
+                <div>
+                    <h1>Pagar Serviço</h1>
+                    <p>Confira os dados e confirme o pagamento.</p>
+                </div>
+                <a class="btn btn--secondary" routerLink="/cliente/home">
+                    🠔 Voltar
+                </a>
+            </header>
+
+            <div class="custom-form">
+                @if (erro) {
+                    <div class="alert alert-danger">{{ erro }}</div>
+                }
+                <div class="valor-destaque">
+                    <span class="valor-destaque__label">Valor a pagar</span>
+                    <span class="valor-destaque__valor">R$ {{ s.valorOrcado | number:'1.2-2' }}</span>
+                </div>
+
+                <section class="request-summary">
+                    <div class="request-summary__row">
+                        <span class="request-summary__label">Equipamento</span>
+                        <span class="request-summary__value">{{ s.descricaoEquipamento }}</span>
+                    </div>
+
+                    <div class="request-summary__row">
+                        <span class="request-summary__label">Categoria</span>
+                        <span class="request-summary__value">{{ s.categoriaEquipamento.nome }}</span>
+                    </div>
+
+                    <div class="request-summary__row">
+                        <span class="request-summary__label">Data/Hora Solicitação</span>
+                        <span class="request-summary__value">{{ s.dataHora | date:'dd/MM/yyyy HH:mm' }}</span>
+                    </div>
+
+                    <div class="request-summary__row request-summary__row--block">
+                        <span class="request-summary__label">Descrição do defeito</span>
+                        <p class="request-summary__text">{{ s.descricaoProblema }}</p>
+                    </div>
+
+                    @if (s.descricaoManutencao) {
+                        <div class="request-summary__row request-summary__row--block">
+                            <span class="request-summary__label">Descrição da Manutenção</span>
+                            <p class="request-summary__text">{{ s.descricaoManutencao }}</p>
+                        </div>
+                    }
+
+                    @if (s.orientacoesCliente) {
+                        <div class="request-summary__row request-summary__row--block">
+                            <span class="request-summary__label">Orientações ao cliente</span>
+                            <p class="request-summary__text">{{ s.orientacoesCliente }}</p>
+                        </div>
+                    }
+                </section>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn--primary" [disabled]="processando" (click)="confirmarPagamento(s)">
+                        {{ processando ? 'Processando...' : 'Confirmar pagamento' }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
 }

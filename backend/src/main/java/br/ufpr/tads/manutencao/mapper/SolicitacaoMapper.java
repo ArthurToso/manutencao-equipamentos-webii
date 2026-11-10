@@ -42,6 +42,8 @@ public class SolicitacaoMapper {
         response.setClienteId(solicitacao.getClienteId());
         response.setValorOrcamento(solicitacao.getValorOrcamento());
         response.setMotivoRejeicao(solicitacao.getMotivoRejeicao());
+        response.setDescricaoManutencao(solicitacao.getDescricaoManutencao());
+        response.setOrientacoesCliente(solicitacao.getOrientacoesCliente());
 
         if (cliente != null) {
             response.setNomeCliente(cliente.getNome());
@@ -124,4 +126,3 @@ public class SolicitacaoMapper {
         return dto;
     }
 }
-

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.ufpr.tads.manutencao.dto.OrcamentoRequest;
+import br.ufpr.tads.manutencao.dto.ManutencaoRequest;
 import br.ufpr.tads.manutencao.dto.RedirecionamentoRequest;
 import br.ufpr.tads.manutencao.dto.RejeicaoRequest;
 import br.ufpr.tads.manutencao.dto.SolicitacaoRequest;
@@ -122,6 +123,16 @@ public class SolicitacaoController {
             @PathVariable Long id,
             @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado) {
         SolicitacaoResponse response = solicitacaoService.pagarServico(id, usuarioAutenticado);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{id}/manutencao")
+    public ResponseEntity<SolicitacaoResponse> efetuarManutencao(
+            @PathVariable Long id,
+            @Valid @RequestBody ManutencaoRequest request,
+            @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado) {
+        SolicitacaoResponse response = solicitacaoService.efetuarManutencao(
+                id, request.getDescricaoManutencao(), request.getOrientacoesCliente(), usuarioAutenticado);
         return ResponseEntity.ok(response);
     }
 

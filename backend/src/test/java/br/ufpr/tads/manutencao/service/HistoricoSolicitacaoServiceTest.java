@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -148,6 +150,20 @@ class HistoricoSolicitacaoServiceTest {
     }
 
     @Test
+    @DisplayName("Não permite duplicar estado de histórico na mesma solicitação")
+    void estadoDuplicadoNaSolicitacaoFalha() {
+        when(historicoSolicitacaoRepository.existsBySolicitacao_IdAndEstado(
+                1L, EstadoSolicitacao.ARRUMADA)).thenReturn(true);
+
+        IllegalStateException ex = assertThrows(IllegalStateException.class, () ->
+                historicoSolicitacaoService.registrar(solicitacao, EstadoSolicitacao.REDIRECIONADA,
+                        EstadoSolicitacao.ARRUMADA, funcionarioOrigem, null, null));
+
+        assertEquals("Já existe um registro de histórico para este estado nesta solicitação", ex.getMessage());
+        verify(historicoSolicitacaoRepository, never()).save(any(HistoricoSolicitacao.class));
+    }
+
+    @Test
     @DisplayName("Redirecionamento válido grava destino com sucesso")
     void redirecionamentoValidoGravaComSucesso() {
         when(historicoSolicitacaoRepository.save(any(HistoricoSolicitacao.class)))
@@ -162,5 +178,23 @@ class HistoricoSolicitacaoServiceTest {
         assertEquals(funcionarioOrigem, salvo.getUsuario());
         assertEquals(funcionarioDestino, salvo.getUsuarioDestino());
     }
-}
 
+    @Test
+    @DisplayName("Permite vários registros REDIRECIONADA na mesma solicitação")
+    void permiteRedirecionamentosRepetidos() {
+        when(historicoSolicitacaoRepository.save(any(HistoricoSolicitacao.class)))
+                .thenAnswer(inv -> inv.getArgument(0));
+
+        historicoSolicitacaoService.registrar(solicitacao, EstadoSolicitacao.APROVADA,
+                EstadoSolicitacao.REDIRECIONADA, funcionarioOrigem, funcionarioDestino, null);
+        HistoricoSolicitacao salvo = historicoSolicitacaoService.registrar(solicitacao,
+                EstadoSolicitacao.REDIRECIONADA, EstadoSolicitacao.REDIRECIONADA,
+                funcionarioOrigem, funcionarioDestino, null);
+
+        assertEquals(EstadoSolicitacao.REDIRECIONADA, salvo.getEstado());
+        verify(historicoSolicitacaoRepository, never())
+                .existsBySolicitacao_IdAndEstado(eq(1L), eq(EstadoSolicitacao.REDIRECIONADA));
+        verify(historicoSolicitacaoRepository, org.mockito.Mockito.times(2))
+                .save(any(HistoricoSolicitacao.class));
+    }
+}

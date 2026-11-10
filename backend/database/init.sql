@@ -61,7 +61,9 @@ CREATE TABLE solicitacao (
     estado                VARCHAR(20)  NOT NULL,
     cliente_id            BIGINT       NOT NULL REFERENCES cliente (id),
     valor_orcamento       NUMERIC(10,2),
-    motivo_rejeicao       VARCHAR(500)
+    motivo_rejeicao       VARCHAR(500),
+    descricao_manutencao  VARCHAR(1000),
+    orientacoes_cliente   VARCHAR(1000)
 );
 
 CREATE TABLE historico_solicitacao (
@@ -80,6 +82,9 @@ CREATE TABLE historico_solicitacao (
 );
 
 CREATE INDEX idx_historico_solicitacao_data_hora ON historico_solicitacao (solicitacao_id, data_hora);
+CREATE UNIQUE INDEX uq_historico_solicitacao_estado_unico
+    ON historico_solicitacao (solicitacao_id, estado)
+    WHERE estado <> 'REDIRECIONADA';
 
 INSERT INTO usuario (nome, email, senha, salt, perfil) VALUES
     ('Maria', 'maria@example.com', encode(sha256(convert_to('2c3bb81e3c29b62179273c8eb5bb6825' || 'senha123', 'UTF8')), 'hex'), '2c3bb81e3c29b62179273c8eb5bb6825', 'FUNCIONARIO'),  -- id 1
@@ -112,27 +117,27 @@ INSERT INTO categoria (nome) VALUES
     ('Mouse'),  
     ('Teclado');
 
-INSERT INTO solicitacao (descricao_equipamento, categoria_id, descricao_defeito, data_hora, estado, cliente_id, valor_orcamento, motivo_rejeicao) VALUES
-    ('Notebook Dell Inspiron 15 3520', 1, 'Não liga. O LED de energia não acende nem com o carregador conectado.', '2026-08-20 09:15', 'FINALIZADA', 1, 450.00, NULL),  
-    ('Impressora HP LaserJet Pro M404', 3, 'Papel enrosca na saída e a impressão sai com manchas.', '2026-08-22 14:30', 'FINALIZADA', 2, 280.00, NULL),  
-    ('Desktop Positivo Master D610', 2, 'Reinicia sozinho depois de alguns minutos ligado.', '2026-08-25 10:00', 'FINALIZADA', 3, 390.00, NULL),  
-    ('Teclado mecânico Redragon Kumara', 5, 'Várias teclas pararam de responder.', '2026-08-28 16:45', 'REJEITADA', 4, 120.00, 'Valor acima do esperado, prefiro comprar um novo.'),  
-    ('Mouse Logitech MX Master 3', 4, 'Clique duplo involuntário no botão esquerdo.', '2026-09-01 11:20', 'PAGA', 1, 85.00, NULL),
-    ('Notebook Lenovo IdeaPad 3 15ITL6', 1, 'Tela trincada após queda.', '2026-09-03 08:50', 'PAGA', 2, 690.00, NULL),
-    ('Impressora Epson EcoTank L3250', 3, 'Não puxa o papel da bandeja.', '2026-09-08 13:10', 'ARRUMADA', 3, 150.00, NULL),  
-    ('PC Gamer Ryzen 5 com RTX 3060', 2, 'Superaquecimento e desligamento durante jogos.', '2026-09-10 17:05', 'ARRUMADA', 4, 320.00, NULL),  
-    ('Teclado Logitech K380', 5, 'Não pareia mais via Bluetooth.', '2026-09-12 09:40', 'REJEITADA', 1, 60.00, 'Vou tentar a garantia do fabricante.'),  
-    ('MacBook Air M1', 1, 'Bateria não segura carga por mais de uma hora.', '2026-09-15 15:25', 'APROVADA', 2, 890.00, 'Achei caro, vou pensar.'),  
-    ('Mouse Razer DeathAdder V2', 4, 'Scroll pulando e falhando.', '2026-09-18 10:55', 'APROVADA', 3, 45.00, NULL),
-    ('Multifuncional Brother DCP-T420W', 3, 'Scanner não é reconhecido pelo computador.', '2026-09-22 14:00', 'REDIRECIONADA', 4, 210.00, NULL),
-    ('Desktop HP EliteDesk 800 G4', 2, 'Não dá vídeo ao ligar, apenas bipes.', '2026-09-25 08:30', 'REDIRECIONADA', 1, 260.00, NULL),
-    ('Teclado Microsoft Wired 600', 5, 'Líquido derramado, teclas grudando.', '2026-09-29 16:20', 'ORCADA', 2, 70.00, NULL),
-    ('Notebook Acer Aspire 5 A515', 1, 'Dobradiça quebrada, tela solta.', '2026-10-01 11:45', 'ORCADA', 3, 340.00, NULL), 
-    ('Mouse sem fio Multilaser MO277', 4, 'Não é reconhecido pelo receptor USB.', '2026-10-03 09:05', 'ORCADA', 4, 40.00, NULL),
-    ('Impressora Canon PIXMA G3110', 3, 'Impressão sai em branco mesmo com tinta.', '2026-10-06 10:10', 'ABERTA', 1, NULL, NULL),
-    ('Desktop Dell OptiPlex 3080', 2, 'Muito lento e travando ao abrir programas.', '2026-10-07 14:35', 'ABERTA', 2, NULL, NULL),
-    ('Teclado Gamer HyperX Alloy Origins', 5, 'Iluminação RGB parou e algumas teclas falham.', '2026-10-08 18:00', 'ABERTA', 3, NULL, NULL),
-    ('Notebook Samsung Galaxy Book 2', 1, 'Teclado e touchpad não respondem.', '2026-10-09 08:25', 'ABERTA', 4, NULL, NULL);
+INSERT INTO solicitacao (descricao_equipamento, categoria_id, descricao_defeito, data_hora, estado, cliente_id, valor_orcamento, motivo_rejeicao, descricao_manutencao, orientacoes_cliente) VALUES
+    ('Notebook Dell Inspiron 15 3520', 1, 'Não liga. O LED de energia não acende nem com o carregador conectado.', '2026-08-20 09:15', 'FINALIZADA', 1, 450.00, NULL, 'Substituição do conector de alimentação e reparo do circuito de entrada de energia.', 'Utilizar carregador compatível e evitar movimentar o cabo durante o carregamento.'),
+    ('Impressora HP LaserJet Pro M404', 3, 'Papel enrosca na saída e a impressão sai com manchas.', '2026-08-22 14:30', 'FINALIZADA', 2, 280.00, NULL, 'Limpeza do conjunto de fusão e substituição dos roletes de saída.', 'Utilizar papel dentro das especificações e não exceder a capacidade da bandeja.'),
+    ('Desktop Positivo Master D610', 2, 'Reinicia sozinho depois de alguns minutos ligado.', '2026-08-25 10:00', 'FINALIZADA', 3, 390.00, NULL, 'Substituição da fonte de alimentação e teste de estabilidade do equipamento.', 'Manter o computador em local ventilado e conectado a uma tomada aterrada.'),
+    ('Teclado mecânico Redragon Kumara', 5, 'Várias teclas pararam de responder.', '2026-08-28 16:45', 'REJEITADA', 4, 120.00, 'Valor acima do esperado, prefiro comprar um novo.', NULL, NULL),
+    ('Mouse Logitech MX Master 3', 4, 'Clique duplo involuntário no botão esquerdo.', '2026-09-01 11:20', 'PAGA', 1, 85.00, NULL, 'Substituição do microinterruptor do botão esquerdo e teste dos comandos.', 'Manter o mouse limpo e evitar pressionar os botões com força excessiva.'),
+    ('Notebook Lenovo IdeaPad 3 15ITL6', 1, 'Tela trincada após queda.', '2026-09-03 08:50', 'PAGA', 2, 690.00, NULL, 'Substituição do conjunto da tela e teste de imagem e dobradiças.', 'Transportar o notebook em uma capa protetora e evitar pressionar a tampa.'),
+    ('Impressora Epson EcoTank L3250', 3, 'Não puxa o papel da bandeja.', '2026-09-08 13:10', 'ARRUMADA', 3, 150.00, NULL, 'Limpeza e ajuste dos roletes de alimentação de papel.', 'Usar papel seco e alinhado, sem exceder a capacidade da bandeja.'),
+    ('PC Gamer Ryzen 5 com RTX 3060', 2, 'Superaquecimento e desligamento durante jogos.', '2026-09-10 17:05', 'ARRUMADA', 4, 320.00, NULL, 'Limpeza interna, troca da pasta térmica e revisão do fluxo de ar.', 'Manter as entradas de ar desobstruídas e realizar limpeza periódica.'),
+    ('Teclado Logitech K380', 5, 'Não pareia mais via Bluetooth.', '2026-09-12 09:40', 'REJEITADA', 1, 60.00, 'Vou tentar a garantia do fabricante.', NULL, NULL),
+    ('MacBook Air M1', 1, 'Bateria não segura carga por mais de uma hora.', '2026-09-15 15:25', 'APROVADA', 2, 890.00, 'Achei caro, vou pensar.', NULL, NULL),
+    ('Mouse Razer DeathAdder V2', 4, 'Scroll pulando e falhando.', '2026-09-18 10:55', 'APROVADA', 3, 45.00, NULL, NULL, NULL),
+    ('Multifuncional Brother DCP-T420W', 3, 'Scanner não é reconhecido pelo computador.', '2026-09-22 14:00', 'REDIRECIONADA', 4, 210.00, NULL, NULL, NULL),
+    ('Desktop HP EliteDesk 800 G4', 2, 'Não dá vídeo ao ligar, apenas bipes.', '2026-09-25 08:30', 'REDIRECIONADA', 1, 260.00, NULL, NULL, NULL),
+    ('Teclado Microsoft Wired 600', 5, 'Líquido derramado, teclas grudando.', '2026-09-29 16:20', 'ORCADA', 2, 70.00, NULL, NULL, NULL),
+    ('Notebook Acer Aspire 5 A515', 1, 'Dobradiça quebrada, tela solta.', '2026-10-01 11:45', 'ORCADA', 3, 340.00, NULL, NULL, NULL),
+    ('Mouse sem fio Multilaser MO277', 4, 'Não é reconhecido pelo receptor USB.', '2026-10-03 09:05', 'ORCADA', 4, 40.00, NULL, NULL, NULL),
+    ('Impressora Canon PIXMA G3110', 3, 'Impressão sai em branco mesmo com tinta.', '2026-10-06 10:10', 'ABERTA', 1, NULL, NULL, NULL, NULL),
+    ('Desktop Dell OptiPlex 3080', 2, 'Muito lento e travando ao abrir programas.', '2026-10-07 14:35', 'ABERTA', 2, NULL, NULL, NULL, NULL),
+    ('Teclado Gamer HyperX Alloy Origins', 5, 'Iluminação RGB parou e algumas teclas falham.', '2026-10-08 18:00', 'ABERTA', 3, NULL, NULL, NULL, NULL),
+    ('Notebook Samsung Galaxy Book 2', 1, 'Teclado e touchpad não respondem.', '2026-10-09 08:25', 'ABERTA', 4, NULL, NULL, NULL, NULL);
 
 INSERT INTO historico_solicitacao (solicitacao_id, estado_anterior, estado, data_hora, usuario_id, usuario_destino_id, observacao) VALUES
     (1, NULL, 'ABERTA', '2026-08-20 09:15', 3, NULL, NULL),  -- id 1

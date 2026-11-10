@@ -79,6 +79,11 @@ public class HistoricoSolicitacaoService {
             }
         }
 
+        if (novo != EstadoSolicitacao.REDIRECIONADA
+                && historicoSolicitacaoRepository.existsBySolicitacao_IdAndEstado(s.getId(), novo)) {
+            throw new IllegalStateException("Já existe um registro de histórico para este estado nesta solicitação");
+        }
+
         HistoricoSolicitacao historico = new HistoricoSolicitacao(
                 s,
                 anterior,
@@ -108,4 +113,3 @@ public class HistoricoSolicitacaoService {
         return historicoSolicitacaoRepository.findUltimoPorSolicitacaoId(solicitacaoId);
     }
 }
-

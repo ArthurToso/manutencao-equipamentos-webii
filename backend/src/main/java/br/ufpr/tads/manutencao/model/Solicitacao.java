@@ -47,6 +47,12 @@ public class Solicitacao {
     @Column(name = "motivo_rejeicao")
     private String motivoRejeicao;
 
+    @Column(name = "descricao_manutencao", length = 1000)
+    private String descricaoManutencao;
+
+    @Column(name = "orientacoes_cliente", length = 1000)
+    private String orientacoesCliente;
+
     public Solicitacao() {}
 
     public Long getId() {
@@ -119,5 +125,21 @@ public class Solicitacao {
 
     public void setMotivoRejeicao(String motivoRejeicao) {
         this.motivoRejeicao = motivoRejeicao;
+    }
+
+    public String getDescricaoManutencao() {
+        return descricaoManutencao;
+    }
+
+    public void setDescricaoManutencao(String descricaoManutencao) {
+        this.descricaoManutencao = descricaoManutencao;
+    }
+
+    public String getOrientacoesCliente() {
+        return orientacoesCliente;
+    }
+
+    public void setOrientacoesCliente(String orientacoesCliente) {
+        this.orientacoesCliente = orientacoesCliente;
     }
 }

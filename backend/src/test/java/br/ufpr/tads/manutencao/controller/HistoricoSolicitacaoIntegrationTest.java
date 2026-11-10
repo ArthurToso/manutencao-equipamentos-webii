@@ -125,6 +125,75 @@ class HistoricoSolicitacaoIntegrationTest {
     }
 
     @Test
+    @DisplayName("RF014: Efetuar manutenção salva detalhes e registra executor/data no histórico")
+    void efetuarManutencaoRegistraHistoricoEAtualizaSolicitacao() throws Exception {
+        String payload = """
+                {
+                    "descricaoManutencao": "Substituição da bateria",
+                    "orientacoesCliente": "Desconectar o carregador após a carga."
+                }
+                """;
+
+        mockMvc.perform(put("/api/solicitacoes/10/manutencao")
+                        .header("Authorization", "Bearer " + tokenMariaFuncionario)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.estado").value("ARRUMADA"))
+                .andExpect(jsonPath("$.dataHora").value("2026-09-15T15:25:00"))
+                .andExpect(jsonPath("$.descricaoManutencao").value("Substituição da bateria"))
+                .andExpect(jsonPath("$.orientacoesCliente").value("Desconectar o carregador após a carga."));
+
+        mockMvc.perform(get("/api/solicitacoes/10")
+                        .header("Authorization", "Bearer " + tokenMariaFuncionario))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.estado").value("ARRUMADA"))
+                .andExpect(jsonPath("$.descricaoManutencao").value("Substituição da bateria"))
+                .andExpect(jsonPath("$.orientacoesCliente").value("Desconectar o carregador após a carga."))
+                .andExpect(jsonPath("$.historico", hasSize(5)))
+                .andExpect(jsonPath("$.historico[4].estadoAnterior").value("APROVADA"))
+                .andExpect(jsonPath("$.historico[4].estado").value("ARRUMADA"))
+                .andExpect(jsonPath("$.historico[4].responsavel.id").value(1))
+                .andExpect(jsonPath("$.historico[4].dataHora").exists());
+
+        mockMvc.perform(put("/api/solicitacoes/10/manutencao")
+                        .header("Authorization", "Bearer " + tokenMariaFuncionario)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    @DisplayName("RF014: Descrição e orientações são obrigatórias")
+    void manutencaoSemCamposObrigatoriosRetornaBadRequest() throws Exception {
+        mockMvc.perform(put("/api/solicitacoes/10/manutencao")
+                        .header("Authorization", "Bearer " + tokenMariaFuncionario)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "descricaoManutencao": " ",
+                                    "orientacoesCliente": ""
+                                }
+                                """))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("RF014: Apenas funcionários podem efetuar manutenção")
+    void clienteNaoPodeEfetuarManutencao() throws Exception {
+        mockMvc.perform(put("/api/solicitacoes/10/manutencao")
+                        .header("Authorization", "Bearer " + tokenJoseCliente)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "descricaoManutencao": "Reparo realizado",
+                                    "orientacoesCliente": "Utilizar normalmente."
+                                }
+                                """))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
     @DisplayName("Critério 6: Rejeitar sem motivo é recusado (400) e não altera o estado")
     void rejeitarSemMotivoERecusadoENaoAlteraEstado() throws Exception {
         // Solicitação 14 está ORCADA e pertence ao cliente 2 (José)
@@ -184,4 +253,3 @@ class HistoricoSolicitacaoIntegrationTest {
                 .andExpect(jsonPath("$.historico[2].responsavel.nome").value("José"));
     }
 }
-

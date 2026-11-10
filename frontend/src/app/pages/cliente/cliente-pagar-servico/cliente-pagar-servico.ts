@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { EstadoSolicitacao, HistoricoApiDTO, SolicitacaoDetailedDTO, mapearEstadoSolicitacao } from '../../../shared';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
 import { SolicitacaoService } from '../../../services/solicitacao.service';
+import { finalize } from 'rxjs';
 
 @Component({
   imports: [DatePipe, RouterLink, CommonModule],
@@ -17,16 +18,31 @@ export class ClientePagarServico implements OnInit {
   pagamentoConfirmado: boolean = false;
   dataPagamento?: Date;
   processando: boolean = false;
+  carregando = true;
+  erroCarregamento: string | null = null;
   erro: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
-    private solicitacaoService: SolicitacaoService
+    private solicitacaoService: SolicitacaoService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.solicitacaoService.buscarPorId(id).subscribe({
+    const idParam = this.route.snapshot.paramMap.get('id');
+    if (!idParam || !/^\d+$/.test(idParam) || Number(idParam) <= 0) {
+      this.carregando = false;
+      this.erroCarregamento = 'Identificador da solicitação inválido.';
+      this.cdr.markForCheck();
+      return;
+    }
+
+    this.solicitacaoService.buscarPorId(Number(idParam)).pipe(
+      finalize(() => {
+        this.carregando = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
       next: (res) => {
         this.solicitacao = {
           id: res.id,
@@ -36,6 +52,8 @@ export class ClientePagarServico implements OnInit {
           dataHora: new Date(res.dataHora),
           estado: mapearEstadoSolicitacao(res.estado),
           valorOrcado: res.valorOrcamento ?? undefined,
+          descricaoManutencao: res.descricaoManutencao ?? undefined,
+          orientacoesCliente: res.orientacoesCliente ?? undefined,
           motivoRejeicao: res.motivoRejeicao ?? undefined,
           historico: res.historico ? res.historico.map((h: HistoricoApiDTO, index: number) => ({
             id: index,
@@ -46,7 +64,13 @@ export class ClientePagarServico implements OnInit {
         };
       },
       error: (err) => {
-        this.erro = err.error?.mensagem ?? 'Não foi possível carregar a solicitação.';
+        console.error('Erro ao carregar solicitação para pagamento', err);
+        if (err.status === 404 || err.status === 403) {
+          this.erroCarregamento = 'Solicitação não encontrada.';
+        } else {
+          this.erroCarregamento = err.error?.mensagem
+            ?? 'Não foi possível carregar os dados da solicitação. Tente novamente.';
+        }
       }
     });
   }
@@ -56,16 +80,19 @@ export class ClientePagarServico implements OnInit {
     this.processando = true;
     this.erro = null;
 
-    this.solicitacaoService.pagarServico(solicitacao.id).subscribe({
+    this.solicitacaoService.pagarServico(solicitacao.id).pipe(
+      finalize(() => {
+        this.processando = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
       next: () => {
         const agora = new Date();
         this.solicitacao!.estado = this.estadoSolicitacao.PAGA;
         this.pagamentoConfirmado = true;
         this.dataPagamento = agora;
-        this.processando = false;
       },
       error: (err) => {
-        this.processando = false;
         this.erro = err.error?.mensagem ?? 'Não foi possível confirmar o pagamento.';
       }
     });

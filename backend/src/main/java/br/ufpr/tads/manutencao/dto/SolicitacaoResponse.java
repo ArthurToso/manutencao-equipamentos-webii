@@ -18,6 +18,8 @@ public class SolicitacaoResponse {
     private ClienteResponseDTO cliente;
     private java.math.BigDecimal valorOrcamento;
     private String motivoRejeicao;
+    private String descricaoManutencao;
+    private String orientacoesCliente;
 
     public SolicitacaoResponse() {}
 
@@ -133,6 +135,22 @@ public class SolicitacaoResponse {
 
     public void setMotivoRejeicao(String motivoRejeicao) {
         this.motivoRejeicao = motivoRejeicao;
+    }
+
+    public String getDescricaoManutencao() {
+        return descricaoManutencao;
+    }
+
+    public void setDescricaoManutencao(String descricaoManutencao) {
+        this.descricaoManutencao = descricaoManutencao;
+    }
+
+    public String getOrientacoesCliente() {
+        return orientacoesCliente;
+    }
+
+    public void setOrientacoesCliente(String orientacoesCliente) {
+        this.orientacoesCliente = orientacoesCliente;
     }
 
     private java.util.List<HistoricoDTO> historico;

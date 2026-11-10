@@ -47,8 +47,8 @@ export class SolicitacaoService {
     );
   }
 
-  buscarPorId(id: number): Observable<any> {
-    return this.http.get<any>(`${this.API}/${id}`);
+  buscarPorId(id: number): Observable<SolicitacaoApiDTO> {
+    return this.http.get<SolicitacaoApiDTO>(`${this.API}/${id}`);
   }
 
   buscarAbertas(): Observable<SolicitacaoCardFuncDTO[]> {
