@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { SolicitacaoCardFuncDTO } from '../../../shared';
 import { SolicitacaoService } from '../../../services/solicitacao.service';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-funcionario-home',
@@ -12,7 +13,11 @@ import { SolicitacaoService } from '../../../services/solicitacao.service';
   styleUrl: './funcionario-home.css'
 })
 export class FuncionarioHome implements OnInit {
+  private cdr = inject(ChangeDetectorRef);
+
   solicitacoes: SolicitacaoCardFuncDTO[] = [];
+  carregando = false;
+  erroCarregamento: string | null = null;
 
   constructor(private solicitacaoService: SolicitacaoService) {}
 
@@ -21,7 +26,14 @@ export class FuncionarioHome implements OnInit {
   }
 
   carregarAbertas(): void {
-    this.solicitacaoService.buscarAbertas().subscribe({
+    this.carregando = true;
+    this.erroCarregamento = null;
+    this.solicitacaoService.buscarAbertas().pipe(
+      finalize(() => {
+        this.carregando = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
       next: (dados) => {
         this.solicitacoes = dados.map(item => ({
           ...item,
@@ -30,6 +42,8 @@ export class FuncionarioHome implements OnInit {
       },
       error: (err) => {
         console.error(err);
+        this.erroCarregamento = err.error?.mensagem
+          ?? 'Não foi possível carregar as solicitações. Tente novamente.';
       }
     });
   }

@@ -1,10 +1,11 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { SolicitacaoDetailedFuncDTO as Solicitacao } from '../../../shared';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 import { SolicitacaoService } from '../../../services/solicitacao.service';
+import { finalize } from 'rxjs';
 
 @Component({
   imports: [CommonModule, RouterLink, ReactiveFormsModule, DatePipe, NgxMaskDirective],
@@ -14,6 +15,7 @@ import { SolicitacaoService } from '../../../services/solicitacao.service';
   providers: [provideNgxMask()]
 })
 export class FuncionarioOrcamento implements OnInit {
+  private cdr = inject(ChangeDetectorRef);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private fb = inject(FormBuilder);
@@ -21,6 +23,7 @@ export class FuncionarioOrcamento implements OnInit {
 
   solicitacaoId!: number;
   solicitacao?: Solicitacao;
+  erroCarregamento: string | null = null;
 
   processando = false;
   mensagem: { titulo: string; texto: string } | null = null;
@@ -34,11 +37,15 @@ export class FuncionarioOrcamento implements OnInit {
     if (id) {
       this.solicitacaoId = id;
       this.carregarSolicitacao();
+    } else {
+      this.erroCarregamento = 'Identificador da solicitação inválido.';
     }
   }
 
   carregarSolicitacao(): void {
-    this.solicitacaoService.buscarPorId(this.solicitacaoId).subscribe({
+    this.solicitacaoService.buscarPorId(this.solicitacaoId).pipe(
+      finalize(() => this.cdr.detectChanges())
+    ).subscribe({
       next: (res) => {
         this.solicitacao = {
           id: res.id,
@@ -82,6 +89,8 @@ export class FuncionarioOrcamento implements OnInit {
       },
       error: (err) => {
         console.error(err);
+        this.erroCarregamento = err.error?.mensagem
+          || 'Não foi possível carregar os dados da solicitação. Tente novamente.';
       }
     });
   }
@@ -98,18 +107,21 @@ export class FuncionarioOrcamento implements OnInit {
 
     this.processando = true;
 
-    this.solicitacaoService.efetuarOrcamento(this.solicitacaoId, valorNumerico).subscribe({
+    this.solicitacaoService.efetuarOrcamento(this.solicitacaoId, valorNumerico).pipe(
+      finalize(() => {
+        this.processando = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
       next: () => {
         const valorFormatado = valorNumerico.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         this.mensagem = {
           titulo: 'Sucesso!',
           texto: `Orçamento enviado ao cliente.\nValor Orçado: ${valorFormatado}.`
         };
-        this.processando = false;
       },
       error: (err) => {
         console.error(err);
-        this.processando = false;
         this.mensagem = {
           titulo: 'Erro',
           texto: 'Não foi possível salvar o orçamento. Verifique os dados e tente novamente.'

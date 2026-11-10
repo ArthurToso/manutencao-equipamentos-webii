@@ -5,6 +5,32 @@
   margin: 0 auto;
 }
 
+.load-error {
+  min-height: 50vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  padding: 2rem;
+  text-align: center;
+}
+
+.load-error__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  color: var(--color-error);
+}
+
+.load-error__text {
+  max-width: 700px;
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 1.5rem;
+  color: var(--color-ink);
+}
+
 .form-header {
   margin-bottom: 2rem;
   display: flex;

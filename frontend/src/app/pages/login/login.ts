@@ -1,8 +1,9 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -27,6 +28,7 @@ export class Login implements OnInit {
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private authService = inject(AuthService);
+  private cdr = inject(ChangeDetectorRef);
 
   submitting = false;
   loginError: string | null = null;
@@ -68,9 +70,13 @@ export class Login implements OnInit {
     const email = this.form.value.email;
     const senha = this.form.value.senha;
 
-    this.authService.login(email, senha).subscribe({
-      next: (res) => {
+    this.authService.login(email, senha).pipe(
+      finalize(() => {
         this.submitting = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
+      next: (res) => {
         if (res.usuario?.perfil === 'FUNCIONARIO') {
           this.router.navigate(['/funcionario/home']);
         } else {
@@ -78,7 +84,6 @@ export class Login implements OnInit {
         }
       },
       error: (err) => {
-        this.submitting = false;
         if (err.status === 401) {
           this.loginError = err.error?.mensagem || err.error?.message || 'E-mail ou senha inválidos';
         } else {
