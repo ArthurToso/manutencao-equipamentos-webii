@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import {
   EstadoSolicitacao,
   EstadoUF,
@@ -12,6 +12,7 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { SolicitacaoService } from '../../../services/solicitacao.service';
 import { FuncionarioService } from '../../../services/funcionario-service';
 import { AuthService } from '../../../services/auth.service';
+import { finalize } from 'rxjs';
 
 @Component({
   imports: [CommonModule, RouterLink, ReactiveFormsModule, DatePipe],
@@ -20,6 +21,7 @@ import { AuthService } from '../../../services/auth.service';
   templateUrl: './funcionario-manutencao.html'
 })
 export class FuncionarioManutencao implements OnInit {
+  private cdr = inject(ChangeDetectorRef);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private fb = inject(FormBuilder);
@@ -30,6 +32,7 @@ export class FuncionarioManutencao implements OnInit {
   solicitacaoId!: number;
   solicitacao?: Solicitacao;
   funcionarios: FuncionarioDTO[] = [];
+  erroCarregamento: string | null = null;
 
   processando = false;
   erroOperacao = false;
@@ -50,12 +53,18 @@ export class FuncionarioManutencao implements OnInit {
     if (id) {
       this.solicitacaoId = id;
       this.carregarSolicitacao();
+    } else {
+      this.erroCarregamento = 'Identificador da solicitação inválido.';
     }
     this.carregarFuncionarios();
   }
 
   carregarSolicitacao(): void {
-    this.solicitacaoService.buscarPorId(this.solicitacaoId).subscribe({
+    this.solicitacaoService.buscarPorId(this.solicitacaoId).pipe(
+      finalize(() => {
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
       next: (res) => {
         this.solicitacao = {
           id: res.id,
@@ -99,6 +108,8 @@ export class FuncionarioManutencao implements OnInit {
       },
       error: (err) => {
         console.error(err);
+        this.erroCarregamento = err.error?.mensagem
+          || 'Não foi possível carregar os dados da solicitação. Tente novamente.';
       }
     });
   }

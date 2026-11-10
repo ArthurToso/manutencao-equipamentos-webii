@@ -53,3 +53,38 @@
   </div>
 
 </div>
+
+<div
+  *ngIf="solicitacaoParaResgatar() as solicitacao"
+  class="modal-overlay"
+  role="presentation">
+  <section
+    class="confirmation-modal"
+    role="alertdialog"
+    aria-modal="true"
+    aria-labelledby="resgate-titulo"
+    aria-describedby="resgate-descricao">
+    <div class="confirmation-modal__icon" aria-hidden="true">!</div>
+    <h2 id="resgate-titulo" class="confirmation-modal__title">Resgatar serviço?</h2>
+    <p id="resgate-descricao" class="confirmation-modal__text">
+      Confirma o resgate da solicitação de
+      <strong>{{ solicitacao.descricaoEquipamento }}</strong>?
+    </p>
+    <div class="confirmation-modal__actions">
+      <button
+        type="button"
+        class="btn btn--secondary"
+        [disabled]="confirmandoResgate()"
+        (click)="cancelarResgate()">
+        Cancelar
+      </button>
+      <button
+        type="button"
+        class="btn btn--warning"
+        [disabled]="confirmandoResgate()"
+        (click)="confirmarResgate()">
+        {{ confirmandoResgate() ? 'Resgatando...' : 'Sim, resgatar' }}
+      </button>
+    </div>
+  </section>
+</div>

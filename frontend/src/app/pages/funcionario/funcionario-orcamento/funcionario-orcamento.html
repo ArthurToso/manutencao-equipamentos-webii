@@ -1,3 +1,13 @@
+@if (erroCarregamento) {
+  <section class="load-error" role="alert">
+    <h1 class="load-error__title">Não foi possível carregar a solicitação</h1>
+    <p class="load-error__text">{{ erroCarregamento }}</p>
+    <button type="button" class="btn btn--secondary" routerLink="/funcionario/home">
+      Voltar
+    </button>
+  </section>
+}
+
 @if (solicitacao; as s) {
   <div class="form-container">
 

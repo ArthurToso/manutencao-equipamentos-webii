@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, inject, OnInit } from '@angular/core';
 import { DatePipe, NgClass } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -7,6 +7,7 @@ import { MatDatepickerModule, DateRange } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { SolicitacaoCardFuncDTO, EstadoSolicitacao } from '../../../shared';
 import { SolicitacaoService } from '../../../services/solicitacao.service';
+import { finalize } from 'rxjs';
 
 function formatarDataIso(data: Date): string {
   const ano = data.getFullYear();
@@ -25,6 +26,8 @@ function formatarDataIso(data: Date): string {
   templateUrl: './funcionario-solicitacoes.html',
 })
 export class FuncionarioSolicitacoes implements OnInit {
+  private cdr = inject(ChangeDetectorRef);
+
   constructor(private solicitacaoService: SolicitacaoService) {}
 
   estados = EstadoSolicitacao;
@@ -57,15 +60,18 @@ export class FuncionarioSolicitacoes implements OnInit {
   ): void {
     this.carregando = true;
     this.erroCarregamento = null;
-    this.solicitacaoService.listarTodas(filtro, dataInicial, dataFinal).subscribe({
+    this.solicitacaoService.listarTodas(filtro, dataInicial, dataFinal).pipe(
+      finalize(() => {
+        this.carregando = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
       next: (dados) => {
         this.solicitacoes = dados;
-        this.carregando = false;
       },
       error: (err) => {
         this.erroCarregamento = err.error?.mensagem
           ?? 'Não foi possível carregar as solicitações. Tente novamente.';
-        this.carregando = false;
       }
     });
   }

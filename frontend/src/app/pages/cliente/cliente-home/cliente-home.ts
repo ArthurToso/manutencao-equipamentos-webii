@@ -20,6 +20,8 @@ export class ClienteHome implements OnInit {
   solicitacoes = signal<Solicitacao[]>([]);
   carregando = signal(true);
   erro = signal<string | null>(null);
+  solicitacaoParaResgatar = signal<Solicitacao | null>(null);
+  confirmandoResgate = signal(false);
 
   ngOnInit(): void {
     this.carregarSolicitacoes();
@@ -43,14 +45,31 @@ export class ClienteHome implements OnInit {
   }
 
   resgatarServico(solicitacao: Solicitacao): void {
-    if (!confirm('Deseja realmente resgatar este serviço?')) {
+    this.solicitacaoParaResgatar.set(solicitacao);
+  }
+
+  cancelarResgate(): void {
+    if (!this.confirmandoResgate()) {
+      this.solicitacaoParaResgatar.set(null);
+    }
+  }
+
+  confirmarResgate(): void {
+    const solicitacao = this.solicitacaoParaResgatar();
+    if (!solicitacao || this.confirmandoResgate()) {
       return;
     }
+
+    this.confirmandoResgate.set(true);
     this.solicitacaoService.resgatarServico(solicitacao.id).subscribe({
       next: () => {
+        this.confirmandoResgate.set(false);
+        this.solicitacaoParaResgatar.set(null);
         this.carregarSolicitacoes();
       },
       error: (err) => {
+        this.confirmandoResgate.set(false);
+        this.solicitacaoParaResgatar.set(null);
         this.erro.set(err.error?.mensagem ?? 'Não foi possível resgatar o serviço.');
       }
     });

@@ -21,10 +21,6 @@
     <div class="alert alert-danger" role="alert">{{ erroFinalizacao }}</div>
   }
 
-  @if (erroCarregamento) {
-    <div class="alert alert-danger" role="alert">{{ erroCarregamento }}</div>
-  }
-
   @if(dateFilterOpen){
     <div class="filter-body__header">
       <div class="filtro-container">
@@ -66,7 +62,12 @@
     </div>
   }
 
-  @if (carregando) {
+  @if (erroCarregamento) {
+    <section class="load-error" role="alert">
+      <h2 class="load-error__title">Não foi possível carregar as solicitações</h2>
+      <p class="load-error__text">{{ erroCarregamento }}</p>
+    </section>
+  } @else if (carregando) {
     <div class="loading-state">
       <p>Carregando solicitações...</p>
     </div>

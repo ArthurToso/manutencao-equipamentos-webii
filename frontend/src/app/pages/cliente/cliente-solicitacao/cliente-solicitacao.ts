@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { HistoricoApiDTO, SolicitacaoDetailedDTO as Solicitacao, mapearEstadoSolicitacao } from '../../../shared';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { SolicitacaoService } from '../../../services/solicitacao.service';
+import { finalize } from 'rxjs';
 
 @Component({
   imports: [DatePipe, RouterLink, CommonModule],
@@ -12,17 +13,31 @@ import { SolicitacaoService } from '../../../services/solicitacao.service';
   templateUrl: './cliente-solicitacao.html',
 })
 export class ClienteSolicitacao implements OnInit {
-  
+  private cdr = inject(ChangeDetectorRef);
+
   solicitacao?: Solicitacao;
-  
+  carregando = true;
+  erroCarregamento: string | null = null;
+
   constructor(
     private route: ActivatedRoute,
     private solicitacaoService: SolicitacaoService
-  ){}
+  ) {}
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.solicitacaoService.buscarPorId(id).subscribe({
+    if (!id) {
+      this.carregando = false;
+      this.erroCarregamento = 'Identificador da solicitação inválido.';
+      return;
+    }
+
+    this.solicitacaoService.buscarPorId(id).pipe(
+      finalize(() => {
+        this.carregando = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
       next: (res) => {
         this.solicitacao = {
           id: res.id,
@@ -43,6 +58,8 @@ export class ClienteSolicitacao implements OnInit {
       },
       error: (err) => {
         console.error('Erro ao buscar solicitação', err);
+        this.erroCarregamento = err.error?.mensagem
+          || 'Não foi possível carregar os dados da solicitação. Tente novamente.';
       }
     });
   }

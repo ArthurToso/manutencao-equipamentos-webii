@@ -1,4 +1,14 @@
-@if (solicitacao) {
+@if (carregando) {
+    <section class="load-state" role="status">
+        <p>Carregando solicitação...</p>
+    </section>
+} @else if (erroCarregamento) {
+    <section class="load-error" role="alert">
+        <h1 class="load-error__title">Não foi possível carregar a solicitação</h1>
+        <p class="load-error__text">{{ erroCarregamento }}</p>
+        <a class="btn btn--secondary" routerLink="/cliente">Voltar</a>
+    </section>
+} @else if (solicitacao) {
     <div class="form-container">
         <header class="form-header">
             <div>
