@@ -20,8 +20,6 @@ export interface HistoricoRejeicao extends HistoricoGenerico {
 
 export interface HistoricoManutencao extends HistoricoGenerico {
     estado: EstadoSolicitacao.ARRUMADA;
-    descricao: string;
-    orientacoes: string;
 }
 
 export interface HistoricoRedirecionamento extends HistoricoGenerico {

@@ -210,6 +210,25 @@
   gap: 1rem;
 }
 
+.form-actions--between {
+  justify-content: space-between;
+}
+
+.alert {
+  padding: 0.85rem 1rem;
+  border-radius: 4px;
+}
+
+.alert-danger {
+  color: var(--color-error);
+  background: #FEE2E2;
+}
+
+.alert-warning {
+  color: var(--color-warning);
+  background: #FEF3C7;
+}
+
 .btn {
   font-family: var(--font-body);
   font-size: 0.85rem;

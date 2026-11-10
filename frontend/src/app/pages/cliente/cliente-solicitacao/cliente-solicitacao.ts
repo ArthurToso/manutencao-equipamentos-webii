@@ -47,6 +47,8 @@ export class ClienteSolicitacao implements OnInit {
           dataHora: new Date(res.dataHora),
           estado: mapearEstadoSolicitacao(res.estado),
           valorOrcado: res.valorOrcamento ?? undefined,
+          descricaoManutencao: res.descricaoManutencao ?? undefined,
+          orientacoesCliente: res.orientacoesCliente ?? undefined,
           motivoRejeicao: res.motivoRejeicao ?? undefined,
           historico: res.historico ? res.historico.map((h: HistoricoApiDTO, index: number) => ({
             id: index,

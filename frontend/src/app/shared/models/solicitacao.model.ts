@@ -51,6 +51,28 @@ export interface HistoricoApiDTO {
     dataHora?: string;
     observacao?: string | null;
     nomeFuncionario?: string | null;
+    responsavel?: {
+        id?: number;
+        nome?: string;
+        perfil?: string | null;
+    } | null;
+}
+
+export interface ClienteSolicitacaoApiDTO {
+    id?: number;
+    nome?: string;
+    cpf?: string;
+    email?: string;
+    telefone?: string;
+    endereco?: {
+        cep?: string;
+        logradouro?: string;
+        numero?: string | number;
+        complemento?: string | null;
+        bairro?: string;
+        cidade?: string;
+        uf?: string;
+    } | null;
 }
 
 export interface SolicitacaoApiDTO {
@@ -65,6 +87,8 @@ export interface SolicitacaoApiDTO {
     nomeCliente?: string | null;
     valorOrcamento?: number | null;
     motivoRejeicao?: string | null;
-    cliente?: any;
-    historico?: any[];
+    descricaoManutencao?: string | null;
+    orientacoesCliente?: string | null;
+    cliente?: ClienteSolicitacaoApiDTO | null;
+    historico?: HistoricoApiDTO[];
 }

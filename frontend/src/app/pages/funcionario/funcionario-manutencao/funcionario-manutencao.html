@@ -31,6 +31,11 @@
         </div>
 
         <div class="request-summary__row">
+          <span class="request-summary__label">Estado atual</span>
+          <span class="request-summary__value">{{ s.estado }}</span>
+        </div>
+
+        <div class="request-summary__row">
           <span class="request-summary__label">Equipamento</span>
           <span class="request-summary__value">{{ s.descricaoEquipamento }} ({{ s.categoriaEquipamento.nome }})</span>
         </div>
@@ -46,43 +51,61 @@
         </div>
       </section>
 
-      <form [formGroup]="formManutencao" (ngSubmit)="salvarManutencao()">
-        <div class="form-group">
-          <label for="descricaoManutencao">Descrição da Manutenção</label>
-          <textarea
-            id="descricaoManutencao"
-            class="form-input"
-            rows="3"
-            formControlName="descricaoManutencao"
-            placeholder="Descreva o que foi feito no equipamento"
-          ></textarea>
-        </div>
+      @if (erroOperacao) {
+        <div class="alert alert-danger" role="alert">{{ erroOperacao }}</div>
+      }
 
-        <div class="form-group">
-          <label for="orientacoesCliente">Orientações para o Cliente</label>
-          <textarea
-            id="orientacoesCliente"
-            class="form-input"
-            rows="2"
-            formControlName="orientacoesCliente"
-            placeholder="Ex: Utilizar estabilizador, não expor ao sol..."
-          ></textarea>
-        </div>
-
-        <div class="form-actions" style="justify-content: space-between;">
-          <button type="button" class="btn btn--secondary" (click)="abrirModalRedirecionar()">
-            Redirecionar Manutenção
-          </button>
-
-          <button type="submit" class="btn btn--primary" [disabled]="formManutencao.invalid || processando">
-            @if (!processando) {
-              <span>Efetuar Manutenção</span>
-            } @else {
-              <span>Processando…</span>
+      @if (podeEfetuarManutencao) {
+        <form [formGroup]="formManutencao" (ngSubmit)="salvarManutencao()">
+          <div class="form-group">
+            <label for="descricaoManutencao">Descrição da Manutenção</label>
+            <textarea
+              id="descricaoManutencao"
+              class="form-input"
+              rows="3"
+              maxlength="1000"
+              formControlName="descricaoManutencao"
+              placeholder="Descreva o que foi feito no equipamento"
+            ></textarea>
+            @if (formManutencao.controls['descricaoManutencao'].touched && formManutencao.controls['descricaoManutencao'].invalid) {
+              <p class="field__error">Informe a descrição (até 1000 caracteres).</p>
             }
-          </button>
+          </div>
+
+          <div class="form-group">
+            <label for="orientacoesCliente">Orientações para o Cliente</label>
+            <textarea
+              id="orientacoesCliente"
+              class="form-input"
+              rows="2"
+              maxlength="1000"
+              formControlName="orientacoesCliente"
+              placeholder="Ex: Utilizar estabilizador, não expor ao sol..."
+            ></textarea>
+            @if (formManutencao.controls['orientacoesCliente'].touched && formManutencao.controls['orientacoesCliente'].invalid) {
+              <p class="field__error">Informe as orientações (até 1000 caracteres).</p>
+            }
+          </div>
+
+          <div class="form-actions form-actions--between">
+            <button type="button" class="btn btn--secondary" (click)="abrirModalRedirecionar()">
+              Redirecionar Manutenção
+            </button>
+
+            <button type="submit" class="btn btn--primary" [disabled]="formManutencao.invalid || processando">
+              @if (!processando) {
+                <span>Efetuar Manutenção</span>
+              } @else {
+                <span>Processando...</span>
+              }
+            </button>
+          </div>
+        </form>
+      } @else {
+        <div class="alert alert-warning" role="status">
+          Esta solicitação não está em um estado que permita registrar manutenção ou redirecioná-la.
         </div>
-      </form>
+      }
     </div>
   </div>
 }
@@ -92,6 +115,10 @@
     <div class="modal-box">
       <h2 class="modal-box__title">Redirecionar Solicitação</h2>
       <p class="modal-box__texto">Selecione o funcionário para qual deseja enviar esta solicitação.</p>
+
+      @if (erroOperacao) {
+        <div class="alert alert-danger" role="alert">{{ erroOperacao }}</div>
+      }
       
       <form [formGroup]="formRedirecionar" (ngSubmit)="salvarRedirecionamento()">
         <div class="form-group" style="margin-bottom: 20px;">

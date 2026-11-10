@@ -41,14 +41,23 @@ describe('SolicitacaoService', () => {
       orientacoesCliente: 'Utilizar filtro de linha'
     };
 
-    service.efetuarManutencao(42, dados).subscribe();
+    service.efetuarManutencao(42, dados).subscribe(resultado => {
+      expect(resultado.estado).toBe('ARRUMADA');
+      expect(resultado.descricaoManutencao).toBe(dados.descricaoManutencao);
+      expect(resultado.orientacoesCliente).toBe(dados.orientacoesCliente);
+    });
 
     const request = httpTestingController.expectOne(
       `${environment.apiUrl}/solicitacoes/42/manutencao`
     );
     expect(request.request.method).toBe('PUT');
     expect(request.request.body).toEqual(dados);
-    request.flush({ id: 42, estado: 'ARRUMADA' });
+    request.flush({
+      id: 42,
+      estado: 'ARRUMADA',
+      descricaoManutencao: dados.descricaoManutencao,
+      orientacoesCliente: dados.orientacoesCliente
+    });
   });
 
   it('sends the selected employee when redirecting a solicitation', () => {

@@ -363,6 +363,47 @@ public class SolicitacaoService {
     }
 
     @Transactional
+    public SolicitacaoResponse efetuarManutencao(Long id, String descricaoManutencao,
+                                                 String orientacoesCliente,
+                                                 UsuarioAutenticado usuarioLogado) {
+        final UsuarioAutenticado usuario = usuarioLogado != null
+                ? usuarioLogado
+                : SecurityUtils.getUsuarioAutenticadoObrigatorio();
+
+        if (!"FUNCIONARIO".equals(usuario.getPerfil())) {
+            throw new AccessDeniedException("Apenas funcionários podem efetuar manutenção");
+        }
+        if (descricaoManutencao == null || descricaoManutencao.isBlank()) {
+            throw new IllegalArgumentException("A descrição da manutenção é obrigatória");
+        }
+        if (orientacoesCliente == null || orientacoesCliente.isBlank()) {
+            throw new IllegalArgumentException("As orientações ao cliente são obrigatórias");
+        }
+
+        Solicitacao solicitacao = solicitacaoRepository.findById(id)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Solicitação não encontrada"));
+        if (solicitacao.getEstado() != EstadoSolicitacao.APROVADA
+                && solicitacao.getEstado() != EstadoSolicitacao.REDIRECIONADA) {
+            throw new IllegalStateException("Apenas solicitações aprovadas ou redirecionadas podem receber manutenção");
+        }
+
+        solicitacao.setDescricaoManutencao(descricaoManutencao.trim());
+        solicitacao.setOrientacoesCliente(orientacoesCliente.trim());
+
+        Usuario responsavel = usuarioRepository.findById(usuario.getId())
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Funcionário responsável não encontrado"));
+
+        Solicitacao salva = alterarEstado(
+                solicitacao, EstadoSolicitacao.ARRUMADA, responsavel, null, null);
+        return solicitacaoMapper.toResponse(salva);
+    }
+
+    public SolicitacaoResponse efetuarManutencao(Long id, String descricaoManutencao,
+                                                 String orientacoesCliente) {
+        return efetuarManutencao(id, descricaoManutencao, orientacoesCliente, null);
+    }
+
+    @Transactional
     public SolicitacaoResponse finalizarSolicitacao(Long id, UsuarioAutenticado usuarioLogado) {
         final UsuarioAutenticado usuario = usuarioLogado != null
                 ? usuarioLogado

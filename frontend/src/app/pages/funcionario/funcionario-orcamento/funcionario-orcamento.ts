@@ -1,5 +1,10 @@
 import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
-import { SolicitacaoDetailedFuncDTO as Solicitacao } from '../../../shared';
+import {
+  EstadoUF,
+  HistoricoApiDTO,
+  mapearEstadoSolicitacao,
+  SolicitacaoDetailedFuncDTO as Solicitacao
+} from '../../../shared';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
@@ -47,27 +52,46 @@ export class FuncionarioOrcamento implements OnInit {
       finalize(() => this.cdr.detectChanges())
     ).subscribe({
       next: (res) => {
+        const estadoUf = Object.entries(EstadoUF).find(
+          ([sigla]) => sigla === res.cliente?.endereco?.uf
+        )?.[1] ?? EstadoUF.PR;
         this.solicitacao = {
           id: res.id,
           dataHora: res.dataHora ? new Date(res.dataHora) : new Date(),
           descricaoEquipamento: res.descricaoEquipamento,
           categoriaEquipamento: { id: res.categoriaId, nome: res.categoriaNome },
           descricaoProblema: res.descricaoDefeito,
-          estado: res.estado,
-          historico: res.historico || [],
+          estado: mapearEstadoSolicitacao(res.estado),
+          descricaoManutencao: res.descricaoManutencao ?? undefined,
+          orientacoesCliente: res.orientacoesCliente ?? undefined,
+          historico: (res.historico || []).flatMap((h: HistoricoApiDTO, index: number) => {
+            if (!h.estado) {
+              return [];
+            }
+            return [{
+              id: h.id ?? index,
+              estado: mapearEstadoSolicitacao(h.estado),
+              dataHora: new Date(h.dataHora ?? ''),
+              userResponsavel: {
+                id: h.responsavel?.id ?? 0,
+                nome: h.responsavel?.nome || h.nomeFuncionario || 'Cliente/Sistema',
+                email: ''
+              }
+            }];
+          }),
           cliente: res.cliente ? {
-            id: res.cliente.id,
-            nome: res.cliente.nome,
-            email: res.cliente.email,
-            telefone: res.cliente.telefone,
-            cpf: res.cliente.cpf,
+            id: res.cliente.id ?? 0,
+            nome: res.cliente.nome ?? '',
+            email: res.cliente.email ?? '',
+            telefone: res.cliente.telefone ?? '',
+            cpf: res.cliente.cpf ?? '',
             endereco: {
               logradouro: res.cliente.endereco?.logradouro || '',
               numero: Number(res.cliente.endereco?.numero) || 0,
               complemento: res.cliente.endereco?.complemento || '',
               bairro: res.cliente.endereco?.bairro || '',
               cidade: res.cliente.endereco?.cidade || '',
-              estado: res.cliente.endereco?.uf,
+              estado: estadoUf,
               cep: res.cliente.endereco?.cep || ''
             }
           } : {
@@ -81,7 +105,7 @@ export class FuncionarioOrcamento implements OnInit {
               complemento: '',
               bairro: '',
               cidade: '',
-              estado: '' as any,
+              estado: EstadoUF.PR,
               cep: ''
             }
           }

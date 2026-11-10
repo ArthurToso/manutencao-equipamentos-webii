@@ -14,9 +14,12 @@ import org.springframework.stereotype.Repository;
 import br.ufpr.tads.manutencao.dto.ReceitaCategoriaResponse;
 import br.ufpr.tads.manutencao.dto.ReceitaDiaResponse;
 import br.ufpr.tads.manutencao.model.HistoricoSolicitacao;
+import br.ufpr.tads.manutencao.model.EstadoSolicitacao;
 
 @Repository
 public interface HistoricoSolicitacaoRepository extends JpaRepository<HistoricoSolicitacao, Long> {
+
+    boolean existsBySolicitacao_IdAndEstado(Long solicitacaoId, EstadoSolicitacao estado);
 
     @Query("""
             SELECT h FROM HistoricoSolicitacao h

@@ -65,6 +65,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/solicitacoes/abertas").hasRole("FUNCIONARIO")
                 .requestMatchers(HttpMethod.POST, "/api/solicitacoes/*/orcamento").hasRole("FUNCIONARIO")
                 .requestMatchers(HttpMethod.PUT, "/api/solicitacoes/*/orcamento").hasRole("FUNCIONARIO")
+                .requestMatchers(HttpMethod.PUT, "/api/solicitacoes/*/manutencao").hasRole("FUNCIONARIO")
                 .requestMatchers(HttpMethod.PUT, "/api/solicitacoes/*/redirecionar").hasRole("FUNCIONARIO")
                 .requestMatchers(HttpMethod.PUT, "/api/solicitacoes/*/aprovar").hasRole("CLIENTE")
                 .requestMatchers(HttpMethod.PUT, "/api/solicitacoes/*/rejeitar").hasRole("CLIENTE")
@@ -127,4 +128,3 @@ public class SecurityConfig {
         };
     }
 }
-
