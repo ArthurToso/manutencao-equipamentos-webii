@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, inject, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RelatorioService, ReceitaDiaDTO } from '../../../services/relatorio.service';
-
+import { finalize } from 'rxjs';
 @Component({
   selector: 'app-funcionario-relatorio-receitas',
   standalone: true,
@@ -11,6 +11,7 @@ import { RelatorioService, ReceitaDiaDTO } from '../../../services/relatorio.ser
   styleUrls: ['./funcionario-relatorio-receitas.css']
 })
 export class FuncionarioRelatorioReceitas implements OnInit {
+  private cdr = inject(ChangeDetectorRef);
   dataInicial: string = '';
   dataFinal: string = '';
   receitas: ReceitaDiaDTO[] = [];
@@ -23,7 +24,9 @@ export class FuncionarioRelatorioReceitas implements OnInit {
   }
 
   buscarReceitas(): void {
-    this.relatorioService.buscarReceitasPorDia(this.dataInicial, this.dataFinal).subscribe(data => {
+    this.relatorioService.buscarReceitasPorDia(this.dataInicial, this.dataFinal).pipe(
+      finalize(() => this.cdr.detectChanges())
+    ).subscribe(data => {
       this.receitas = data;
       this.calcularTotal();
     });

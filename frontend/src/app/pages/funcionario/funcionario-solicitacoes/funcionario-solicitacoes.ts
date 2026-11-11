@@ -171,15 +171,18 @@ export class FuncionarioSolicitacoes implements OnInit {
 
     this.finalizandoId = id;
     this.erroFinalizacao = null;
-    this.solicitacaoService.finalizarServico(id).subscribe({
+    this.solicitacaoService.finalizarServico(id).pipe(
+      finalize(() => {
+        this.finalizandoId = null;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
       next: () => {
         sol.estado = EstadoSolicitacao.FINALIZADA;
-        this.finalizandoId = null;
       },
       error: (err) => {
         this.erroFinalizacao = err.error?.mensagem
           ?? 'Não foi possível finalizar a solicitação. Tente novamente.';
-        this.finalizandoId = null;
       }
     });
   }
