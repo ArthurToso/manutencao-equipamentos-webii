@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, inject, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RelatorioService, ReceitaCategoriaDTO } from '../../../services/relatorio.service';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-funcionario-relatorio-categorias',
@@ -10,6 +11,7 @@ import { RelatorioService, ReceitaCategoriaDTO } from '../../../services/relator
   styleUrls: ['./funcionario-relatorio-categorias.css']
 })
 export class FuncionarioRelatorioCategorias implements OnInit {
+  private cdr = inject(ChangeDetectorRef);
   receitas: ReceitaCategoriaDTO[] = [];
   totalReceita: number = 0;
 
@@ -20,7 +22,9 @@ export class FuncionarioRelatorioCategorias implements OnInit {
   }
 
   buscarReceitas(): void {
-    this.relatorioService.buscarReceitasPorCategoria().subscribe(data => {
+    this.relatorioService.buscarReceitasPorCategoria().pipe(
+      finalize(() => this.cdr.detectChanges())
+    ).subscribe(data => {
       this.receitas = data;
       this.calcularTotal();
     });
