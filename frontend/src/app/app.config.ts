@@ -9,7 +9,8 @@ import localePt from '@angular/common/locales/pt';
 
 import { routes } from './app.routes';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDateParserFormatter, NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { DataBrParserFormatter } from './shared/formatters/data-br-parser-formatter';
 import { authInterceptor } from './interceptors/auth.interceptor';
 import { provideRouter } from '@angular/router';
 
@@ -23,5 +24,6 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptors([authInterceptor])),
     importProvidersFrom(NgbModule),
     { provide: LOCALE_ID, useValue: 'pt-BR' },
+    { provide: NgbDateParserFormatter, useClass: DataBrParserFormatter },
   ],
 };
